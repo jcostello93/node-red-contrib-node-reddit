@@ -1,0 +1,107 @@
+<!-- START Get content -->
+<script type="text/javascript">
+    function oneditprepare() {
+        // This function is called when someone clicks opens the "Get Content" node
+        // Function definition must be in the same block where registerType is called
+        function hideExtraActions(){
+            $("#node-action-subreddit").hide();
+            $("#node-action-sort").hide();
+            $("#node-action-time").hide();
+            $("#node-action-limit").hide();
+        }
+        
+        $("#node-input-content_type").change(function() {
+            var selected_option = $("#node-input-content_type option:selected").val();
+            hideExtraActions()
+            if (selected_option == "submission") {
+                $("#node-action-subreddit").show();
+                $("#node-action-sort").show();
+                $("#node-action-time").show();
+                $("#node-action-limit").show();
+            }
+            else if (selected_option == "comment") {
+                $("#node-action-subreddit").show();
+                $("#node-action-limit").show();
+            }
+            else {
+                $("#node-action-limit").show();
+            }
+        });
+    }
+    
+
+    RED.nodes.registerType('get content',{
+        category: 'reddit',
+        color: '#a6bbcf',
+        defaults: {
+            name: {value:""},
+            reddit: { type:"reddit-credentials",required:true},
+            content_type: {value:"submission"},
+            subreddit: {value:""},
+            time: {value:""},
+            limit: {value:""},
+            sort: {value:""}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "file.png",
+        label: function() {
+            return this.name||"get content";
+        },
+        oneditprepare: oneditprepare
+    });
+</script>
+
+<script type="text/x-red" data-template-name="get content">
+    <div class="form-row">
+        <label for="node-input-reddit"><i class="fa fa-key"></i> <span>Credentials</span></label>
+        <input type="text" id="node-input-reddit">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-content_type"><i class="fa fa-wrench"></i> Type</label>
+        <select type="text" id="node-input-content_type" style="display: inline-block; width: 250px; vertical-align: top;">
+            <option value="submission" outputs="1">Submission</option>
+            <option value="comment" outputs="1">Comment</option>
+            <option value="pm" outputs="1">PM</option>
+        </select>
+    </div>
+    <div class="form-row" id="node-action-subreddit">
+        <label for="node-input-subreddit"><i class="icon-tag"></i> Subreddit</label>
+        <input type="text" id="node-input-subreddit" placeholder="subreddit">
+    </div>
+    <div class="form-row" id="node-action-sort"> 
+        <label for="node-input-sort"><i class="fa fa-wrench"></i> Sort by</label>
+        <select type="text" id="node-input-sort" style="display: inline-block; width: 250px; vertical-align: top;">
+            <option value="hot" outputs="1">Hot</option>
+            <option value="new" outputs="1">New</option>
+            <option value="rising" outputs="1">Rising</option>
+            <option value="controversial" outputs="1">Controversial</option>
+            <option value="top" outputs="1">Top</option>
+        </select>
+    </div>
+    <div class="form-row" id="node-action-time"> 
+        <label for="node-input-time"><i class="fa fa-wrench"></i> Time</label>
+        <select type="text" id="node-input-time" style="display: inline-block; width: 250px; vertical-align: top;">
+            <option value="hour" outputs="1">Hour</option>
+            <option value="day" outputs="1">Day</option>
+            <option value="week" outputs="1">Week</option>
+            <option value="month" outputs="1">Month</option>
+            <option value="year" outputs="1">Year</option>
+            <option value="all" outputs="1">All time</option>
+        </select>
+    </div>
+    <div class="form-row" id="node-action-limit">
+        <label for="node-input-limit"><i class="icon-tag"></i> Limit</label>
+        <input type="number" id="node-input-limit" placeholder="limit">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="get content">
+    <p>Get Reddit content</p>
+</script>
+
+<!-- END Get content -->
