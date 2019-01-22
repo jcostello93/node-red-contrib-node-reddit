@@ -74,7 +74,11 @@ module.exports = function(RED) {
                     copyPropertiesExceptMethods(responseArr, response)
                     node.status({})
                     // This syntax sends the objects in the array one at a time
-                    node.send([responseArr])  
+                    //node.send([responseArr])  
+                    
+                    // This attaches the array to message and is much faster, but doesn't send one at a time.
+                    msg.responseArr = responseArr;
+                    node.send(msg); 
                 })
                 .catch(err => {
                     node.error(err)
@@ -86,7 +90,11 @@ module.exports = function(RED) {
                     copyPropertiesExceptMethods(responseArr, response)
                     node.status({})
                     // This syntax sends the objects in the array one at a time
-                    node.send([responseArr])  
+                    //node.send([responseArr])  
+                    
+                    // This attaches the array to message and is much faster, but doesn't send one at a time.
+                    msg.responseArr = responseArr;
+                    node.send(msg);  
                 })
                 .catch(err => {
                     node.error(err)
@@ -97,7 +105,11 @@ module.exports = function(RED) {
                 r.getInbox({limit:limit}).then(response => {
                     copyPropertiesExceptMethods(responseArr, response)
                     node.status({})
-                    node.send([responseArr])  
+                    //node.send([responseArr])  
+                    
+                    // This attaches the array to message and is much faster, but doesn't send one at a time.
+                    msg.responseArr = responseArr;
+                    node.send(msg); 
                 })
                 .catch(err => {
                     node.error(err)
