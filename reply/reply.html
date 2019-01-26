@@ -1,0 +1,52 @@
+<!-- START Reply -->
+<script type="text/javascript">
+    RED.nodes.registerType('reply',{
+        category: 'reddit',
+        color: '#a6bbcf',
+        defaults: {
+            name: {value:""},
+            reddit: { type:"reddit-credentials",required:true},
+            content_type: {value:"submission"},
+            content_id: {value:""},
+            text: {value:""}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "file.png",
+        label: function() {
+            return this.name||"reply";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="reply">
+    <div class="form-row">
+        <label for="node-input-reddit"><i class="fa fa-key"></i> <span>Credentials</span></label>
+        <input type="text" id="node-input-reddit">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-content_type"><i class="fa fa-wrench"></i> Type</label>
+        <select type="text" id="node-input-content_type" style="display: inline-block; width: 250px; vertical-align: top;">
+            <option value="submission" outputs="1">Submission</option>
+            <option value="comment" outputs="1">Comment</option>
+            <option value="pm" outputs="1">PM</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-content_id"><i class="icon-tag"></i> Content_id</label>
+        <input type="text" id="node-input-content_id" placeholder="Content_id">
+    </div>
+    <div class="form-row">
+        <label for="node-input-text"><i class="icon-tag"></i> Text</label>
+        <input type="text" id="node-input-text" placeholder="Text">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="reply">
+    <p>Reply</p>
+</script>
+<!-- END Reply -->
