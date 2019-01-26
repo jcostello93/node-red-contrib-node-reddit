@@ -1,18 +1,29 @@
-// Quick fix to avoid sending objects attached to methods
-function copyPropertiesExceptMethods(newArr, originalArr) {
-    for (var i = 0; i < originalArr.length; i++){
-        var obj = {}
-        for (var prop in originalArr[i]) {
-            if (typeof originalArr[i][prop] != "function") {
-                obj[prop] = originalArr[i][prop] 
-            }
-        }
-        newArr.push({content_id: originalArr[i].id, payload: obj})
-    }
-}
-
 module.exports = function(RED) {
     "use strict";
+    
+    var mustache = require("mustache");
+
+    function copyPropertiesExceptMethods(newArr, originalArr) {
+        for (var i = 0; i < originalArr.length; i++){
+            var obj = JSON.stringify(originalArr[i]);
+            obj = JSON.parse(obj);
+            newArr.push({content_id: originalArr[i].id, payload: obj})
+        }
+    }
+
+    // In order of priority: 1. HTML text OR mustache syntax, 2. msg.msgProp 
+    function parseField(msg, nodeProp, msgProp) {
+        var field = null;
+        var isTemplatedField = (nodeProp||"").indexOf("{{") != -1
+        if (isTemplatedField) {
+            field = mustache.render(nodeProp,msg);
+        }
+        else {
+            field = nodeProp || msg[msgProp];
+        }
+
+        return field;
+    }
 
     const snoowrap = require('snoowrap');
 
@@ -31,7 +42,7 @@ module.exports = function(RED) {
     });
 
 
-    function GetContentNode(n) {
+   function GetContentNode(n) {
         RED.nodes.createNode(this,n);
         var config = RED.nodes.getNode(n.reddit);
         var credentials = config.credentials;
@@ -43,82 +54,177 @@ module.exports = function(RED) {
             username: config.username, 
             password: credentials.password
           }
-        const r = new snoowrap(options);
-
-        
+        const r = new snoowrap(options);    
 
         node.status({});
         node.on('input', function(msg) {        
             node.status({fill:"blue",shape:"dot",text:"loading"});
 
             // Check HTML field first and then msg object if necessary 
-            var content_type = n.content_type || msg.type;
-            var subreddit = n.subreddit || msg.subreddit;
+            var content_type = n.content_type || msg.content_type;
+            var subreddit = parseField(msg, n.subreddit, "subreddit");
+            var user =  parseField(msg, n.user, "user");
+
+            var source = n.source;
             var sort = n.sort || msg.sort;
             var time = n.time || msg.time; 
             var limit = n.limit || msg.limit;
             limit = parseInt(limit);
-            var responseArr = []
-
+            var fetch_all = n.fetch_all;       
+            
+            var responseArr = [];
             if (content_type == "submission") {  
-                // Not sure if this is ok but it saves a lot of code      
-                var map = {
-                    "controversial": r.getSubreddit(subreddit).getControversial({time: time, limit:limit}),
-                    "hot": r.getSubreddit(subreddit).getHot({limit: limit}),
-                    "new": r.getSubreddit(subreddit).getNew({limit: limit}),
-                    "rising": r.getSubreddit(subreddit).getRising({limit: limit}),
-                    "top": r.getSubreddit(subreddit).getTop({time: time, limit:limit})
+                if (source == "subreddit") {
+                    if (sort == "controversial") {
+                        r.getControversial(subreddit, {time: time, limit:limit}).then(response => {
+                            copyPropertiesExceptMethods(responseArr, response);
+                            node.status({});
+                            node.send([responseArr]);
+                        })
+                        .catch(err => {
+                            node.error(err)
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        })   
+                    }
+                    else if (sort == "hot") {
+                        r.getHot(subreddit, {limit: limit}).then(response => {
+                            copyPropertiesExceptMethods(responseArr, response)
+                            node.status({})
+                            node.send([responseArr])  
+                        })
+                        .catch(err => {
+                            node.error(err)
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        })   
+                    }
+                    else if (sort == "new") {
+                        r.getNew(subreddit, {limit: limit}).then(response => {
+                            copyPropertiesExceptMethods(responseArr, response)
+                            node.status({})
+                            node.send([responseArr])  
+                        })
+                        .catch(err => {
+                            node.error(err)
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        })   
+                    }
+                    else if (sort == "rising") {
+                        r.getRising(subreddit, {limit: limit}).then(response => {
+                            copyPropertiesExceptMethods(responseArr, response)
+                            node.status({})
+                            node.send([responseArr])  
+                        })
+                        .catch(err => {
+                            node.error(err)
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        })   
+                    }
+                    else if (sort == "top") {
+                        r.getTop(subreddit, {time: time, limit:limit}).then(response => {
+                            copyPropertiesExceptMethods(responseArr, response)
+                            node.status({})
+                            node.send([responseArr])  
+                        })
+                        .catch(err => {
+                            node.error(err)
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        })   
+                    }
+                    else {
+                        node.error("Invalid parameters for submission request")
+                    }
                 }
-                
-                map[sort].then(response => {
-                    copyPropertiesExceptMethods(responseArr, response)
-                    node.status({})
-                    // This syntax sends the objects in the array one at a time
-                    //node.send([responseArr])  
-                    
-                    // This attaches the array to message and is much faster, but doesn't send one at a time.
-                    msg.responseArr = responseArr;
-                    node.send(msg); 
-                })
-                .catch(err => {
-                    node.error(err)
-                    node.status({fill:"red",shape:"dot",text:"error"});
-                })              
+                else if (source == "user") {
+                    if (fetch_all == "true") {
+                        r.getUser(user).getSubmissions().fetchAll().then(response => {
+                            copyPropertiesExceptMethods(responseArr, response)
+                            node.status({})
+                            node.send([responseArr]) 
+                        }) 
+                        .catch(err => {
+                            node.error(err)
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        })   
+                    }
+                    else {
+                        r.getUser(user).getSubmissions({limit: limit}).then(response => {
+                            copyPropertiesExceptMethods(responseArr, response)
+                            node.status({})
+                            node.send([responseArr]) 
+                        }) 
+                        .catch(err => {
+                            node.error(err)
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        })   
+                    }
+                }
+                          
             } 
             else if (content_type == "comment") {
-                r.getSubreddit(subreddit).getNewComments({limit:limit}).then(response => {
-                    copyPropertiesExceptMethods(responseArr, response)
-                    node.status({})
-                    // This syntax sends the objects in the array one at a time
-                    //node.send([responseArr])  
-                    
-                    // This attaches the array to message and is much faster, but doesn't send one at a time.
-                    msg.responseArr = responseArr;
-                    node.send(msg);  
-                })
-                .catch(err => {
-                    node.error(err)
-                    node.status({fill:"red",shape:"dot",text:"error"});
-                })
+                if (source == "subreddit") {
+                    r.getSubreddit(subreddit).getNewComments({limit:limit}).then(response => {
+                        copyPropertiesExceptMethods(responseArr, response)
+                        node.status({})
+                        node.send([responseArr])  
+                    })
+                    .catch(err => {
+                        node.error(err)
+                        node.status({fill:"red",shape:"dot",text:"error"});
+                    })
+                }
+                else if (source == "user") {
+                    if (fetch_all == "true") { 
+                        r.getUser(user).getComments().fetchAll().then(response => {
+                            copyPropertiesExceptMethods(responseArr, response)
+                            node.status({})
+                            node.send([responseArr]) 
+                        }) 
+                        .catch(err => {
+                            node.error(err)
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        })   
+                    }
+                    else {
+                        r.getUser(user).getComments({limit: limit}).then(response => {
+                            copyPropertiesExceptMethods(responseArr, response)
+                            node.status({})
+                            node.send([responseArr]) 
+                        }) 
+                        .catch(err => {
+                            node.error(err)
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        })   
+                    }
+                }
+            }
+            else if (content_type == "pm") {
+                if (fetch_all == "true") {
+                    r.getInbox().fetchAll().then(response => {
+                        copyPropertiesExceptMethods(responseArr, response)
+                        node.status({})
+                        node.send([responseArr])  
+                    })
+                    .catch(err => {
+                        node.error(err)
+                        node.status({fill:"red",shape:"dot",text:"error"});
+                    })
+                }
+                else {
+                    r.getInbox({limit:limit}).then(response => {
+                        copyPropertiesExceptMethods(responseArr, response)
+                        node.status({})
+                        node.send([responseArr])  
+                    })
+                    .catch(err => {
+                        node.error(err)
+                        node.status({fill:"red",shape:"dot",text:"error"});
+                    })
+                }
             }
             else {
-                r.getInbox({limit:limit}).then(response => {
-                    copyPropertiesExceptMethods(responseArr, response)
-                    node.status({})
-                    //node.send([responseArr])  
-                    
-                    // This attaches the array to message and is much faster, but doesn't send one at a time.
-                    msg.responseArr = responseArr;
-                    node.send(msg); 
-                })
-                .catch(err => {
-                    node.error(err)
-                    node.status({fill:"red",shape:"dot",text:"error"});
-                })
+                node.error("content_type is required")
             }
-        });
-
-        
+        });        
     }
     RED.nodes.registerType("get content",GetContentNode);
 }
