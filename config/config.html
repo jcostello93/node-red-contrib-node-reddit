@@ -1,10 +1,6 @@
 <!-- START Config Node -->
 <script type="text/x-red" data-template-name="reddit-credentials">
     <div class="form-row">
-        <label for="node-config-input-name"><i class="fa fa-tag"></i> <span>name</span></label>
-        <input type="text" id="node-config-input-name">
-      </div>
-    <div class="form-row">
       <label for="node-config-input-username"><i class="fa fa-tag"></i> <span>username</span></label>
       <input type="text" id="node-config-input-username">
     </div>
@@ -30,9 +26,8 @@
     RED.nodes.registerType('reddit-credentials',{
       defaults: {
         username: {value:"", required: true},
-        user_agent: {value:"", required: true},
-        name: {value:"", required: false}
-      },
+        user_agent: {value:"", required: true}
+        },
       category: 'config',
       credentials: {
         password: {type: "password", required: true},
@@ -40,7 +35,7 @@
         client_secret: {type: "password", required: true}
       },
       label: function() {
-        return this.name;
+        return this.username;
       },
       exportable: false
     });
