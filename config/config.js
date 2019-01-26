@@ -7,7 +7,6 @@ module.exports = function(RED) {
         RED.nodes.createNode(this,n);
         this.username = n.username;
         this.user_agent = n.user_agent;
-        this.name = n.name;
     }
     RED.nodes.registerType("reddit-credentials",ConfigNode,{
       credentials: {
@@ -16,3 +15,4 @@ module.exports = function(RED) {
         client_secret: {type: "password"}
       }
     });
+}
