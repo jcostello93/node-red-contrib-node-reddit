@@ -1,31 +1,117 @@
 <!-- START Get content -->
 <script type="text/javascript">
     function oneditprepare() {
-        // This function is called when someone clicks opens the "Get Content" node
-        // Function definition must be in the same block where registerType is called
+        function resetFetchAll() {
+            // A user can get his own submissions/comments using fetch_all 
+            if ($("#node-input-user").val() == $("#node-input-reddit option:selected").text() && $("#node-input-source option:selected").val() == "user") {
+                return
+            }
+            
+            // A user can get his PMs using fetch_all
+            if ($("#node-input-content_type option:selected").val() == "pm") {
+                return 
+            }
+
+            // In every other case, fetch_all is set to false
+            $("#node-input-fetch_all").val("false");
+        }
+
+
         function hideExtraActions(){
+            $("#node-action-source").hide();
             $("#node-action-subreddit").hide();
+            $("#node-action-user").hide();
             $("#node-action-sort").hide();
             $("#node-action-time").hide();
             $("#node-action-limit").hide();
+            $("#node-action-fetch_all").hide();
+        }
+
+        function showActions() { 
+            // 1. type
+            // 2. source
+            // 3. subreddit
+            // 4. user
+            // 5. sort
+            // 6. time
+            // 7. fetch all
+            // 8. limit
+
+            // Submission, source
+
+
+            var source = $("#node-input-source option:selected").val();
+            var type = $("#node-input-content_type option:selected").val();
+            var sort = $("#node-input-sort option:selected").val();
+            
+            if (type == "submission") {
+                if (source == "subreddit") {
+                    $("#node-action-subreddit").show();
+                    if (sort == "top" || sort == "controversial") {
+                        $("#node-action-time").show();
+                    }
+                }
+                else if (source == "user") {
+                    $("#node-action-user").show();
+                }
+                $("#node-action-sort").show();
+                $("#node-action-source").show()
+
+            }
+            else if (type == "comment") {
+                if (source == "subreddit") {
+                    $("#node-action-subreddit").show();
+                }
+                else if (source == "user") {
+                    $("#node-action-user").show();
+                }
+                $("#node-action-source").show()
+            }
+            else if (type == "pm") {
+                $("#node-action-fetch_all").show();
+            }
+
+            if (source == "user" && $("#node-input-user").val() == $("#node-input-reddit option:selected").text()) {
+                $("#node-action-fetch_all").show();
+            }
+
+            if ($("#node-input-fetch_all").val() != "true") {
+                $("#node-action-limit").show();
+            }
         }
         
-        $("#node-input-content_type").change(function() {
-            var selected_option = $("#node-input-content_type option:selected").val();
+        $("#node-input-reddit").change(function() {
+            resetFetchAll()
             hideExtraActions()
-            if (selected_option == "submission") {
-                $("#node-action-subreddit").show();
-                $("#node-action-sort").show();
-                $("#node-action-time").show();
-                $("#node-action-limit").show();
-            }
-            else if (selected_option == "comment") {
-                $("#node-action-subreddit").show();
-                $("#node-action-limit").show();
-            }
-            else {
-                $("#node-action-limit").show();
-            }
+            showActions()
+        });
+
+        $("#node-input-content_type").change(function() {
+            resetFetchAll()
+            hideExtraActions()
+            showActions()
+        });
+
+        $("#node-input-source").change(function() {
+            resetFetchAll()
+            hideExtraActions()
+            showActions()
+        });
+
+        $("#node-input-user").keyup(function() {
+            resetFetchAll()
+            hideExtraActions()
+            showActions()
+        });
+
+        $("#node-input-fetch_all").change(function() {            
+            hideExtraActions()
+            showActions()
+        });
+
+        $("#node-input-sort").change(function() {   
+            hideExtraActions()
+            showActions()
         });
     }
     
@@ -37,10 +123,13 @@
             name: {value:""},
             reddit: { type:"reddit-credentials",required:true},
             content_type: {value:"submission"},
+            source: {value:"subreddit"},
             subreddit: {value:""},
-            time: {value:""},
+            user: {value:""},
             limit: {value:""},
-            sort: {value:""}
+            sort: {value:"hot"},
+            time: {value:"hour"},
+            fetch_all: {value:"false"}
         },
         inputs:1,
         outputs:1,
@@ -69,9 +158,20 @@
             <option value="pm" outputs="1">PM</option>
         </select>
     </div>
+    <div class="form-row" id="node-action-source">
+        <label for="node-input-source"><i class="fa fa-wrench"></i> Source</label>
+        <select type="text" id="node-input-source" style="display: inline-block; width: 250px; vertical-align: top;">
+            <option value="subreddit" outputs="1">Subreddit</option>
+            <option value="user" outputs="1">User</option>
+        </select>
+    </div>
     <div class="form-row" id="node-action-subreddit">
         <label for="node-input-subreddit"><i class="icon-tag"></i> Subreddit</label>
         <input type="text" id="node-input-subreddit" placeholder="subreddit">
+    </div>
+    <div class="form-row" id="node-action-user">
+        <label for="node-input-user"><i class="icon-tag"></i> User</label>
+        <input type="text" id="node-input-user" placeholder="user">
     </div>
     <div class="form-row" id="node-action-sort"> 
         <label for="node-input-sort"><i class="fa fa-wrench"></i> Sort by</label>
@@ -94,10 +194,17 @@
             <option value="all" outputs="1">All time</option>
         </select>
     </div>
+    <div class="form-row" id="node-action-fetch_all">
+        <label for="node-input-fetch_all"><i class="icon-tag"></i> Fetch All</label>
+        <select type="text" id="node-input-fetch_all" style="display: inline-block; width: 250px; vertical-align: top;">
+            <option value="true" outputs="1">True</option>
+            <option value="false" outputs="1">False</option>
+        </select>
+    </div>
     <div class="form-row" id="node-action-limit">
         <label for="node-input-limit"><i class="icon-tag"></i> Limit</label>
         <input type="number" id="node-input-limit" placeholder="limit">
-    </div>
+    </div>    
 </script>
 
 <script type="text/x-red" data-help-name="get content">
