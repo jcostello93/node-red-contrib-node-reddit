@@ -64,11 +64,11 @@ module.exports = function(RED) {
       node.status({fill: "blue", shape: "dot", text: "submitting"});
 
       let submissionType = n.submissionType;
-      let subreddit = parseField(msg.payload, n.subreddit, "subreddit");
-      let title = parseField(msg.payload, n.title, "title");
-      let url = parseField(msg.payload, n.url, "url");
-      let text = parseField(msg.payload, n.text, "text");
-      let original = parseField(msg.payload, n.original, "original");
+      let subreddit = parseField(msg, n.subreddit, "subreddit");
+      let title = parseField(msg, n.title, "title");
+      let url = parseField(msg, n.url, "url");
+      let text = parseField(msg, n.text, "text");
+      let original = parseField(msg, n.original, "original");
 
       if (submissionType === "self") {
         r.submitSelfpost({
@@ -76,7 +76,7 @@ module.exports = function(RED) {
           title: title,
           text: text
         }).then(response => {
-          node.status({});
+          node.status({text: response.name});
           console.log(response);
           node.send({payload: response});
         }).catch(err => {
@@ -89,7 +89,7 @@ module.exports = function(RED) {
           title: title,
           url: url
         }).then(response => {
-          node.status({});
+          node.status({text: response.name});
           console.log(response);
           node.send({payload: response});
         }).catch(err => {
@@ -102,7 +102,7 @@ module.exports = function(RED) {
           originalPost: original,
           subredditName: subreddit
         }).then(response => {
-          node.status({});
+          node.status({text: response.name});
           console.log(response);
           node.send({payload: response});
         }).catch(err => {
