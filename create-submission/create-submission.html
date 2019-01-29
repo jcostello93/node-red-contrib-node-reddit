@@ -1,0 +1,135 @@
+<!-- START Config Node -->
+<script type="text/x-red" data-template-name="reddit-credentials">
+    <div class="form-row">
+      <label for="node-config-input-username"><i class="fa fa-tag"></i> <span>username</span></label>
+      <input type="text" id="node-config-input-username">
+    </div>
+    <div class="form-row">
+      <label for="node-config-input-password"><i class="fa fa-key"></i> <span>password</span></label>
+      <input type="password" id="node-config-input-password">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-client_id"><i class="fa fa-tag"></i> <span>client_id</span></label>
+        <input type="text" id="node-config-input-client_id">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-client_secret"><i class="fa fa-key"></i> <span>client_secret</span></label>
+        <input type="text" id="node-config-input-client_secret">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-user_agent"><i class="fa fa-tag"></i> <span>user_agent</span></label>
+        <input type="text" id="node-config-input-user_agent">
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('reddit-credentials',{
+      defaults: {
+        username: {value:"", required: true},
+        user_agent: {value:"", required: true}
+        },
+      category: 'config',
+      credentials: {
+        password: {type: "password", required: true},
+        client_id: {type: "password", required: true},
+        client_secret: {type: "password", required: true}
+      },
+      label: function() {
+        return this.username;
+      },
+      exportable: false
+    });
+</script>
+<!-- END Config Node -->
+
+<!-- START Create Submission -->
+<script type="text/javascript">
+  RED.nodes.registerType('create-submission', {
+    category: 'reddit',
+    color: '#a6bbcf',
+    defaults: {
+      name: {value: ""},
+      reddit: { type: "reddit-credentials", required: true},
+      submissionType: {value: "link"},
+      subreddit: {value: "", required: true},
+      title: {value: "", required: true},
+      url: {value: ""},
+      text: {value: ""},
+      original: {value: ""},
+    },
+    inputs:1,
+    outputs:1,
+    icon: "file.png",
+    label: function() {
+      if (this.name) {
+        return this.name;
+      } else if (this.subreddit && this.subreddit.indexOf("{{") != -1) {
+        return this.subreddit;
+      } else {
+        return "create-submission";
+      }
+    },
+    oneditprepare: () => {
+      $("#node-input-submissionType").change(() => {
+        $("#node-action-text").hide();
+        $("#node-action-url").hide();
+        $("#node-action-original").hide();
+
+        let type = $("#node-input-submissionType option:selected").val();
+      
+        if (type === "self") {
+          $("#node-action-text").show();
+        } else if (type === "link") {
+          $("#node-action-url").show();
+        } else if (type === "cross") {
+          $("#node-action-original").show();
+        }
+      });
+    }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="create-submission">
+  <div class="form-row">
+    <label for="node-input-reddit"><i class="fa fa-key"></i>Credentials</label>
+    <input type="text" id="node-input-reddit">
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="icon-tag"></i>Name</label>
+    <input type="text" id="node-input-name" placeholder="optional name for this node">
+  </div>
+  <hr>
+  <div class="form-row"> 
+    <label for="node-input-submissionType"><i class="fa fa-wrench"></i>Type</label>
+    <select type="text" id="node-input-submissionType" style="display: inline-block; width: 250px; vertical-align: top;">
+      <option value="self" outputs="1">self-post</option>                            
+      <option value="link" outputs="1">link post</option>                            
+      <option value="cross" outputs="1">cross-post</option>                          
+    </select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-subreddit"><i class="icon-tag"></i>Subreddit</label>
+    <input type="text" id="node-input-subreddit" placeholder="subreddit name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-title"><i class="icon-tag"></i>Title</label>
+    <input type="text" id="node-input-title" placeholder="post title">
+  </div>
+  <div class="form-row" id="node-action-url">
+    <label for="node-input-url"><i class="icon-tag"></i>URL</label>
+    <input type="text" id="node-input-url" placeholder="url to link">
+  </div>
+  <div class="form-row" id="node-action-original">
+    <label for="node-input-original"><i class="icon-tag"></i>Original</label>
+    <input type="text" id="node-input-original" placeholder="original submission id">
+  </div>
+  <div class="form-row" id="node-action-text">
+    <label for="node-input-text"><i class="icon-tag"></i>Text</label>
+    <input type="text" id="node-input-text" placeholder="optional content">
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="create-submission">
+  <p>Create a submission</p>
+</script>
+<!-- END Create Submission -->
