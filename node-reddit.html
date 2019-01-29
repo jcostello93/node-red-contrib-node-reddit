@@ -403,7 +403,7 @@
     label: function() {
       if (this.name) {
         return this.name;
-      } else if (this.subreddit && this.subreddit.indexOf("{{") != -1) {
+      } else if (this.subreddit && this.subreddit.indexOf("{{") == -1) {
         return this.subreddit;
       } else {
         return "create-submission";
