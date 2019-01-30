@@ -41,45 +41,53 @@
     });
 </script>
 
-<!-- Beginning of the deletion node -->
+
+
+<!-- Beginning of the Edit node -->
 <script type="text/javascript">
-    RED.nodes.registerType('reddit-delete',{
+    RED.nodes.registerType('reddit-edit',{
         category: 'reddit',
         color: '#FF5700',
         defaults: {
             name: {value:""},
             reddit: { type:"reddit-credentials",required:true},
-			content_type: {value:"submission"}
+			content_type: {value:"submission"},
+			edit_content: {value:""}
         },
         inputs:1,
         outputs:1,
         icon: "reddit.png",
         label: function() {
-            return this.name||"reddit-delete";
+            return this.name||"reddit-edit";
         }
     });
 </script>
 
-<script type="text/x-red" data-template-name="reddit-delete">
+<script type="text/x-red" data-template-name="reddit-edit">
     <div class="form-row">
         <label for="node-input-reddit"><i class="fa fa-key"></i> <span>Credentials</span></label>
         <input type="text" id="node-input-reddit">
     </div>
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
+        <input type="text" id="node-input-name" placeholder="Optional name for this node">
     </div>
 	<div class="form-row">
         <label for="node-input-content_type"><i class="fa fa-ellipsis-h"></i> Content Type</label>
         <select type="text" id="node-input-content_type">
-            <option value="submission" outputs="1">Submission</option>
-            <option value="comment" outputs="1">Comment</option>
-			<option value="private_message" outputs="1">Private Message</option>
+			<option value="submission" outputs="1">Submission</option>
+			<option value="comment" outputs="1">Comment</option>
         </select>
-    </div>
+    </div class="form-row">
+		<label for="node-input-edit_content"><i class="fa fa-quote-left"></i> New Contents</label>
+		<input type="text" id="node-input-edit_content" placeholder="Type new contents here.">
+	<div>
+	
+	</div>
 </script>
 
-<script type="text/x-red" data-help-name="reddit-delete">
-    <p>A simple node that deletes a comment or a submission of a certain user on Reddit.</p>
-	<p>Content type selection is required.</p>
+<script type="text/x-red" data-help-name="reddit-edit">
+    <p>A simple node that edits a comment or a submission of a certain user on Reddit.</p>
+	<p>Content type selection and new contents are required.</p>
 </script>
+
