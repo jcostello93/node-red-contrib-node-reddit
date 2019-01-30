@@ -27,6 +27,7 @@ module.exports = function(RED) {
     }
 
     const snoowrap = require('snoowrap');
+    const snoostorm = require('snoostorm');
 
     function ConfigNode(n) {
         RED.nodes.createNode(this,n);
@@ -383,4 +384,49 @@ module.exports = function(RED) {
     });       
   }
   RED.nodes.registerType("create-submission", CreateSubmission);
+
+// stream submissions
+
+  function StreamSubmissions(n) {
+    RED.nodes.createNode(this, n);
+    
+    let config = RED.nodes.getNode(n.reddit);
+    let credentials = config.credentials;
+    let node = this;
+    let options = {
+      userAgent: config.user_agent,
+      clientId: credentials.client_id,
+      clientSecret: credentials.client_secret,
+      username: config.username,
+      password: credentials.password
+    };
+    
+    const r = new snoowrap(options);
+    const s = new snoostorm(r);
+
+    node.status({});
+
+    node.on('input', () => {
+
+      const stream = s.SubmissionStream({
+        subreddit: n.subreddit,
+        results: 10
+      });
+
+      let count = 0;
+
+      node.status({fill: "blue", shape: "dot", text: "streaming.. " + count}); 
+
+      stream.on("submission", (post) => {
+        node.send({payload: post});
+        count++;
+        node.status({fill: "blue", shape: "dot", text: "streaming.. " + count});
+      });
+    });
+
+    if (n.subreddit != "") {
+      node.emit("input", {});
+    }
+  }
+  RED.nodes.registerType("stream-submissions", StreamSubmissions);
 }
