@@ -474,15 +474,17 @@
 </script>
 <!-- END Create Submission -->
 
-<!-- START Stream Submissions -->
+<!-- START Stream -->
 <script type="text/javascript">
-  RED.nodes.registerType('stream-submissions', {
+  RED.nodes.registerType('stream', {
     category: 'reddit',
     color: '#a6bbcf',
     defaults: {
       name: {value: ""},
       reddit: {type: "reddit-credentials", required: true},
+      kind: {value: "submissions", required: true},
       subreddit: {value: "", required: true},
+      timeout: {value: ""}
     },
     inputs: 0,
     outputs: 1,
@@ -490,16 +492,16 @@
     label: function() {
       if (this.name) {
         return this.name;
-      } else if (this.subreddit && this.subreddit.indexOf("{{") == -1) {
+      } else if (this.subreddit) {
         return "r/" + this.subreddit;
       } else {
-        return "stream-submissions";
+        return "stream";
       }
     }
   });
 </script>
 
-<script type="text/x-red" data-template-name="stream-submissions">
+<script type="text/x-red" data-template-name="stream">
   <div class="form-row">
     <label for="node-input-reddit"><i class="fa fa-key"></i> Credentials</label>
     <input type="text" id="node-input-reddit">
@@ -509,13 +511,24 @@
     <input type="text" id="node-input-name" placeholder="optional name for this node">
   </div>
   <hr>
+  <div class="form-row"> 
+    <label for="node-input-kind"><i class="fa fa-wrench"></i> Stream</label>
+    <select type="text" id="node-input-kind" style="display: inline-block; width: 250px; vertical-align: top;">
+      <option value="submissions" outputs="1">Submissions</option>                            
+      <option value="comments" outputs="1">Comments</option>                            
+    </select>
+  </div>
   <div class="form-row">
     <label for="node-input-subreddit"><i class="icon-tag"></i> Subreddit</label>
     <input type="text" id="node-input-subreddit" placeholder="subreddit name">
   </div>
+  <div class="form-row">
+    <label for="node-input-subreddit"><i class="icon-tag"></i> Timeout (s)</label>
+    <input type="text" id="node-input-timeout" placeholder="optional timeout in seconds">
+  </div>
 </script>
 
-<script type="text/x-red" data-help-name="stream-submission">
-  <p>Stream submissions</p>
+<script type="text/x-red" data-help-name="stream">
+  <p>Stream submissions or comments from a subreddit</p>
 </script>
-<!-- END Stream Submissions -->
+<!-- END Stream -->
