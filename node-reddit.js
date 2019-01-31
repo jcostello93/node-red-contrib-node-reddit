@@ -385,9 +385,9 @@ module.exports = function(RED) {
   }
   RED.nodes.registerType("create-submission", CreateSubmission);
 
-// stream submissions
+// subreddit stream node
 
-  function StreamSubmissions(n) {
+  function StreamSubreddit(n) {
     RED.nodes.createNode(this, n);
     
     let config = RED.nodes.getNode(n.reddit);
@@ -407,26 +407,47 @@ module.exports = function(RED) {
     node.status({});
 
     node.on('input', () => {
-
-      const stream = s.SubmissionStream({
-        subreddit: n.subreddit,
-        results: 10
-      });
-
+      let stream;
       let count = 0;
 
-      node.status({fill: "blue", shape: "dot", text: "streaming.. " + count}); 
+      node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count}); 
 
-      stream.on("submission", (post) => {
-        node.send({payload: post});
-        count++;
-        node.status({fill: "blue", shape: "dot", text: "streaming.. " + count});
-      });
+      if (n.kind === "submissions") {
+        stream = s.SubmissionStream({
+          subreddit: n.subreddit,
+          results: 10
+        });
+        stream.on("submission", (post) => {
+          node.send({payload: post});
+          count++;
+          node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count});
+        });        
+      } else if (n.kind === "comments") {
+        stream = s.CommentStream({
+          subreddit: n.subreddit,
+          results: 10
+        });
+        stream.on("comment", (comment) => {
+          node.send({payload: comment});
+          count++;
+          node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count});
+        });
+      }
+
+      if (n.timeout != "") {
+        let timeout = parseInt(n.timeout, 10);
+        if ( !isNaN(timeout) ) {
+          setTimeout( () => { 
+            stream.emit("stop");
+            node.status({fill: "green", shape: "dot", text: "complete: " + count + " " + n.kind});
+          }, timeout * 1000);
+        }
+      }
     });
 
-    if (n.subreddit != "") {
+    if (n.kind != "" && n.subreddit != "") {
       node.emit("input", {});
     }
   }
-  RED.nodes.registerType("stream-submissions", StreamSubmissions);
+  RED.nodes.registerType("stream", StreamSubreddit);
 }
