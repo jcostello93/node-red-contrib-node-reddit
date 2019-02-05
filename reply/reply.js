@@ -40,7 +40,7 @@ module.exports = function(RED) {
       }
     });
 
-  function ReplyNode(n) {
+    function ReplyNode(n) {
         RED.nodes.createNode(this,n);
         var config = RED.nodes.getNode(n.reddit);
         var credentials = config.credentials;
@@ -48,10 +48,20 @@ module.exports = function(RED) {
         var options = {
             userAgent: config.user_agent,
             clientId: credentials.client_id,
-            clientSecret: credentials.client_secret,
-            username: config.username, 
-            password: credentials.password
-          }
+            clientSecret: credentials.client_secret
+        }
+
+        if (config.auth_type == "username_password") {
+            options.username = config.username;
+            options.password = credentials.password;
+        }
+        else if (config.auth_type == "refresh_token") {
+            options.refreshToken = credentials.refresh_token;
+        }
+        else if (config.auth_type == "access_token") {
+            options.accessToken = credentials.access_token;
+        }
+
         const r = new snoowrap(options);
         node.status({});
         node.on('input', function(msg) {
