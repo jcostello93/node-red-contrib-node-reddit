@@ -39,7 +39,8 @@ module.exports = function(RED) {
         client_secret: {type: "password"}
       }
     });
-  function SearchNode(n) {
+    
+    function SearchNode(n) {
         RED.nodes.createNode(this,n);
         var config = RED.nodes.getNode(n.reddit);
         var credentials = config.credentials;
@@ -47,10 +48,19 @@ module.exports = function(RED) {
         var options = {
             userAgent: config.user_agent,
             clientId: credentials.client_id,
-            clientSecret: credentials.client_secret,
-            username: config.username, 
-            password: credentials.password
-          }
+            clientSecret: credentials.client_secret
+        }
+
+        if (config.auth_type == "username_password") {
+            options.username = config.username;
+            options.password = credentials.password;
+        }
+        else if (config.auth_type == "refresh_token") {
+            options.refreshToken = credentials.refresh_token;
+        }
+        else if (config.auth_type == "access_token") {
+            options.accessToken = credentials.access_token;
+        }
         const r = new snoowrap(options);
         node.status({});
         node.on('input', function(msg) {
@@ -58,11 +68,12 @@ module.exports = function(RED) {
 
             var subreddit = parseField(msg, n.subreddit, "subreddit");
             var query = parseField(msg, n.query, "query");
-            var sort = n.sort || msg.sort;
-            var time = n.time || msg.time;
+            var sort = parseField(msg, n.sort, "sort");
+            var time = parseField(msg, n.time, "time");
+            var syntax = parseField(msg, n.syntax, "syntax");
             var responseArr = []
 
-            r.getSubreddit(subreddit).search({query: query, sort: sort, time:time}).then(response => {
+            r.getSubreddit(subreddit).search({query: query, sort: sort, time: time, syntax: syntax}).then(response => {
                 copyPropertiesExceptMethods(responseArr, response)
                 node.status({})
                 node.send([responseArr]) 
@@ -73,5 +84,5 @@ module.exports = function(RED) {
             })
         });       
     }
-    RED.nodes.registerType("search",SearchNode);
+    RED.nodes.registerType("search",SearchNode);  
 }

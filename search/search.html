@@ -10,6 +10,7 @@
             query: {value:"", required:true},
             time: {value:"hour"},
             sort: {value:"relevance"},
+            syntax: {value:"plain"}
         },
         inputs:1,
         outputs:1,
@@ -29,6 +30,7 @@
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
+    <hr>
     <div class="form-row">
         <label for="node-input-subreddit"><i class="icon-tag"></i> Subreddit</label>
         <input type="text" id="node-input-subreddit" placeholder="Subreddit">
@@ -58,9 +60,17 @@
             <option value="top" outputs="1">Top</option>
         </select>
     </div>
+    <div class="form-row" id="node-action-syntax"> 
+        <label for="node-input-syntax"><i class="fa fa-wrench"></i> Syntax</label>
+        <select type="text" id="node-input-syntax" style="display: inline-block; width: 250px; vertical-align: top;">
+            <option value="plain" outputs="1">Plain</option>
+            <option value="cloudsearch" outputs="1">CloudSearch</option>
+            <option value="lucene" outputs="1">Lucene</option>
+        </select>
+    </div>
 </script>
 
 <script type="text/x-red" data-help-name="search">
-    <p>Search subreddit</p>
+    <p>Perform a search query in a subreddit</p>
 </script>
 <!-- END Search -->
