@@ -1,43 +1,117 @@
 <!-- START Config Node -->
 <script type="text/x-red" data-template-name="reddit-credentials">
-    <div class="form-row">
-      <label for="node-config-input-username"><i class="fa fa-tag"></i> <span>username</span></label>
-      <input type="text" id="node-config-input-username">
-    </div>
-    <div class="form-row">
-      <label for="node-config-input-password"><i class="fa fa-key"></i> <span>password</span></label>
+  <div class="form-row">
+      <label for="node-config-input-name"><i class="fa fa-tag"></i> <span> Name</span></label>
+      <input type="text" id="node-config-input-name">
+  </div>
+  <hr>
+  <div class="form-row">
+      <label for="node-config-input-client_id"><i class="fa fa-tag"></i> <span>Client ID</span></label>
+      <input type="text" id="node-config-input-client_id">
+  </div>
+  <div class="form-row">
+      <label for="node-config-input-client_secret"><i class="fa fa-key"></i> <span> Client secret</span></label>
+      <input type="text" id="node-config-input-client_secret">
+  </div>
+  <div class="form-row">
+      <label for="node-config-input-user_agent"><i class="fa fa-tag"></i> <span> User agent</span></label>
+      <input type="text" id="node-config-input-user_agent">
+  </div>
+  <div class="form-row" id="node-action-auth_type"> 
+      <label for="node-config-input-auth_type"><i class="fa fa-wrench"></i> Authentication</label>
+      <select type="text" id="node-config-input-auth_type" style="display: inline-block; width: 250px; vertical-align: top;">
+          <option value="username_password" outputs="1">Username/password</option>
+          <option value="refresh_token" outputs="1">Refresh token</option>
+          <option value="access_token" outputs="1">Access token</option>
+      </select>
+  </div>
+  <div class="form-row" id="node-action-username">
+      <label for="node-config-input-username"><i class="fa fa-tag"></i> <span> Username</span></label>
+          <input type="text" id="node-config-input-username">
+  </div>
+  <div class="form-row" id="node-action-password">
+      <label for="node-config-input-password"><i class="fa fa-key"></i> <span> Password</span></label>
       <input type="password" id="node-config-input-password">
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-client_id"><i class="fa fa-tag"></i> <span>client_id</span></label>
-        <input type="text" id="node-config-input-client_id">
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-client_secret"><i class="fa fa-key"></i> <span>client_secret</span></label>
-        <input type="text" id="node-config-input-client_secret">
-    </div>
-    <div class="form-row">
-        <label for="node-config-input-user_agent"><i class="fa fa-tag"></i> <span>user_agent</span></label>
-        <input type="text" id="node-config-input-user_agent">
-    </div>
+  </div>
+  <div class="form-row" id="node-action-refresh_token">
+      <label for="node-config-input-refresh_token"><i class="fa fa-key"></i> <span> Refresh Token</span></label>
+      <input type="text" id="node-config-input-refresh_token">
+  </div>
+  <div class="form-row" id="node-action-access_token">
+      <label for="node-config-input-access_token"><i class="fa fa-key"></i> <span> Access Token</span></label>
+      <input type="text" id="node-config-input-access_token">
+  </div>
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('reddit-credentials',{
-      defaults: {
-        username: {value:"", required: true},
-        user_agent: {value:"", required: true}
-        },
-      category: 'config',
-      credentials: {
-        password: {type: "password", required: true},
-        client_id: {type: "password", required: true},
-        client_secret: {type: "password", required: true}
+  function oneditprepare() {
+      function hideExtraActions(){
+          $("#node-action-username").hide();
+          $("#node-action-password").hide();
+          $("#node-action-refresh_token").hide();
+          $("#node-action-access_token").hide();
+      }
+
+      function showActions(){
+          var auth_type = $("#node-config-input-auth_type option:selected").val();
+          if (auth_type == "username_password") {
+              $("#node-action-username").show();
+              $("#node-action-password").show();
+          }
+          else if (auth_type == "refresh_token"){
+              $("#node-action-refresh_token").show();
+          } 
+          else if (auth_type == "access_token"){
+              $("#node-action-access_token").show();
+          } 
+      }
+
+      $("#node-config-input-auth_type").change(function() {
+          hideExtraActions()
+          showActions()
+      });
+
+      hideExtraActions()
+      showActions()
+  }
+
+
+  RED.nodes.registerType('reddit-credentials',{
+    defaults: {
+      username: {value:"", required: false},
+      user_agent: {value:"", required: true},
+      auth_type:  {value:"username_password", required: false},
+      name: {value:"", required: false}
       },
-      label: function() {
-        return this.username;
-      },
-      exportable: false
-    });
+    category: 'config',
+    credentials: {
+      password: {type: "password", required: false},
+      client_id: {type: "password", required: true},
+      client_secret: {type: "password", required: true},
+      refresh_token: {type:"password", required: false},
+      access_token: {type:"password", required: false}
+    },
+    label: function() {
+      return this.username || this.name;
+    },
+    exportable: false,
+    oneditprepare: oneditprepare
+  });
+</script>
+
+<script type="text/x-red" data-help-name="reddit-credentials">
+  <p>Authentication for the Reddit API</p>
+  <p>To create a Reddit app and obtain its Client ID and Client Secret, log in to your Reddit account and visit <a href="https://ssl.reddit.com/prefs/apps/">this link.</a></p>
+  <p>There are 3 ways to provide authentication:</p>
+  <ol>
+      <li><i>Username/password</i>: For long-term access. Possible for script-type apps only.</li>
+      <li><i>Refresh token</i>: For long-term access. Visit <a href="https://not-an-aardvark.github.io/reddit-oauth-helper/">here</a> to generate a token.</li>
+      <li><i>Access token</i>: For short-term access. Expires in one hour. Visit <a href="https://not-an-aardvark.github.io/reddit-oauth-helper/">here</a> to generate a token.</li>
+  </ol>
+  <h3>References</h3>
+  <ul>
+      <li><a href="https://github.com/reddit-archive/reddit/wiki/oauth2">Reddit OAuth2 docs</a> - full description of authtication methods</li>
+      <li><a href="https://not-an-aardvark.github.io/snoowrap/snoowrap.html">Snoowrap docs</a> - guidelines for creating Snoowrap objects</li>
+  </ul>
 </script>
 <!-- END Config Node -->
