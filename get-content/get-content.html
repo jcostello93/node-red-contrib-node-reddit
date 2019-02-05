@@ -2,13 +2,23 @@
 <script type="text/javascript">
     function oneditprepare() {
         function resetFetchAll() {
-            // A user can get his own submissions/comments using fetch_all 
-            if ($("#node-input-user").val() == $("#node-input-reddit option:selected").text() && $("#node-input-source option:selected").val() == "user") {
+            // A user can get his own submissions using fetch_all 
+            if ($("#node-input-user").val() == $("#node-input-reddit option:selected").text() && $("#node-input-submission_source option:selected").val() == "user") {
+                return
+            }
+            
+            // A user can get his own comments using fetch_all 
+            if ($("#node-input-user").val() == $("#node-input-reddit option:selected").text() && $("#node-input-comment_source option:selected").val() == "user") {
                 return
             }
             
             // A user can get his PMs using fetch_all
             if ($("#node-input-content_type option:selected").val() == "pm") {
+                return 
+            }
+
+            // A user can expand all replies for a submission
+            if ($("#node-input-content_type option:selected").val() == "comment" && $("#node-input-comment_source option:selected").val() == "submission") {
                 return 
             }
 
@@ -18,13 +28,16 @@
 
 
         function hideExtraActions(){
-            $("#node-action-source").hide();
+            $("#node-action-submission_source").hide();
+            $("#node-action-comment_source").hide();
             $("#node-action-subreddit").hide();
             $("#node-action-user").hide();
             $("#node-action-sort").hide();
             $("#node-action-time").hide();
             $("#node-action-limit").hide();
             $("#node-action-fetch_all").hide();
+            $("#node-action-content_id").hide();
+            $("#node-action-depth").hide();
         }
 
         function showActions() { 
@@ -37,41 +50,51 @@
             // 7. fetch all
             // 8. limit
 
-            // Submission, source
-
-
-            var source = $("#node-input-source option:selected").val();
+            var submission_source = $("#node-input-submission_source option:selected").val();
+            var comment_source = $("#node-input-comment_source option:selected").val();
             var type = $("#node-input-content_type option:selected").val();
             var sort = $("#node-input-sort option:selected").val();
             
             if (type == "submission") {
-                if (source == "subreddit") {
+                if (submission_source == "subreddit") {
                     $("#node-action-subreddit").show();
                     if (sort == "top" || sort == "controversial") {
                         $("#node-action-time").show();
                     }
                 }
-                else if (source == "user") {
+                else if (submission_source == "user") {
                     $("#node-action-user").show();
                 }
                 $("#node-action-sort").show();
-                $("#node-action-source").show()
+                $("#node-action-submission_source").show()
 
             }
             else if (type == "comment") {
-                if (source == "subreddit") {
+                if (comment_source == "subreddit") {
                     $("#node-action-subreddit").show();
                 }
-                else if (source == "user") {
+                else if (comment_source == "user") {
                     $("#node-action-user").show();
                 }
-                $("#node-action-source").show()
+                else if (comment_source == "submission") {
+                    $("#node-action-content_id").show();
+                    $("#node-action-fetch_all").show();
+
+                    if ($("#node-input-fetch_all").val() != "true") {
+                        $("#node-action-depth").show();
+                    }
+                }
+                $("#node-action-comment_source").show()
             }
             else if (type == "pm") {
                 $("#node-action-fetch_all").show();
             }
 
-            if (source == "user" && $("#node-input-user").val() == $("#node-input-reddit option:selected").text()) {
+            if (submission_source == "user" && $("#node-input-user").val() == $("#node-input-reddit option:selected").text()) {
+                $("#node-action-fetch_all").show();
+            }
+
+            if (comment_source == "user" && $("#node-input-user").val() == $("#node-input-reddit option:selected").text()) {
                 $("#node-action-fetch_all").show();
             }
 
@@ -92,7 +115,13 @@
             showActions()
         });
 
-        $("#node-input-source").change(function() {
+        $("#node-input-submission_source").change(function() {
+            resetFetchAll()
+            hideExtraActions()
+            showActions()
+        });
+
+        $("#node-input-comment_source").change(function() {
             resetFetchAll()
             hideExtraActions()
             showActions()
@@ -123,13 +152,17 @@
             name: {value:""},
             reddit: { type:"reddit-credentials",required:true},
             content_type: {value:"submission"},
-            source: {value:"subreddit"},
+            submission_source: {value:"subreddit"},
+            comment_source: {value:"subreddit"},
             subreddit: {value:""},
             user: {value:""},
             limit: {value:""},
             sort: {value:"hot"},
             time: {value:"hour"},
-            fetch_all: {value:"false"}
+            fetch_all: {value:"false"},
+            submission: {value: ""},
+            depth: {value: ""},
+            content_id: {value: ""}
         },
         inputs:1,
         outputs:1,
@@ -150,6 +183,7 @@
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
+    <hr>
     <div class="form-row">
         <label for="node-input-content_type"><i class="fa fa-wrench"></i> Type</label>
         <select type="text" id="node-input-content_type" style="display: inline-block; width: 250px; vertical-align: top;">
@@ -158,11 +192,19 @@
             <option value="pm" outputs="1">PM</option>
         </select>
     </div>
-    <div class="form-row" id="node-action-source">
-        <label for="node-input-source"><i class="fa fa-wrench"></i> Source</label>
-        <select type="text" id="node-input-source" style="display: inline-block; width: 250px; vertical-align: top;">
+    <div class="form-row" id="node-action-submission_source">
+        <label for="node-input-submission_source"><i class="fa fa-wrench"></i> Source</label>
+        <select type="text" id="node-input-submission_source" style="display: inline-block; width: 250px; vertical-align: top;">
             <option value="subreddit" outputs="1">Subreddit</option>
             <option value="user" outputs="1">User</option>
+        </select>
+    </div>
+    <div class="form-row" id="node-action-comment_source">
+        <label for="node-input-comment_source"><i class="fa fa-wrench"></i> Source</label>
+        <select type="text" id="node-input-comment_source" style="display: inline-block; width: 250px; vertical-align: top;">
+            <option value="subreddit" outputs="1">Subreddit</option>
+            <option value="user" outputs="1">User</option>
+            <option value="submission" outputs="1">Submission</option>
         </select>
     </div>
     <div class="form-row" id="node-action-subreddit">
@@ -172,6 +214,10 @@
     <div class="form-row" id="node-action-user">
         <label for="node-input-user"><i class="icon-tag"></i> User</label>
         <input type="text" id="node-input-user" placeholder="user">
+    </div>
+    <div class="form-row" id="node-action-content_id">
+        <label for="node-input-content_id"><i class="icon-tag"></i> Content_id</label>
+        <input type="text" id="node-input-content_id" placeholder="content_id">
     </div>
     <div class="form-row" id="node-action-sort"> 
         <label for="node-input-sort"><i class="fa fa-wrench"></i> Sort by</label>
@@ -203,12 +249,93 @@
     </div>
     <div class="form-row" id="node-action-limit">
         <label for="node-input-limit"><i class="icon-tag"></i> Limit</label>
-        <input type="number" id="node-input-limit" placeholder="limit">
+        <input type="number" min="0" id="node-input-limit" placeholder="limit">
+    </div>
+    <div class="form-row" id="node-action-depth">
+        <label for="node-input-depth"><i class="icon-tag"></i> Depth</label>
+        <input type="number" min="0" id="node-input-depth" placeholder="depth">
     </div>    
 </script>
 
 <script type="text/x-red" data-help-name="get content">
-    <p>Get Reddit content</p>
+    <p>Get Reddit submissions, comments, or PMs</p>
+    <p>This node will get submissions, comments, or personal messages from subreddits, users, or your inbox, depending on its configuration.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>type
+            <span class="property-type">string</span>
+        </dt>
+        <dd> the type of content to be retrieved </dd>
+        <dt>source 
+            <span class="property-type">string</span>
+        </dt>
+        <dd> the source of the content</dd>
+        <dt class="optional">subreddit 
+            <span class="property-type">string</span>
+        </dt>
+        <dd> the subreddit where submissions or comments will be retrieved from</dd>
+        <dt class="optional">user 
+            <span class="property-type">string</span>
+        </dt>
+        <dd> the user who submitted the submissions or comments</dd>
+        <dt class="optional">sort 
+            <span class="property-type">string</span>
+        </dt>
+        <dd> the sorting method for the Reddit content</dd>
+        <dt class="optional">time 
+            <span class="property-type">string</span>
+        </dt>
+        <dd> the time range for the Reddit content</dd>
+        <dt class="optional">fetch_all
+            <span class="property-type">string</span>
+        </dt>
+        <dd> the option to retrieve all possible content</dd>
+        <dt class="optional">limit
+            <span class="property-type">number</span>
+        </dt>
+        <dd> the number of listings to be retrieved</dd>
+        <dt class="optional">depth
+            <span class="property-type">number</span>
+        </dt>
+        <dd> an upper bound for replies in the comment tree</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <ol class="node-ports">
+        <li>Standard output
+            <dl class="message-properties">
+                <dt>payload <span class="property-type">object</span></dt>
+                <dd>the Snoowrap object representing the Reddit content</dd>
+            </dl>
+        </li>
+        <li>Standard error
+            <dl class="message-properties">
+                <dt>payload <span class="property-type">string</span></dt>
+                <dd>the standard error of the command.</dd>
+            </dl>
+        </li>
+    </ol>
+
+    <h3>Details</h3>
+    <h4>Populating fields</h4>
+    <p>All properties other than fetch_all may be populated via text or mustache syntax relative to the incoming msg object. If a field is empty, the property of the incoming msg object will be checked.</p>
+    <p>For example, a subreddit may be filled in as text in the HTML form or populated with mustache syntax. If these are not found, msg.subreddit will be checked.</p>
+    <p>If the target subreddit is located in <code>msg.payload.target</code>, then you can fill in <code>{{payload.target}}</code> in the subreddit field.</p>
+    <h4>Comments</h4>
+    <p>When a subreddit is the source, the newest comments from the subreddit are retrieved.</p>
+    <p>When a submission is the source, a comment tree is retrieved, broken up by the parent comments. Replies to this comment, if any, will be in <code>msg.payload.replies</code>.</p>
+    <h4>Fetch all</h4>
+    <p>The <code>fetch_all</code> property is only accessible when accessing your own PMs, comments, or submissions, or getting comments from a submission. 
+        To get your own comments or submissions, the <code>user</code> property must match the username in the credentials. Otherwise, the limit option will determine the number of listings
+        to be retrieved. The Reddit API docs outline the rate limits. 
+     </p>
+
+    <h3>References</h3>
+    <ul>
+        <li><a href="https://www.reddit.com/dev/api/">Reddit API docs</a> - full description of the Reddit API</li>
+        <li><a href="https://not-an-aardvark.github.io/snoowrap/">Snoowrap docs</a> - information regarding the limit and depth properties</li>
+    </ul>
+
 </script>
 
 <!-- END Get content -->

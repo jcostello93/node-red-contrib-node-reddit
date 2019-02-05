@@ -42,7 +42,7 @@ module.exports = function(RED) {
     });
 
 
-   function GetContentNode(n) {
+    function GetContentNode(n) {
         RED.nodes.createNode(this,n);
         var config = RED.nodes.getNode(n.reddit);
         var credentials = config.credentials;
@@ -50,11 +50,21 @@ module.exports = function(RED) {
         var options = {
             userAgent: config.user_agent,
             clientId: credentials.client_id,
-            clientSecret: credentials.client_secret,
-            username: config.username, 
-            password: credentials.password
-          }
-        const r = new snoowrap(options);    
+            clientSecret: credentials.client_secret
+        }
+
+        if (config.auth_type == "username_password") {
+            options.username = config.username;
+            options.password = credentials.password;
+        }
+        else if (config.auth_type == "refresh_token") {
+            options.refreshToken = credentials.refresh_token;
+        }
+        else if (config.auth_type == "access_token") {
+            options.accessToken = credentials.access_token;
+        }
+
+        const r = new snoowrap(options);
 
         node.status({});
         node.on('input', function(msg) {        
@@ -65,16 +75,20 @@ module.exports = function(RED) {
             var subreddit = parseField(msg, n.subreddit, "subreddit");
             var user =  parseField(msg, n.user, "user");
 
-            var source = n.source;
-            var sort = n.sort || msg.sort;
-            var time = n.time || msg.time; 
-            var limit = n.limit || msg.limit;
+            var submission_source = parseField(msg, n.submission_source, "submission_source");
+            var comment_source = parseField(msg, n.comment_source, "comment_source");
+            var sort = parseField(msg, n.sort, "sort");
+            var time = parseField(msg, n.time, "time");
+            var limit = parseField(msg, n.limit, "limit");
+            var depth = parseField(msg, n.depth, "depth");
+            var content_id = parseField(msg, n.content_id, "content_id");
             limit = parseInt(limit);
+            depth = parseInt(depth);
             var fetch_all = n.fetch_all;       
             
             var responseArr = [];
             if (content_type == "submission") {  
-                if (source == "subreddit") {
+                if (submission_source == "subreddit") {
                     if (sort == "controversial") {
                         r.getControversial(subreddit, {time: time, limit:limit}).then(response => {
                             copyPropertiesExceptMethods(responseArr, response);
@@ -134,7 +148,7 @@ module.exports = function(RED) {
                         node.error("Invalid parameters for submission request")
                     }
                 }
-                else if (source == "user") {
+                else if (submission_source == "user") {
                     if (fetch_all == "true") {
                         r.getUser(user).getSubmissions().fetchAll().then(response => {
                             copyPropertiesExceptMethods(responseArr, response)
@@ -161,7 +175,7 @@ module.exports = function(RED) {
                           
             } 
             else if (content_type == "comment") {
-                if (source == "subreddit") {
+                if (comment_source == "subreddit") {
                     r.getSubreddit(subreddit).getNewComments({limit:limit}).then(response => {
                         copyPropertiesExceptMethods(responseArr, response)
                         node.status({})
@@ -172,7 +186,7 @@ module.exports = function(RED) {
                         node.status({fill:"red",shape:"dot",text:"error"});
                     })
                 }
-                else if (source == "user") {
+                else if (comment_source == "user") {
                     if (fetch_all == "true") { 
                         r.getUser(user).getComments().fetchAll().then(response => {
                             copyPropertiesExceptMethods(responseArr, response)
@@ -195,6 +209,24 @@ module.exports = function(RED) {
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })   
                     }
+                }
+                else if (comment_source == "submission") {
+                    if (fetch_all == "true") { 
+                        limit = Infinity; 
+                        depth = Infinity; 
+                    }
+
+                    console.log(limit, depth);
+                    r.getSubmission(content_id).expandReplies({limit: limit, depth: depth}).then(response => {
+                        console.log(response.comments.length)
+                        copyPropertiesExceptMethods(responseArr, response.comments);
+                        node.status({})
+                        node.send([responseArr]) 
+                    }) 
+                    .catch(err => {
+                        node.error(err)
+                        node.status({fill:"red",shape:"dot",text:"error"});
+                    })   
                 }
             }
             else if (content_type == "pm") {
