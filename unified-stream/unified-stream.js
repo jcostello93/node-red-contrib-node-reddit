@@ -63,8 +63,9 @@ module.exports = function(RED) {
 
     node.status({});
 
+    let stream;
+
     node.on('input', () => {
-      let stream;
       let count = 0;
 
       node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count}); 
@@ -100,6 +101,10 @@ module.exports = function(RED) {
           }, timeout * 1000);
         }
       }
+    });
+
+    node.on("close", () => {
+      stream.emit("stop");
     });
 
     if (n.kind != "" && n.subreddit != "") {
