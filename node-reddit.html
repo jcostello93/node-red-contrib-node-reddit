@@ -596,151 +596,197 @@
 
 <!-- START Create Submission -->
 <script type="text/javascript">
-    RED.nodes.registerType('create-submission', {
-      category: 'reddit',
-      color: '#a6bbcf',
-      defaults: {
-        name: {value: ""},
-        reddit: { type: "reddit-credentials", required: true},
-        submissionType: {value: "link"},
-        subreddit: {value: "", required: true},
-        title: {value: "", required: true},
-        url: {value: ""},
-        text: {value: ""},
-        original: {value: ""},
-      },
-      inputs:1,
-      outputs:1,
-      icon: "file.png",
-      label: function() {
-        if (this.name) {
-          return this.name;
-        } else if (this.subreddit && this.subreddit.indexOf("{{") == -1) {
-          return this.subreddit;
-        } else {
-          return "create-submission";
-        }
-      },
-      oneditprepare: () => {
-        $("#node-input-submissionType").change(() => {
-          $("#node-action-text").hide();
-          $("#node-action-url").hide();
-          $("#node-action-original").hide();
+  RED.nodes.registerType('create-submission', {
+    category: 'reddit',
+    color: '#a6bbcf',
+    defaults: {
+      name: {value: ""},
+      reddit: { type: "reddit-credentials", required: true},
+      submissionType: {value: "link"},
+      subreddit: {value: "", required: true},
+      title: {value: "", required: true},
+      url: {value: ""},
+      text: {value: ""},
+      original: {value: ""},
+    },
+    inputs:1,
+    outputs:1,
+    icon: "file.png",
+    label: function() {
+      if (this.name) {
+        return this.name;
+      } else if (this.subreddit && this.subreddit.indexOf("{{") == -1) {
+        return this.subreddit;
+      } else {
+        return "create-submission";
+      }
+    },
+    oneditprepare: () => {
+      $("#node-input-submissionType").change(() => {
+        $("#node-action-text").hide();
+        $("#node-action-url").hide();
+        $("#node-action-original").hide();
   
-          let type = $("#node-input-submissionType option:selected").val();
+        let type = $("#node-input-submissionType option:selected").val();
         
-          if (type === "self") {
-            $("#node-action-text").show();
-          } else if (type === "link") {
-            $("#node-action-url").show();
-          } else if (type === "cross") {
-            $("#node-action-original").show();
-          }
-        });
-      }
-    });
-  </script>
-  
-  <script type="text/x-red" data-template-name="create-submission">
-    <div class="form-row">
-      <label for="node-input-reddit"><i class="fa fa-key"></i>Credentials</label>
-      <input type="text" id="node-input-reddit">
-    </div>
-    <div class="form-row">
-      <label for="node-input-name"><i class="icon-tag"></i>Name</label>
-      <input type="text" id="node-input-name" placeholder="optional name for this node">
-    </div>
-    <hr>
-    <div class="form-row"> 
-      <label for="node-input-submissionType"><i class="fa fa-wrench"></i>Type</label>
-      <select type="text" id="node-input-submissionType" style="display: inline-block; width: 250px; vertical-align: top;">
-        <option value="self" outputs="1">self-post</option>                            
-        <option value="link" outputs="1">link post</option>                            
-        <option value="cross" outputs="1">cross-post</option>                          
-      </select>
-    </div>
-    <div class="form-row">
-      <label for="node-input-subreddit"><i class="icon-tag"></i>Subreddit</label>
-      <input type="text" id="node-input-subreddit" placeholder="subreddit name">
-    </div>
-    <div class="form-row">
-      <label for="node-input-title"><i class="icon-tag"></i>Title</label>
-      <input type="text" id="node-input-title" placeholder="post title">
-    </div>
-    <div class="form-row" id="node-action-url">
-      <label for="node-input-url"><i class="icon-tag"></i>URL</label>
-      <input type="text" id="node-input-url" placeholder="url to link">
-    </div>
-    <div class="form-row" id="node-action-original">
-      <label for="node-input-original"><i class="icon-tag"></i>Original</label>
-      <input type="text" id="node-input-original" placeholder="original submission id">
-    </div>
-    <div class="form-row" id="node-action-text">
-      <label for="node-input-text"><i class="icon-tag"></i>Text</label>
-      <input type="text" id="node-input-text" placeholder="optional content">
-    </div>
-  </script>
-  
-  <script type="text/x-red" data-help-name="create-submission">
-    <p>Create a submission</p>
-  </script>
-  <!-- END Create Submission -->
-  
-  <!-- START Stream -->
-  <script type="text/javascript">
-    RED.nodes.registerType('stream', {
-      category: 'reddit',
-      color: '#a6bbcf',
-      defaults: {
-        name: {value: ""},
-        reddit: {type: "reddit-credentials", required: true},
-        kind: {value: "submissions", required: true},
-        subreddit: {value: "", required: true},
-        timeout: {value: ""}
-      },
-      inputs: 0,
-      outputs: 1,
-      icon: "inject.png",
-      label: function() {
-        if (this.name) {
-          return this.name;
-        } else if (this.subreddit) {
-          return "r/" + this.subreddit;
-        } else {
-          return "stream";
+        if (type === "self") {
+          $("#node-action-text").show();
+        } else if (type === "link") {
+          $("#node-action-url").show();
+        } else if (type === "cross") {
+          $("#node-action-original").show();
         }
+      });
+    }
+  });
+</script>
+  
+<script type="text/x-red" data-template-name="create-submission">
+  <div class="form-row">
+    <label for="node-input-reddit"><i class="fa fa-key"></i>Credentials</label>
+    <input type="text" id="node-input-reddit">
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="icon-tag"></i>Name</label>
+    <input type="text" id="node-input-name" placeholder="optional name for this node">
+  </div>
+  <hr>
+  <div class="form-row"> 
+    <label for="node-input-submissionType"><i class="fa fa-wrench"></i>Type</label>
+    <select type="text" id="node-input-submissionType" style="display: inline-block; width: 250px; vertical-align: top;">
+      <option value="self" outputs="1">self-post</option>                            
+      <option value="link" outputs="1">link post</option>                            
+      <option value="cross" outputs="1">cross-post</option>                          
+    </select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-subreddit"><i class="icon-tag"></i>Subreddit</label>
+    <input type="text" id="node-input-subreddit" placeholder="subreddit name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-title"><i class="icon-tag"></i>Title</label>
+    <input type="text" id="node-input-title" placeholder="post title">
+  </div>
+  <div class="form-row" id="node-action-url">
+    <label for="node-input-url"><i class="icon-tag"></i>URL</label>
+    <input type="text" id="node-input-url" placeholder="url to link">
+  </div>
+  <div class="form-row" id="node-action-original">
+    <label for="node-input-original"><i class="icon-tag"></i>Original</label>
+    <input type="text" id="node-input-original" placeholder="original submission id">
+  </div>
+  <div class="form-row" id="node-action-text">
+    <label for="node-input-text"><i class="icon-tag"></i>Text</label>
+    <input type="text" id="node-input-text" placeholder="optional content">
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="create-submission">
+  <p>Create a submission</p>
+</script>
+<!-- END Create Submission -->
+  
+<!-- START Stream -->
+<script type="text/javascript">
+  RED.nodes.registerType('stream', {
+    category: 'reddit',
+    color: '#a6bbcf',
+    defaults: {
+      name: {value: ""},
+      reddit: {type: "reddit-credentials", required: true},
+      kind: {value: "submissions", required: true},
+      subreddit: {value: "", required: true},
+      timeout: {value: ""}
+    },
+    inputs: 0,
+    outputs: 1,
+    icon: "inject.png",
+    label: function() {
+      if (this.name) {
+        return this.name;
+      } else if (this.subreddit) {
+        return "r/" + this.subreddit;
+      } else {
+        return "stream";
       }
-    });
-  </script>
+    }
+  });
+</script>
   
-  <script type="text/x-red" data-template-name="stream">
-    <div class="form-row">
-      <label for="node-input-reddit"><i class="fa fa-key"></i> Credentials</label>
-      <input type="text" id="node-input-reddit">
-    </div>
-    <div class="form-row">
-      <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-      <input type="text" id="node-input-name" placeholder="optional name for this node">
-    </div>
-    <hr>
-    <div class="form-row"> 
-      <label for="node-input-kind"><i class="fa fa-wrench"></i> Stream</label>
-      <select type="text" id="node-input-kind" style="display: inline-block; width: 250px; vertical-align: top;">
-        <option value="submissions" outputs="1">Submissions</option>                            
-        <option value="comments" outputs="1">Comments</option>                            
-      </select>
-    </div>
-    <div class="form-row">
-      <label for="node-input-subreddit"><i class="icon-tag"></i> Subreddit</label>
-      <input type="text" id="node-input-subreddit" placeholder="subreddit name">
-    </div>
-    <div class="form-row">
-      <label for="node-input-subreddit"><i class="icon-tag"></i> Timeout (s)</label>
-      <input type="text" id="node-input-timeout" placeholder="optional timeout in seconds">
-    </div>
-  </script>
+<script type="text/x-red" data-template-name="stream">
+  <div class="form-row">
+    <label for="node-input-reddit"><i class="fa fa-key"></i> Credentials</label>
+    <input type="text" id="node-input-reddit">
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="optional name for this node">
+  </div>
+  <hr>
+  <div class="form-row"> 
+    <label for="node-input-kind"><i class="fa fa-wrench"></i> Stream</label>
+    <select type="text" id="node-input-kind" style="display: inline-block; width: 250px; vertical-align: top;">
+      <option value="submissions" outputs="1">Submissions</option>                            
+      <option value="comments" outputs="1">Comments</option>                            
+    </select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-subreddit"><i class="icon-tag"></i> Subreddit</label>
+    <input type="text" id="node-input-subreddit" placeholder="subreddit name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-subreddit"><i class="icon-tag"></i> Timeout (s)</label>
+    <input type="text" id="node-input-timeout" placeholder="optional timeout in seconds">
+  </div>
+</script>
   
-  <script type="text/x-red" data-help-name="stream">
-    <p>Stream submissions or comments from a subreddit</p>
-  </script>
-  <!-- END Stream -->
+<script type="text/x-red" data-help-name="stream">
+  <p>Stream submissions or comments from a subreddit.</p>
+    
+  <h3>Inputs</h3>
+    <dl class="message-properties">
+      <dt>credentials <span class="property-type">config node</span></dt>
+      <dd> your reddit credentials. </dd>
+      <dt>stream <span class="property-type">selection</span></dt>
+      <dd> choose comments or submissions. </dd>
+      <dt>subreddit <span class="property-type">string</span></dt>
+      <dd> the subreddit to stream </dd>
+
+      <dt class="optional">name <span class="property-type">string</span></dt>
+      <dd> the name of this node.</dd>
+      <dt class="optional">timeout <span class="property-type">number</span></dt>
+      <dd> the length of time to stream in seconds.</dd>
+    </dl>
+
+  <h3>Outputs</h3>
+    <ol class="node-ports">
+      <li>Standard output
+        <dl class="message-properties">
+          <dt>payload <span class="property-type">object</span></dt>
+          <dd> details of the comment or submission.  </dd>
+        </dl>
+      </li>
+      <li>Standard error
+        <dl class="message-properties">
+          <dt>payload <span class="property-type">string</span></dt>
+          <dd>the standard error of the command.</dd>
+         </dl>
+      </li>
+    </ol>
+
+  <h3>Details</h3>
+    <p>Exclude the "r/" when entering your <code>subreddit</code>. "r/<code>subreddit</code>" will be 
+    used for the display name if <code>name</code> is left empty.
+    </p>
+    <p>The <code>timeout</code> will stop the stream after the desired number of seconds.
+    If left blank, the stream will continue until the node is deleted from the flow, an error is thrown,
+    or node-red is shutdown.
+    </p>
+
+  <h3>References</h3>
+    <ul>
+      <li><a href='https://www.reddit.com/dev/api/'>Reddit API docs</a> - descriptions of comment and submission listings</li>
+      <li><a href='https://github.com/jcostello93/Node-Red'>Node-Reddit on GitHub</a> - the Node-Reddit github repository</li>
+    </ul>
+</script>
+<!-- END Stream -->
