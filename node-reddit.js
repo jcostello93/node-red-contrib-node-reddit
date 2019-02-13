@@ -441,7 +441,8 @@ module.exports = function(RED) {
       // submit
       snooCall.then(response => {
         node.status({fill: "green", shape: "dot", text: "success: " + response.name});
-        node.send({payload: response});
+        msg.payload = response;
+        node.send(msg);
       }).catch(err => {
         node.error(err);
         node.status({fill: "red", shape: "dot", text: "error"});
