@@ -616,7 +616,7 @@
       if (this.name) {
         return this.name;
       } else if (this.subreddit && this.subreddit.indexOf("{{") == -1) {
-        return this.subreddit;
+        return "r/" + this.subreddit;
       } else {
         return "create-submission";
       }
@@ -682,7 +682,58 @@
 </script>
 
 <script type="text/x-red" data-help-name="create-submission">
-  <p>Create a submission</p>
+  <p>Create a new Reddit submission</p>
+
+  <h3>Inputs</h3>
+    <dl class="message-properties">
+      <dt>credentials <span class="property-type">config node</span></dt>
+      <dd> your reddit credentials.</dd>
+      <dt>type <span class="property-type">selection</span></dt>
+      <dd> choose self-, link-, or cross-post.</dd>
+      <dt>subreddit <span class="property-type">string</span></dt>
+      <dd> the subreddit to submit to.</dd>
+      <dt>title <span class="property-type">string</span></dt>
+      <dd> the title of the submission.</dd>
+      <dt>  - text <span class="property-type">string</span></dt>
+      <dd>     the text of a self-post.</dd>
+      <dt>  - url <span class="property-type">string</span></dt>
+      <dd>     the url of a link-post.</dd>
+      <dt>  - original <span class="property-type">string</span></dt>
+      <dd>     the original listing name for a cross-post.</dd>
+
+      <dt class="optional">name <span class="property-type">string</span></dt>
+      <dd> the name of this node.</dd>
+    </dl>
+
+  <h3>Outputs</h3>
+    <ol class="node-ports">
+      <li>Standard output
+        <dl class="message-properties">
+          <dt>payload <span class="property-type">object</span></dt>
+          <dd> the name of the new submission listing.</dd>
+        </dl>
+      </li>
+      <li>Standard error
+        <dl class="message-properties">
+          <dt>payload <span class="property-type">string</span></dt>
+          <dd>the standard error of the command.</dd>
+         </dl>
+      </li>
+    </ol>
+
+  <h3>Details</h3>
+    <p>Exclude the "r/" when entering your <code>subreddit</code>. "r/<code>subreddit</code>" will be 
+    used for the display name if <code>name</code> is left empty.
+    </p>
+    <p>
+    Properties can also be set using mustache syntax of the <code>msg.payload</code>. 
+    </p>
+
+  <h3>References</h3>
+    <ul>
+      <li><a href='https://www.reddit.com/dev/api/'>Reddit API docs</a> - descriptions of the 3 submission types</li>
+      <li><a href='https://github.com/jcostello93/Node-Red'>Node-Reddit on GitHub</a> - the Node-Reddit github repository</li>
+    </ul>
 </script>
 <!-- END Create Submission -->
   
@@ -746,11 +797,11 @@
   <h3>Inputs</h3>
     <dl class="message-properties">
       <dt>credentials <span class="property-type">config node</span></dt>
-      <dd> your reddit credentials. </dd>
+      <dd> your reddit credentials.</dd>
       <dt>stream <span class="property-type">selection</span></dt>
-      <dd> choose comments or submissions. </dd>
+      <dd> choose comments or submissions.</dd>
       <dt>subreddit <span class="property-type">string</span></dt>
-      <dd> the subreddit to stream </dd>
+      <dd> the subreddit to stream.</dd>
 
       <dt class="optional">name <span class="property-type">string</span></dt>
       <dd> the name of this node.</dd>
@@ -763,7 +814,7 @@
       <li>Standard output
         <dl class="message-properties">
           <dt>payload <span class="property-type">object</span></dt>
-          <dd> details of the comment or submission.  </dd>
+          <dd> details of the comment or submission.</dd>
         </dl>
       </li>
       <li>Standard error
