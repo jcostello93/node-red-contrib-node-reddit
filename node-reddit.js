@@ -26,6 +26,30 @@ module.exports = function(RED) {
         return field;
     }
 
+  // setup the credentials for each node
+  // ex:  var node = this;
+  //      var options = parseCredentials(n);
+  const parseCredentials = (n) => {
+    let config = RED.nodes.getNode(n.reddit);
+    let credentials = config.credentials;
+    let options = {
+      userAgent: config.user_agent,
+      clientId: credentials.client_id,
+      clientSecret: credentials.client_secret
+    };
+
+    if (config.auth_type == "username_password") {
+      options.username = config.username;
+      options.password = credentials.password;
+    } else if (config.auth_type == "refresh_token") {
+      options.refreshToken = credentials.refresh_token;
+    } else if (config.auth_type == "access_token") {
+      options.accessToken = credentials.access_token;
+    }
+
+    return options;
+  }
+
     const snoowrap = require('snoowrap');
     const snoostorm= require('snoostorm');
 
@@ -370,20 +394,12 @@ module.exports = function(RED) {
 
 // create submission
 
-function CreateSubmission(n) {
+  function CreateSubmission(n) {
     RED.nodes.createNode(this, n);
-    
-    let config = RED.nodes.getNode(n.reddit);
-    let credentials = config.credentials;
+  
     let node = this;
-    let options = {
-      userAgent: config.user_agent,
-      clientId: credentials.client_id,
-      clientSecret: credentials.client_secret,
-      username: config.username,
-      password: credentials.password
-    };
-    
+    let options = parseCredentials(n);
+   
     const r = new snoowrap(options);
     
     node.status({});
@@ -391,6 +407,7 @@ function CreateSubmission(n) {
     node.on('input', msg => {
       node.status({fill: "blue", shape: "dot", text: "submitting"});
 
+      // parse user input
       let submissionType = n.submissionType;
       let subreddit = parseField(msg, n.subreddit, "subreddit");
       let title = parseField(msg, n.title, "title");
@@ -398,46 +415,37 @@ function CreateSubmission(n) {
       let text = parseField(msg, n.text, "text");
       let original = parseField(msg, n.original, "original");
 
+      // prepare submission
+      let snooCall;
+
       if (submissionType === "self") {
-        r.submitSelfpost({
+        snooCall = r.submitSelfpost({
           subredditName: subreddit,
           title: title,
           text: text
-        }).then(response => {
-          node.status({text: response.name});
-          console.log(response);
-          node.send({payload: response});
-        }).catch(err => {
-          node.error(err);
-          node.status({fill: "red", shape: "dot", text: "error"});
         });
       } else if (submissionType === "link") {
-        r.submitLink({
+        snooCall = r.submitLink({
           subredditName: subreddit,
           title: title,
           url: url
-        }).then(response => {
-          node.status({text: response.name});
-          console.log(response);
-          node.send({payload: response});
-        }).catch(err => {
-          node.error(err);
-          node.status({fill: "red", shape: "dot", text: "error"});
         });
       } else if (submissionType === "cross") {
-        r.submitCrosspost({
+        snooCall = r.submitCrosspost({
           title: title,
           originalPost: original,
           subredditName: subreddit
-        }).then(response => {
-          node.status({text: response.name});
-          console.log(response);
-          node.send({payload: response});
-        }).catch(err => {
-          node.error(err);
-          node.status({fill: "red", shape: "dot", text: "error"});
         });
       }
+
+      // submit
+      snooCall.then(response => {
+        node.status({fill: "green", shape: "dot", text: "success: " + response.name});
+        node.send({payload: response});
+      }).catch(err => {
+        node.error(err);
+        node.status({fill: "red", shape: "dot", text: "error"});
+      });
     });       
   }
   RED.nodes.registerType("create-submission", CreateSubmission);
@@ -447,17 +455,9 @@ function CreateSubmission(n) {
   function StreamSubreddit(n) {
     RED.nodes.createNode(this, n);
     
-    let config = RED.nodes.getNode(n.reddit);
-    let credentials = config.credentials;
     let node = this;
-    let options = {
-      userAgent: config.user_agent,
-      clientId: credentials.client_id,
-      clientSecret: credentials.client_secret,
-      username: config.username,
-      password: credentials.password
-    };
-    
+    let options = parseCredentials(n);
+   
     const r = new snoowrap(options);
     const s = new snoostorm(r);
 
@@ -466,10 +466,11 @@ function CreateSubmission(n) {
     let stream;
     
     node.on('input', () => {
+      // begin displaying the stream counter
       let count = 0;
-
       node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count}); 
 
+      // stream and update the stream counter
       if (n.kind === "submissions") {
         stream = s.SubmissionStream({
           subreddit: n.subreddit,
@@ -492,6 +493,7 @@ function CreateSubmission(n) {
         });
       }
 
+      // stop streaming after optional user-provided timeout
       if (n.timeout != "") {
         let timeout = parseInt(n.timeout, 10);
         if ( !isNaN(timeout) ) {
@@ -503,10 +505,12 @@ function CreateSubmission(n) {
       }
     });
 
+    // stop streaming if node deleted from flow
     node.on("close", () => {
       stream.emit("stop");
     });
 
+    // don't start streaming until we get user input
     if (n.kind != "" && n.subreddit != "") {
       node.emit("input", {});
     }
