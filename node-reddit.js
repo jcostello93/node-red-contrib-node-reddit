@@ -4,11 +4,11 @@ module.exports = function(RED) {
 
     var mustache = require("mustache");
 
-    function copyPropertiesExceptMethods(newArr, originalArr) {
+     function copyPropertiesExceptMethods(newArr, originalArr, msg) {
         for (var i = 0; i < originalArr.length; i++){
-            var obj = JSON.stringify(originalArr[i]);
-            obj = JSON.parse(obj);
-            newArr.push({payload: obj})
+            var clonedMsg = RED.util.cloneMessage(msg);
+            clonedMsg.payload = JSON.parse(JSON.stringify(originalArr[i]));
+            newArr.push(clonedMsg)
         }
     }
 
@@ -73,25 +73,8 @@ module.exports = function(RED) {
 
     function GetContentNode(n) {
         RED.nodes.createNode(this,n);
-        var config = RED.nodes.getNode(n.reddit);
-        var credentials = config.credentials;
         var node = this;
-        var options = {
-            userAgent: config.user_agent,
-            clientId: credentials.client_id,
-            clientSecret: credentials.client_secret
-        }
-
-        if (config.auth_type == "username_password") {
-            options.username = config.username;
-            options.password = credentials.password;
-        }
-        else if (config.auth_type == "refresh_token") {
-            options.refreshToken = credentials.refresh_token;
-        }
-        else if (config.auth_type == "access_token") {
-            options.accessToken = credentials.access_token;
-        }
+        var options = parseCredentials(n);
 
         const r = new snoowrap(options);
 
@@ -99,20 +82,17 @@ module.exports = function(RED) {
         node.on('input', function(msg) {        
             node.status({fill:"blue",shape:"dot",text:"loading"});
 
-            // Check HTML field first and then msg object if necessary 
-            var content_type = n.content_type || msg.content_type;
+            // Get all possible parameters
+            var content_type = n.content_type;
             var subreddit = parseField(msg, n.subreddit, "subreddit");
             var user =  parseField(msg, n.user, "user");
-
-            var submission_source = parseField(msg, n.submission_source, "submission_source");
-            var comment_source = parseField(msg, n.comment_source, "comment_source");
-            var sort = parseField(msg, n.sort, "sort");
-            var time = parseField(msg, n.time, "time");
-            var limit = parseField(msg, n.limit, "limit");
-            var depth = parseField(msg, n.depth, "depth");
+            var submission_source = n.submission_source;
+            var comment_source = n.comment_source;
+            var sort = n.sort;
+            var time = n.time;
+            var limit = parseInt(n.limit);
+            var depth = parseInt(n.depth);
             var content_id = parseField(msg, n.content_id, "content_id");
-            limit = parseInt(limit);
-            depth = parseInt(depth);
             var fetch_all = n.fetch_all;       
             
             console.log(comment_source, content_id, limit, depth);
@@ -121,8 +101,8 @@ module.exports = function(RED) {
                 if (submission_source == "subreddit") {
                     if (sort == "controversial") {
                         r.getControversial(subreddit, {time: time, limit:limit}).then(response => {
-                            copyPropertiesExceptMethods(responseArr, response);
-                            node.status({});
+                            copyPropertiesExceptMethods(responseArr, response, msg);
+                                node.status({});
                             node.send([responseArr]);
                         })
                         .catch(err => {
@@ -132,7 +112,7 @@ module.exports = function(RED) {
                     }
                     else if (sort == "hot") {
                         r.getHot(subreddit, {limit: limit}).then(response => {
-                            copyPropertiesExceptMethods(responseArr, response)
+                            copyPropertiesExceptMethods(responseArr, response, msg)
                             node.status({})
                             node.send([responseArr])  
                         })
@@ -143,7 +123,7 @@ module.exports = function(RED) {
                     }
                     else if (sort == "new") {
                         r.getNew(subreddit, {limit: limit}).then(response => {
-                            copyPropertiesExceptMethods(responseArr, response)
+                            copyPropertiesExceptMethods(responseArr, response, msg)
                             node.status({})
                             node.send([responseArr])  
                         })
@@ -154,7 +134,7 @@ module.exports = function(RED) {
                     }
                     else if (sort == "rising") {
                         r.getRising(subreddit, {limit: limit}).then(response => {
-                            copyPropertiesExceptMethods(responseArr, response)
+                            copyPropertiesExceptMethods(responseArr, response, msg)
                             node.status({})
                             node.send([responseArr])  
                         })
@@ -165,7 +145,7 @@ module.exports = function(RED) {
                     }
                     else if (sort == "top") {
                         r.getTop(subreddit, {time: time, limit:limit}).then(response => {
-                            copyPropertiesExceptMethods(responseArr, response)
+                            copyPropertiesExceptMethods(responseArr, response, msg)
                             node.status({})
                             node.send([responseArr])  
                         })
@@ -181,7 +161,7 @@ module.exports = function(RED) {
                 else if (submission_source == "user") {
                     if (fetch_all == "true") {
                         r.getUser(user).getSubmissions().fetchAll().then(response => {
-                            copyPropertiesExceptMethods(responseArr, response)
+                            copyPropertiesExceptMethods(responseArr, response, msg)
                             node.status({})
                             node.send([responseArr]) 
                         }) 
@@ -192,7 +172,7 @@ module.exports = function(RED) {
                     }
                     else {
                         r.getUser(user).getSubmissions({limit: limit}).then(response => {
-                            copyPropertiesExceptMethods(responseArr, response)
+                            copyPropertiesExceptMethods(responseArr, response, msg)
                             node.status({})
                             node.send([responseArr]) 
                         }) 
@@ -207,7 +187,7 @@ module.exports = function(RED) {
             else if (content_type == "comment") {
                 if (comment_source == "subreddit") {
                     r.getSubreddit(subreddit).getNewComments({limit:limit}).then(response => {
-                        copyPropertiesExceptMethods(responseArr, response)
+                        copyPropertiesExceptMethods(responseArr, response, msg)
                         node.status({})
                         node.send([responseArr])  
                     })
@@ -219,7 +199,7 @@ module.exports = function(RED) {
                 else if (comment_source == "user") {
                     if (fetch_all == "true") { 
                         r.getUser(user).getComments().fetchAll().then(response => {
-                            copyPropertiesExceptMethods(responseArr, response)
+                            copyPropertiesExceptMethods(responseArr, response, msg)
                             node.status({})
                             node.send([responseArr]) 
                         }) 
@@ -230,7 +210,7 @@ module.exports = function(RED) {
                     }
                     else {
                         r.getUser(user).getComments({limit: limit}).then(response => {
-                            copyPropertiesExceptMethods(responseArr, response)
+                            copyPropertiesExceptMethods(responseArr, response, msg)
                             node.status({})
                             node.send([responseArr]) 
                         }) 
@@ -249,7 +229,7 @@ module.exports = function(RED) {
                     console.log(limit, depth);
                     r.getSubmission(content_id).expandReplies({limit: limit, depth: depth}).then(response => {
                         console.log(response.comments.length)
-                        copyPropertiesExceptMethods(responseArr, response.comments);
+                        copyPropertiesExceptMethods(responseArr, response.comments, msg);
                         node.status({})
                         node.send([responseArr]) 
                     }) 
@@ -262,7 +242,7 @@ module.exports = function(RED) {
             else if (content_type == "pm") {
                 if (fetch_all == "true") {
                     r.getInbox().fetchAll().then(response => {
-                        copyPropertiesExceptMethods(responseArr, response)
+                        copyPropertiesExceptMethods(responseArr, response, msg)
                         node.status({})
                         node.send([responseArr])  
                     })
@@ -273,7 +253,7 @@ module.exports = function(RED) {
                 }
                 else {
                     r.getInbox({limit:limit}).then(response => {
-                        copyPropertiesExceptMethods(responseArr, response)
+                        copyPropertiesExceptMethods(responseArr, response, msg)
                         node.status({})
                         node.send([responseArr])  
                     })
@@ -293,32 +273,15 @@ module.exports = function(RED) {
 
     function ReplyNode(n) {
         RED.nodes.createNode(this,n);
-        var config = RED.nodes.getNode(n.reddit);
-        var credentials = config.credentials;
         var node = this;
-        var options = {
-            userAgent: config.user_agent,
-            clientId: credentials.client_id,
-            clientSecret: credentials.client_secret
-        }
-
-        if (config.auth_type == "username_password") {
-            options.username = config.username;
-            options.password = credentials.password;
-        }
-        else if (config.auth_type == "refresh_token") {
-            options.refreshToken = credentials.refresh_token;
-        }
-        else if (config.auth_type == "access_token") {
-            options.accessToken = credentials.access_token;
-        }
+        var options = parseCredentials(n);
 
         const r = new snoowrap(options);
         node.status({});
         node.on('input', function(msg) {
             node.status({fill:"blue",shape:"dot",text:"loading"});
 
-            var content_type = n.content_type || msg.content_type;
+            var content_type = n.content_type;
             var content_id = parseField(msg, n.content_id, "content_id");
             var text = parseField(msg, n.text, "text");
 
@@ -348,25 +311,9 @@ module.exports = function(RED) {
 
     function SearchNode(n) {
         RED.nodes.createNode(this,n);
-        var config = RED.nodes.getNode(n.reddit);
-        var credentials = config.credentials;
         var node = this;
-        var options = {
-            userAgent: config.user_agent,
-            clientId: credentials.client_id,
-            clientSecret: credentials.client_secret
-        }
+        var options = parseCredentials(n);
 
-        if (config.auth_type == "username_password") {
-            options.username = config.username;
-            options.password = credentials.password;
-        }
-        else if (config.auth_type == "refresh_token") {
-            options.refreshToken = credentials.refresh_token;
-        }
-        else if (config.auth_type == "access_token") {
-            options.accessToken = credentials.access_token;
-        }
         const r = new snoowrap(options);
         node.status({});
         node.on('input', function(msg) {
@@ -374,13 +321,13 @@ module.exports = function(RED) {
 
             var subreddit = parseField(msg, n.subreddit, "subreddit");
             var query = parseField(msg, n.query, "query");
-            var sort = parseField(msg, n.sort, "sort");
-            var time = parseField(msg, n.time, "time");
-            var syntax = parseField(msg, n.syntax, "syntax");
+            var sort = n.sort;
+            var time = n.time;
+            var syntax = n.syntax;
             var responseArr = []
 
             r.getSubreddit(subreddit).search({query: query, sort: sort, time: time, syntax: syntax}).then(response => {
-                copyPropertiesExceptMethods(responseArr, response)
+                copyPropertiesExceptMethods(responseArr, response, msg)
                 node.status({})
                 node.send([responseArr]) 
             })              
