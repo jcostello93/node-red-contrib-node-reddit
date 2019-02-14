@@ -1,0 +1,239 @@
+<!-- Credential node. Credit: John Costello -->
+<script type="text/x-red" data-template-name="reddit-credentials">
+  <div class="form-row">
+      <label for="node-config-input-name"><i class="fa fa-tag"></i> <span> Name</span></label>
+      <input type="text" id="node-config-input-name">
+  </div>
+  <hr>
+  <div class="form-row">
+      <label for="node-config-input-client_id"><i class="fa fa-tag"></i> <span>Client ID</span></label>
+      <input type="text" id="node-config-input-client_id">
+  </div>
+  <div class="form-row">
+      <label for="node-config-input-client_secret"><i class="fa fa-key"></i> <span> Client secret</span></label>
+      <input type="text" id="node-config-input-client_secret">
+  </div>
+  <div class="form-row">
+      <label for="node-config-input-user_agent"><i class="fa fa-tag"></i> <span> User agent</span></label>
+      <input type="text" id="node-config-input-user_agent">
+  </div>
+  <div class="form-row" id="node-action-auth_type"> 
+      <label for="node-config-input-auth_type"><i class="fa fa-wrench"></i> Authentication</label>
+      <select type="text" id="node-config-input-auth_type" style="display: inline-block; width: 250px; vertical-align: top;">
+          <option value="username_password" outputs="1">Username/password</option>
+          <option value="refresh_token" outputs="1">Refresh token</option>
+          <option value="access_token" outputs="1">Access token</option>
+      </select>
+  </div>
+  <div class="form-row" id="node-action-username">
+      <label for="node-config-input-username"><i class="fa fa-tag"></i> <span> Username</span></label>
+          <input type="text" id="node-config-input-username">
+  </div>
+  <div class="form-row" id="node-action-password">
+      <label for="node-config-input-password"><i class="fa fa-key"></i> <span> Password</span></label>
+      <input type="password" id="node-config-input-password">
+  </div>
+  <div class="form-row" id="node-action-refresh_token">
+      <label for="node-config-input-refresh_token"><i class="fa fa-key"></i> <span> Refresh Token</span></label>
+      <input type="text" id="node-config-input-refresh_token">
+  </div>
+  <div class="form-row" id="node-action-access_token">
+      <label for="node-config-input-access_token"><i class="fa fa-key"></i> <span> Access Token</span></label>
+      <input type="text" id="node-config-input-access_token">
+  </div>
+</script>
+
+<script type="text/javascript">
+  function oneditprepare() {
+      function hideExtraActions(){
+          $("#node-action-username").hide();
+          $("#node-action-password").hide();
+          $("#node-action-refresh_token").hide();
+          $("#node-action-access_token").hide();
+      }
+      function showActions(){
+          var auth_type = $("#node-config-input-auth_type option:selected").val();
+          if (auth_type == "username_password") {
+              $("#node-action-username").show();
+              $("#node-action-password").show();
+          }
+          else if (auth_type == "refresh_token"){
+              $("#node-action-refresh_token").show();
+          } 
+          else if (auth_type == "access_token"){
+              $("#node-action-access_token").show();
+          } 
+      }
+      $("#node-config-input-auth_type").change(function() {
+          hideExtraActions()
+          showActions()
+      });
+      hideExtraActions()
+      showActions()
+  }
+  RED.nodes.registerType('reddit-credentials',{
+    defaults: {
+      username: {value:"", required: false},
+      user_agent: {value:"", required: true},
+      auth_type:  {value:"username_password", required: false},
+      name: {value:"", required: false}
+      },
+    category: 'config',
+    credentials: {
+      password: {type: "password", required: false},
+      client_id: {type: "password", required: true},
+      client_secret: {type: "password", required: true},
+      refresh_token: {type:"password", required: false},
+      access_token: {type:"password", required: false}
+    },
+    label: function() {
+      return this.username || this.name;
+    },
+    exportable: false,
+    oneditprepare: oneditprepare
+  });
+</script>
+
+<script type="text/x-red" data-help-name="reddit-credentials">
+  <p>Authentication for the Reddit API</p>
+  <p>To create a Reddit app and obtain its Client ID and Client Secret, log in to your Reddit account and visit <a href="https://ssl.reddit.com/prefs/apps/">this link.</a></p>
+  <p>There are 3 ways to provide authentication:</p>
+  <ol>
+      <li><i>Username/password</i>: For long-term access. Possible for script-type apps only.</li>
+      <li><i>Refresh token</i>: For long-term access. Visit <a href="https://not-an-aardvark.github.io/reddit-oauth-helper/">here</a> to generate a token.</li>
+      <li><i>Access token</i>: For short-term access. Expires in one hour. Visit <a href="https://not-an-aardvark.github.io/reddit-oauth-helper/">here</a> to generate a token.</li>
+  </ol>
+  <h3>References</h3>
+  <ul>
+      <li><a href="https://github.com/reddit-archive/reddit/wiki/oauth2">Reddit OAuth2 docs</a> - full description of authtication methods</li>
+      <li><a href="https://not-an-aardvark.github.io/snoowrap/snoowrap.html">Snoowrap docs</a> - guidelines for creating Snoowrap objects</li>
+  </ul>
+</script>
+<!-- END Config Node -->
+
+
+
+
+<!-- Beginning of the React node -->
+<script type="text/javascript">
+    RED.nodes.registerType('reddit-react',{
+        category: 'reddit',
+        color: '#a6bbcf',
+        defaults: {
+            name: {value:""},
+            reddit: { type:"reddit-credentials",required:true},
+			content_type: {value:"submission"},
+			content_id: {value:""},
+            vote: { value: ""},
+			save: {value: ""},
+            gild: { value: ""},
+			report: {value: ""}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "reddit.png",
+        label: function() {
+            return this.name||"reddit-react";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="reddit-react">
+    <div class="form-row">
+        <label for="node-input-reddit"><i class="fa fa-key"></i> <span>Credentials</span></label>
+        <input type="text" id="node-input-reddit">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Optional name for this node">
+    </div>
+	<div class="form-row" id="node-action-content_id">
+        <label for="node-input-content_id"><i class="icon-tag"></i> Content_id</label>
+        <input type="text" id="node-input-content_id" placeholder="content_id">
+    </div>
+    <div class="form-row">
+        <label for="node-input-content_type"><i class="fa fa-ellipsis-h"></i> Content Type</label>
+        <select type="text" id="node-input-content_type">
+            <option value="submission" outputs="1">Submission</option>
+            <option value="comment" outputs="1">Comment</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-vote"> Vote</label>
+        <select type="text" id="node-input-vote">
+            <option value="upvote" outputs="1">Upvote</option>
+            <option value="upvote" outputs="1">Downvote</option>
+            <option value="unvote" outputs="1">Un-vote</option>
+            <option value="none" outputs="1">None</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-save"> Save</label>
+        <select type="text" id="node-input-save">
+            <option value="save" outputs="1">Save</option>
+            <option value="unsave" outputs="1">Unsave</option>
+            <option value="none" outputs="1">None</option>
+        </select>
+    </div>
+
+</script>
+
+
+<script type="text/x-red" data-help-name="reddit-react">
+    <p>A node that allows user to react to a submissoin or a comment on Reddit.</p>
+	<p>Content id, and content type selection are required.</p>
+	
+	
+	<h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload
+            <span class="property-type">string | buffer</span>
+        </dt>
+        <dd> The Reddit id of the content. </dd>
+		<dt>content type
+            <span class="property-type">string | buffer</span>
+        </dt>
+        <dd> The type of the content. </dd>
+    </dl>
+	
+	
+	<h3>Outputs</h3>
+    <ol class="node-ports">
+         <li>Standard output
+             <dl class="message-properties">
+                 <dt>payload <span class="property-type">string</span></dt>
+                 <dd>None.</dd>
+             </dl>
+         </li>
+         <li>Standard error
+             <dl class="message-properties">
+                 <dt>payload <span class="property-type">string</span></dt>
+                 <dd>Any standard errors associated with the command.</dd>
+             </dl>
+         </li>
+    </ol>
+	
+	
+	<h3>Details</h3>
+		<p>*You must use "unvote" to undo whatever voting action you did previously to the same content.*</p>
+		<p>After double clicking on the node (and entering all the credentials), the "Content_id" and "Content Type", 
+		both need to be filled or selected.</p>
+		<p>For "Content_id", the user could either use the "inject" node to inject the content's Reddit id or 
+		manually enter the id in the field.
+		If using the "inject" node, put the content id as a "string" inside the "inject" node's "payload" field, 
+		then put "{{payload}}" inside the "Content_id" field in this node.
+		If manually entering the id, this node still needs an "inject" node linking with the input, but this time
+		the "inject" node's payload can be left blank.</p>
+		<p>If this node's output is linked to a "debug" node, any error messages
+		will be displayed inside the debug window on the right. This node doesn't have any other output otherwise.</p>
+	
+	
+	<h3>References</h3>
+		<ul>
+			<li><a href="https://www.reddit.com/dev/api/">Reddit API docs</a> - full description of reddit API</li>
+			<li><a href="https://not-an-aardvark.github.io/snoowrap/">Snoowrap API</a> - information about Snoowrap API used for this node.</li>
+			<li><a href="https://github.com/jcostello93/Node-Red">Github</a> - source code</li>
+		</ul>
+</script>
+
