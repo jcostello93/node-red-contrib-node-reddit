@@ -78,7 +78,7 @@
       auth_type:  {value:"username_password", required: false},
       name: {value:"", required: false}
       },
-    category: 'config',
+    category: ’config',
     credentials: {
       password: {type: "password", required: false},
       client_id: {type: "password", required: true},
@@ -117,7 +117,7 @@
 <!-- Beginning of the React node -->
 <script type="text/javascript">
     RED.nodes.registerType('reddit-react',{
-        category: 'reddit',
+        category: ’reddit',
         color: '#a6bbcf',
         defaults: {
             name: {value:""},
@@ -219,14 +219,14 @@
 		<p>*You must use "unvote" to undo whatever voting action you did previously to the same content.*</p>
 		<p>After double clicking on the node (and entering all the credentials), the "Content_id" and "Content Type", 
 		both need to be filled or selected.</p>
-		<p>For "Content_id", the user could either use the "inject" node to inject the content's Reddit id or 
+		<p>For "Content_id", the user could either use the "inject" node to inject the content’s Reddit id or 
 		manually enter the id in the field.
-		If using the "inject" node, put the content id as a "string" inside the "inject" node's "payload" field, 
+		If using the "inject" node, put the content id as a "string" inside the "inject" node’s "payload" field, 
 		then put "{{payload}}" inside the "Content_id" field in this node.
 		If manually entering the id, this node still needs an "inject" node linking with the input, but this time
-		the "inject" node's payload can be left blank.</p>
-		<p>If this node's output is linked to a "debug" node, any error messages
-		will be displayed inside the debug window on the right. This node doesn't have any other output otherwise.</p>
+		the "inject" node’s payload can be left blank.</p>
+		<p>If this node’s output is linked to a "debug" node, any error messages
+		will be displayed inside the debug window on the right. This node doesn’t have any other output otherwise.</p>
 	
 	
 	<h3>References</h3>
