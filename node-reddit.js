@@ -8,19 +8,19 @@ module.exports = function(RED) {
         for (var i = 0; i < originalArr.length; i++){
             var clonedMsg = RED.util.cloneMessage(msg);
             clonedMsg.payload = JSON.parse(JSON.stringify(originalArr[i]));
-            newArr.push(clonedMsg)
+            newArr.push(clonedMsg);
         }
     }
 
-    // In order of priority: 1. HTML text OR mustache syntax, 2. msg.msgProp 
-    function parseField(msg, nodeProp, msgProp) {
+    // Check for mustache syntax
+    function parseField(msg, nodeProp) {
         var field = null;
         var isTemplatedField = (nodeProp||"").indexOf("{{") != -1
         if (isTemplatedField) {
             field = mustache.render(nodeProp,msg);
         }
         else {
-            field = nodeProp || msg[msgProp];
+            field = nodeProp;
         }
 
         return field;
@@ -84,18 +84,17 @@ module.exports = function(RED) {
 
             // Get all possible parameters
             var content_type = n.content_type;
-            var subreddit = parseField(msg, n.subreddit, "subreddit");
-            var user =  parseField(msg, n.user, "user");
+            var subreddit = parseField(msg, n.subreddit);
+            var user =  parseField(msg, n.user);
             var submission_source = n.submission_source;
             var comment_source = n.comment_source;
             var sort = n.sort;
             var time = n.time;
             var limit = parseInt(n.limit);
             var depth = parseInt(n.depth);
-            var content_id = parseField(msg, n.content_id, "content_id");
+            var content_id = parseField(msg, n.content_id);
             var fetch_all = n.fetch_all;       
             
-            console.log(comment_source, content_id, limit, depth);
             var responseArr = [];
             if (content_type == "submission") {  
                 if (submission_source == "subreddit") {
@@ -282,8 +281,8 @@ module.exports = function(RED) {
             node.status({fill:"blue",shape:"dot",text:"loading"});
 
             var content_type = n.content_type;
-            var content_id = parseField(msg, n.content_id, "content_id");
-            var text = parseField(msg, n.text, "text");
+            var content_id = parseField(msg, n.content_id);
+            var text = parseField(msg, n.text);
 
             var snoowrap_obj;
             if (content_type == "submission") {
@@ -319,8 +318,8 @@ module.exports = function(RED) {
         node.on('input', function(msg) {
             node.status({fill:"blue",shape:"dot",text:"loading"});
 
-            var subreddit = parseField(msg, n.subreddit, "subreddit");
-            var query = parseField(msg, n.query, "query");
+            var subreddit = parseField(msg, n.subreddit);
+            var query = parseField(msg, n.query);
             var sort = n.sort;
             var time = n.time;
             var syntax = n.syntax;
@@ -356,11 +355,11 @@ module.exports = function(RED) {
 
       // parse user input
       let submissionType = n.submissionType;
-      let subreddit = parseField(msg, n.subreddit, "subreddit");
-      let title = parseField(msg, n.title, "title");
-      let url = parseField(msg, n.url, "url");
-      let text = parseField(msg, n.text, "text");
-      let original = parseField(msg, n.original, "original");
+      let subreddit = parseField(msg, n.subreddit);
+      let title = parseField(msg, n.title);
+      let url = parseField(msg, n.url);
+      let text = parseField(msg, n.text);
+      let original = parseField(msg, n.original);
 
       // prepare submission
       let snooCall;
@@ -494,7 +493,7 @@ module.exports = function(RED) {
         //node.status({fill:"grey",shape:"dot",text:"loading"});
         
         var content_type = n.content_type || msg.content_type;
-        var content_id = parseField(msg, n.content_id, "content_id");
+        var content_id = parseField(msg, n.content_id);
         //console.log(n.name);
         
         if (content_type == "comment"){
@@ -552,7 +551,7 @@ module.exports = function(RED) {
 			
 			var content_type = n.content_type || msg.content_type;
 			var edit_content = n.edit_content || msg.edit_content;
-			var content_id = parseField(msg, n.content_id, "content_id");
+			var content_id = parseField(msg, n.content_id);
 			
 			//console.log(n.name);
 			if (content_type == "comment"){
@@ -618,7 +617,7 @@ module.exports = function(RED) {
 			var content_type = n.content_type || msg.content_type;
             var vote = n.vote || msg.vote;
             var save_value = n.save || msg.save;
-			var content_id = parseField(msg, n.content_id, "content_id");
+			var content_id = parseField(msg, n.content_id);
             //var gild_value = n.gild || msg.gild;
 
 			//console.log(n.name);
