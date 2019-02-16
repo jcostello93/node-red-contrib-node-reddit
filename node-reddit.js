@@ -88,6 +88,7 @@ module.exports = function(RED) {
             var user =  parseField(msg, n.user);
             var submission_source = n.submission_source;
             var comment_source = n.comment_source;
+            var pm_source = n.pm_source;
             var sort = n.sort;
             var time = n.time;
             var limit = parseInt(n.limit);
@@ -181,6 +182,17 @@ module.exports = function(RED) {
                         })   
                     }
                 }
+                else if (submission_source == "id") {
+                    r.getSubmission(content_id).fetch().then(response => {
+                        msg.payload = JSON.parse(JSON.stringify(response));
+                        node.status({});
+                        node.send(msg); 
+                    }) 
+                    .catch(err => {
+                        node.error(err)
+                        node.status({fill:"red",shape:"dot",text:"error"});
+                    }) 
+                }
                           
             } 
             else if (content_type == "comment") {
@@ -225,7 +237,6 @@ module.exports = function(RED) {
                         depth = Infinity; 
                     }
 
-                    console.log(limit, depth);
                     r.getSubmission(content_id).expandReplies({limit: limit, depth: depth}).then(response => {
                         console.log(response.comments.length)
                         copyPropertiesExceptMethods(responseArr, response.comments, msg);
@@ -237,29 +248,53 @@ module.exports = function(RED) {
                         node.status({fill:"red",shape:"dot",text:"error"});
                     })   
                 }
+                else if (comment_source == "id") {
+                    r.getComment(content_id).fetch().then(response => {
+                        msg.payload = JSON.parse(JSON.stringify(response));
+                        node.status({});
+                        node.send(msg); 
+                    }) 
+                    .catch(err => {
+                        node.error(err)
+                        node.status({fill:"red",shape:"dot",text:"error"});
+                    }) 
+                }
             }
             else if (content_type == "pm") {
-                if (fetch_all == "true") {
-                    r.getInbox().fetchAll().then(response => {
-                        copyPropertiesExceptMethods(responseArr, response, msg)
-                        node.status({})
-                        node.send([responseArr])  
-                    })
-                    .catch(err => {
-                        node.error(err)
-                        node.status({fill:"red",shape:"dot",text:"error"});
-                    })
+                if (pm_source == "inbox") {
+                    if (fetch_all == "true") {
+                        r.getInbox({filter:"messages"}).fetchAll().then(response => {
+                            copyPropertiesExceptMethods(responseArr, response, msg)
+                            node.status({})
+                            node.send([responseArr])  
+                        })
+                        .catch(err => {
+                            node.error(err)
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        })
+                    }
+                    else {
+                        r.getInbox({limit:limit, filter:"messages"}).then(response => {
+                            copyPropertiesExceptMethods(responseArr, response, msg)
+                            node.status({})
+                            node.send([responseArr])  
+                        })
+                        .catch(err => {
+                            node.error(err)
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        })
+                    }
                 }
-                else {
-                    r.getInbox({limit:limit}).then(response => {
-                        copyPropertiesExceptMethods(responseArr, response, msg)
-                        node.status({})
-                        node.send([responseArr])  
-                    })
+                else if (pm_source == "id") {
+                    r.getMessage(content_id).fetch().then(response => {
+                        msg.payload = JSON.parse(JSON.stringify(response));
+                        node.status({});
+                        node.send(msg); 
+                    }) 
                     .catch(err => {
                         node.error(err)
                         node.status({fill:"red",shape:"dot",text:"error"});
-                    })
+                    }) 
                 }
             }
             else {
@@ -297,7 +332,7 @@ module.exports = function(RED) {
 
             snoowrap_obj.reply(text).then(response => {
                 msg.payload = response;
-                node.status({})
+                node.status({fill: "green", shape: "dot", text: "success: " + response.name});
                 node.send(msg) 
             })              
             .catch(function(err) {
