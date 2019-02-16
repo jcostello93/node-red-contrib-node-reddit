@@ -95,6 +95,8 @@
         return this.username || this.name;
       },
       exportable: false,
+      icon: "snoo2.png",
+      color:"#ffa27f",
       oneditprepare: oneditprepare
     });
 </script>
@@ -149,6 +151,7 @@
         function hideExtraActions(){
             $("#node-action-submission_source").hide();
             $("#node-action-comment_source").hide();
+            $("#node-action-pm_source").hide();
             $("#node-action-subreddit").hide();
             $("#node-action-user").hide();
             $("#node-action-sort").hide();
@@ -169,33 +172,42 @@
             // 7. fetch all
             // 8. limit
 
+            var type = $("#node-input-content_type option:selected").val();
             var submission_source = $("#node-input-submission_source option:selected").val();
             var comment_source = $("#node-input-comment_source option:selected").val();
-            var type = $("#node-input-content_type option:selected").val();
+            var pm_source = $("#node-input-pm_source option:selected").val();
+            var current_source_identifier = "#node-input-" + type + "_source option:selected";
+            var current_source = $(current_source_identifier).val();
+
             var sort = $("#node-input-sort option:selected").val();
             
             if (type == "submission") {
-                if (submission_source == "subreddit") {
+                if (current_source == "subreddit") {
                     $("#node-action-subreddit").show();
                     if (sort == "top" || sort == "controversial") {
                         $("#node-action-time").show();
                     }
+
+                    $("#node-action-sort").show();
                 }
-                else if (submission_source == "user") {
+                else if (current_source == "user") {
                     $("#node-action-user").show();
+                    $("#node-action-sort").show();
                 }
-                $("#node-action-sort").show();
+                else if (current_source == "id") {
+                    $("#node-action-content_id").show();
+                }
                 $("#node-action-submission_source").show()
 
             }
             else if (type == "comment") {
-                if (comment_source == "subreddit") {
+                if (current_source == "subreddit") {
                     $("#node-action-subreddit").show();
                 }
-                else if (comment_source == "user") {
+                else if (current_source == "user") {
                     $("#node-action-user").show();
                 }
-                else if (comment_source == "submission") {
+                else if (current_source == "submission") {
                     $("#node-action-content_id").show();
                     $("#node-action-fetch_all").show();
 
@@ -203,21 +215,26 @@
                         $("#node-action-depth").show();
                     }
                 }
+                else if (current_source == "id") {
+                    $("#node-action-content_id").show();
+                }
                 $("#node-action-comment_source").show()
             }
             else if (type == "pm") {
+                if (current_source == "inbox") {                
+                    $("#node-action-fetch_all").show();
+                }
+                else if (current_source == "id") {
+                    $("#node-action-content_id").show();
+                }
+                $("#node-action-pm_source").show()
+            }
+
+            if (current_source == "user" && $("#node-input-user").val() == $("#node-input-reddit option:selected").text()) {
                 $("#node-action-fetch_all").show();
             }
 
-            if (submission_source == "user" && $("#node-input-user").val() == $("#node-input-reddit option:selected").text()) {
-                $("#node-action-fetch_all").show();
-            }
-
-            if (comment_source == "user" && $("#node-input-user").val() == $("#node-input-reddit option:selected").text()) {
-                $("#node-action-fetch_all").show();
-            }
-
-            if ($("#node-input-fetch_all").val() != "true") {
+            if ($("#node-input-fetch_all").val() != "true" && current_source != "id") {
                 $("#node-action-limit").show();
             }
         }
@@ -241,6 +258,12 @@
         });
 
         $("#node-input-comment_source").change(function() {
+            resetFetchAll()
+            hideExtraActions()
+            showActions()
+        });
+
+        $("#node-input-pm_source").change(function() {
             resetFetchAll()
             hideExtraActions()
             showActions()
@@ -273,6 +296,7 @@
             content_type: {value:"submission"},
             submission_source: {value:"subreddit"},
             comment_source: {value:"subreddit"},
+            pm_source: {value:"inbox"},
             subreddit: {value:""},
             user: {value:""},
             limit: {value:""},
@@ -285,7 +309,8 @@
         },
         inputs:1,
         outputs:1,
-        icon: "file.png",
+        icon: "snoo2.png",
+        color:"#ffa27f",
         label: function() {
             return this.name||"get content";
         },
@@ -316,6 +341,7 @@
         <select type="text" id="node-input-submission_source" style="display: inline-block; width: 250px; vertical-align: top;">
             <option value="subreddit" outputs="1">Subreddit</option>
             <option value="user" outputs="1">User</option>
+            <option value="id" outputs="1">Id</option>
         </select>
     </div>
     <div class="form-row" id="node-action-comment_source">
@@ -324,6 +350,14 @@
             <option value="subreddit" outputs="1">Subreddit</option>
             <option value="user" outputs="1">User</option>
             <option value="submission" outputs="1">Submission</option>
+            <option value="id" outputs="1">Id</option>
+        </select>
+    </div>
+    <div class="form-row" id="node-action-pm_source">
+        <label for="node-input-pm_source"><i class="fa fa-wrench"></i> Source</label>
+        <select type="text" id="node-input-pm_source" style="display: inline-block; width: 250px; vertical-align: top;">
+            <option value="inbox" outputs="1">Inbox</option>
+            <option value="id" outputs="1">Id</option>
         </select>
     </div>
     <div class="form-row" id="node-action-subreddit">
@@ -476,8 +510,10 @@
             text: {value:""}
         },
         inputs:1,
-        outputs:1,
-        icon: "file.png",
+        outputs:0,
+        align: "right",
+        icon: "snoo2.png",
+        color:"#ffa27f",
         label: function() {
             return this.name||"reply";
         }
@@ -575,7 +611,8 @@
         },
         inputs:1,
         outputs:1,
-        icon: "file.png",
+        icon: "snoo2.png",
+        color:"#ffa27f",
         label: function() {
             return this.name||"search";
         }
@@ -703,7 +740,8 @@
     },
     inputs:1,
     outputs:1,
-    icon: "file.png",
+    icon: "snoo2.png",
+    color:"#ffa27f",
     label: function() {
       if (this.name) {
         return this.name;
@@ -843,7 +881,8 @@
     },
     inputs: 0,
     outputs: 1,
-    icon: "inject.png",
+    icon: "snoo2.png",
+    color:"#ffa27f",
     label: function() {
       if (this.name) {
         return this.name;
@@ -947,7 +986,8 @@
         },
         inputs:1,
         outputs:1,
-        icon: "reddit.png",
+        icon: "snoo2.png",
+        color:"#ffa27f",
         label: function() {
             return this.name||"reddit-delete";
         }
@@ -1050,7 +1090,8 @@
         },
         inputs:1,
         outputs:1,
-        icon: "reddit.png",
+        icon: "snoo2.png",
+        color:"#ffa27f",
         label: function() {
             return this.name||"reddit-edit";
         }
@@ -1160,7 +1201,8 @@
         },
         inputs:1,
         outputs:1,
-        icon: "reddit.png",
+        icon: "snoo2.png",
+        color:"#ffa27f",
         label: function() {
             return this.name||"reddit-react";
         }
