@@ -123,23 +123,17 @@
 <script type="text/javascript">
     function oneditprepare() {
         function resetFetchAll() {
-            // A user can get his own submissions using fetch_all 
-            if ($("#node-input-user").val() == $("#node-input-reddit option:selected").text() && $("#node-input-submission_source option:selected").val() == "user") {
-                return
-            }
-            
-            // A user can get his own comments using fetch_all 
-            if ($("#node-input-user").val() == $("#node-input-reddit option:selected").text() && $("#node-input-comment_source option:selected").val() == "user") {
-                return
-            }
-            
-            // A user can get his PMs using fetch_all
-            if ($("#node-input-content_type option:selected").val() == "pm") {
-                return 
-            }
+            var type = $("#node-input-content_type option:selected").val();
+            var current_source_identifier = "#node-input-" + type + "_source option:selected";
+            var current_source = $(current_source_identifier).val();
 
+            // A user can get all submissions/replies from a user and all contents of their inbox
+            if (current_source == "user" || current_source == "inbox") {
+                return
+            }
+            
             // A user can expand all replies for a submission
-            if ($("#node-input-content_type option:selected").val() == "comment" && $("#node-input-comment_source option:selected").val() == "submission") {
+            if (type == "comment" && $("#node-input-comment_source option:selected").val() == "submission") {
                 return 
             }
 
@@ -193,6 +187,7 @@
                 else if (current_source == "user") {
                     $("#node-action-user").show();
                     $("#node-action-sort").show();
+                    $("#node-action-fetch_all").show();
                 }
                 else if (current_source == "id") {
                     $("#node-action-content_id").show();
@@ -206,6 +201,7 @@
                 }
                 else if (current_source == "user") {
                     $("#node-action-user").show();
+                    $("#node-action-fetch_all").show();
                 }
                 else if (current_source == "submission") {
                     $("#node-action-content_id").show();
@@ -228,10 +224,6 @@
                     $("#node-action-content_id").show();
                 }
                 $("#node-action-pm_source").show()
-            }
-
-            if (current_source == "user" && $("#node-input-user").val() == $("#node-input-reddit option:selected").text()) {
-                $("#node-action-fetch_all").show();
             }
 
             if ($("#node-input-fetch_all").val() != "true" && current_source != "id") {

@@ -333,10 +333,10 @@ module.exports = function(RED) {
             snoowrap_obj.reply(text).then(response => {
                 msg.payload = response;
                 node.status({fill: "green", shape: "dot", text: "success: " + response.name});
-                node.send(msg) 
+                //node.send(msg) 
             })              
             .catch(function(err) {
-                node.error(err)
+                node.error(err.error.error + " " + err.error.message, msg)
                 node.status({fill:"red",shape:"dot",text:"error"});
             })
         });        
