@@ -536,22 +536,29 @@ module.exports = function(RED) {
             
             r.getComment(content_id).delete();
                     
-            node.status({});
+            node.status({fill:"grey",shape:"dot",text:"comment deleted"});
         }
         else if (content_type == "submission"){
             node.status({fill:"grey",shape:"dot",text:"deleting submission"});
             
             r.getSubmission(content_id).delete();
             
-            node.status({});
+            node.status({fill:"grey",shape:"dot",text:"submission deleted"});
         }
         else if (content_type == "private_message"){
             node.status({fill:"grey",shape:"dot",text:"deleting PM"});
             
             r.getMessage(content_id).deleteFromInbox();
             
-            node.status({});
+            node.status({fill:"grey",shape:"dot",text:"PM deleted"});
         }
+		
+		setTimeout(function() {
+			//wait for 4 seconds so that the above deletion confirmation can be seen.
+			node.status({});
+					
+        }, 4000);
+		
     });
 }
     RED.nodes.registerType("reddit-delete", DeleteContent);
@@ -660,26 +667,28 @@ module.exports = function(RED) {
 				if (vote == "upvote"){
 					node.status({fill:"grey",shape:"dot",text:"upvoting comment"});
 					r.getComment(content_id).upvote();
-					//node.status({});
+					node.status({fill:"grey",shape:"dot",text:"comment upvoted"});
 				}
 				else if (vote == "downvote"){
 					node.status({fill:"grey",shape:"dot",text:"downvoting comment"});
 					r.getComment(content_id).downvote();
-					//node.status({});
+					node.status({fill:"grey",shape:"dot",text:"comment downvoted"});
                 }
                 else if (vote == "unvote") {
                     node.status({ fill: "grey", shape: "dot", text: "unvoting comment" });
                     r.getComment(content_id).unvote();
-                    //node.status({});
+                    node.status({fill:"grey",shape:"dot",text:"comment un-voted"});
                 }
 
                 if (save_value == "save") {
                     node.status({ fill: "grey", shape: "dot", text: "saving comment" });
                     r.getComment(content_id).save();
+					node.status({fill:"grey",shape:"dot",text:"comment saved"});
                 }
                 else if (save_value == "unsave") {
                     node.status({ fill: "grey", shape: "dot", text: "unsaving comment" });
                     r.getComment(content_id).unsave();
+					node.status({fill:"grey",shape:"dot",text:"comment un-saved"});
                 }
 
 			}
@@ -687,30 +696,36 @@ module.exports = function(RED) {
 				if (vote == "upvote"){
 					node.status({fill:"grey",shape:"dot",text:"upvoting submission"});
 					r.getSubmission(content_id).upvote();
-					//node.status({});
+					node.status({fill:"grey",shape:"dot",text:"submission upvoted"});
 				}
 				else if (vote == "downvote"){
 					node.status({fill:"grey",shape:"dot",text:"downvoting submission"});
 					r.getSubmission(content_id).downvote();
-					//node.status({});
+					node.status({fill:"grey",shape:"dot",text:"submission downvoted"});
                 }
                 else if (vote == "unvote") {
                     node.status({ fill: "grey", shape: "dot", text: "unvoting submission" });
                     r.getSubmission(content_id).unvote();
-                    //node.status({});
+                    node.status({fill:"grey",shape:"dot",text:"submission un-voted"});
                 }
 
                 if (save_value == "save") {
                     node.status({ fill: "grey", shape: "dot", text: "saving submission" });
                     r.getSubmission(content_id).save();
+					node.status({fill:"grey",shape:"dot",text:"submission saved"});
                 }
                 else if (save_value == "unsave") {
                     node.status({ fill: "grey", shape: "dot", text: "unsaving submission" });
                     r.getSubmission(content_id).unsave();
+					node.status({fill:"grey",shape:"dot",text:"submission un-saved"});
                 }
 
             }
-            node.status({});
+            setTimeout(function() {
+			//wait for 4 seconds so that the above deletion confirmation can be seen.
+			node.status({});
+					
+        }, 4000);
         });
 	}
 	RED.nodes.registerType("reddit-react", ReactContent);
