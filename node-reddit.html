@@ -365,7 +365,7 @@
         <input type="text" id="node-input-content_id" placeholder="content_id">
     </div>
     <div class="form-row" id="node-action-sort"> 
-        <label for="node-input-sort"><i class="fa fa-wrench"></i> Sort by</label>
+        <label for="node-input-sort"><i class="fa fa-wrench"></i> Sort</label>
         <select type="text" id="node-input-sort" style="display: inline-block; width: 250px; vertical-align: top;">
             <option value="hot" outputs="1">Hot</option>
             <option value="new" outputs="1">New</option>
@@ -426,7 +426,7 @@
         <dt class="optional">content_id 
             <span class="property-type">string</span>
         </dt>
-        <dd> the id of the submission from which comments will be retrieved</dd>
+        <dd> the id of the listing to be retrieved</dd>
         <dt class="optional">sort 
             <span class="property-type">string</span>
         </dt>
@@ -467,16 +467,16 @@
 
     <h3>Details</h3>
     <h4>Populating fields</h4>
-    <p>All text input properties may be populated via text or mustache syntax relative to the incoming msg object.</p>
+    <p>All text input properties may be hardcoded via text or dynamically populated via mustache syntax relative to the incoming msg object.</p>
     <p>For example, if the target <code>subreddit</code> is located in <code>msg.payload.target</code>, then you can fill in <code>{{payload.target}}</code> in the <code>subreddit</code> field.</p>
     <h4>Comments</h4>
     <p>When a subreddit is the source, the newest comments from the subreddit are retrieved.</p>
-    <p>When a submission is the source, a comment tree is retrieved, broken up by the parent comments. Replies to this comment, if any, will be in <code>msg.payload.replies</code>.</p>
+    <p>When a submission is the source, a comment tree is retrieved, broken up by the parent comments. Replies to these comments, if any, will be in <code>msg.payload.replies</code>.</p>
     <h4>Fetch all</h4>
-    <p>The <code>fetch_all</code> property is only accessible when accessing your own PMs, comments, or submissions, or getting comments from a submission. 
-        To get your own comments or submissions, the <code>user</code> property must match the username in the credentials. Otherwise, the limit option will determine the number of listings
-        to be retrieved. The Reddit API docs outline the rate limits. 
-     </p>
+    <p>
+        The <code>fetch_all</code> property is only accessible when retrieving comments or submissions from a user, your own PMs, or comments from a submission. 
+        If set to <code>false</code>, the limit option will determine the number of listings to be retrieved. The Reddit API docs outline the rate limits. 
+    </p>
 
     <h3>References</h3>
     <ul>
@@ -577,7 +577,7 @@
 
     <h3>Details</h3>
     <h4>Populating fields</h4>
-    <p><code>content_id</code> and <code>text</code> may be populated via text or mustache syntax relative to the incoming msg object.</p>
+    <p><code>content_id</code> and <code>text</code> may be hardcoded via text or dynamically populated via mustache syntax relative to the incoming msg object.</p>
     <p>For example, if the target <code>content_id</code> is located in <code>msg.payload.target</code>, then you can fill in <code>{{payload.target}}</code> in the <code>content_id</code> field.</p>
     <h3>References</h3>
     <ul>
@@ -598,8 +598,7 @@
             subreddit: {value:"", required:true},
             query: {value:"", required:true},
             time: {value:"hour"},
-            sort: {value:"relevance"},
-            syntax: {value:"plain"}
+            sort: {value:"relevance"}
         },
         inputs:1,
         outputs:1,
@@ -641,21 +640,13 @@
         </select>
     </div>
     <div class="form-row" id="node-action-sort"> 
-        <label for="node-input-sort"><i class="fa fa-wrench"></i> Sort by</label>
+        <label for="node-input-sort"><i class="fa fa-wrench"></i> Sort</label>
         <select type="text" id="node-input-sort" style="display: inline-block; width: 250px; vertical-align: top;">
             <option value="relevance" outputs="1">Relevance</option>
             <option value="hot" outputs="1">Hot</option>
             <option value="new" outputs="1">New</option>
             <option value="comments" outputs="1">Comments</option>
             <option value="top" outputs="1">Top</option>
-        </select>
-    </div>
-    <div class="form-row" id="node-action-syntax"> 
-        <label for="node-input-syntax"><i class="fa fa-wrench"></i> Syntax</label>
-        <select type="text" id="node-input-syntax" style="display: inline-block; width: 250px; vertical-align: top;">
-            <option value="plain" outputs="1">Plain</option>
-            <option value="cloudsearch" outputs="1">CloudSearch</option>
-            <option value="lucene" outputs="1">Lucene</option>
         </select>
     </div>
 </script>
@@ -677,14 +668,10 @@
             <span class="property-type">string</span>
         </dt>
         <dd> the time range of the search results </dd>
-        <dt>sort by
+        <dt>sort
             <span class="property-type">string</span>
         </dt>
         <dd> the sort filter for the results </dd>
-        <dt>syntax
-            <span class="property-type">string</span>
-        </dt>
-        <dd> the search syntax </dd>
     </dl>
 
     <h3>Outputs</h3>
@@ -705,9 +692,8 @@
 
     <h3>Details</h3>
     <h4>Populating fields</h4>
-    <p><code>content_id</code> and <code>text</code> may be populated via text or mustache syntax relative to the incoming msg object. If a field is empty, the property of the incoming <code>msg</code> object will be checked.</p>
-    <p>For example, <code>content_id</code> may be filled in as text in the HTML form or populated with mustache syntax. If these are not found, <code>msg.content_id</code> will be checked.</p>
-    <p>If the target <code>content_id</code> is located in <code>msg.payload.target</code>, then you can fill in <code>{{payload.target}}</code> in the <code>content_id</code> field.</p>
+    <p><code>content_id</code> and <code>text</code> may be hardcoded via text or dynamically populated via mustache syntax relative to the incoming msg object.</p>
+    <p>For example, if the target <code>query</code> is located in <code>msg.payload.target</code>, then you can fill in <code>{{payload.target}}</code> in the <code>query</code> field.</p>
     <h3>References</h3>
     <ul>
         <li><a href="https://www.reddit.com/wiki/search">Reddit search wiki</a> - information regarding search fields and syntax</li>
