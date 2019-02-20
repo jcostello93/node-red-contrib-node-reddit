@@ -357,10 +357,9 @@ module.exports = function(RED) {
             var query = parseField(msg, n.query);
             var sort = n.sort;
             var time = n.time;
-            var syntax = n.syntax;
             var responseArr = []
 
-            r.getSubreddit(subreddit).search({query: query, sort: sort, time: time, syntax: syntax}).then(response => {
+            r.getSubreddit(subreddit).search({query: query, sort: sort, time: time}).then(response => {
                 copyPropertiesExceptMethods(responseArr, response, msg)
                 node.status({})
                 node.send([responseArr]) 
