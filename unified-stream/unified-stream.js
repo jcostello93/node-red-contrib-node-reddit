@@ -1,29 +1,30 @@
+
 module.exports = function(RED) {
-  "use strict";
+    "use strict";
 
-  var mustache = require("mustache");
+    var mustache = require("mustache");
 
-  function copyPropertiesExceptMethods(newArr, originalArr) {
-    for (var i = 0; i < originalArr.length; i++){
-      var obj = JSON.stringify(originalArr[i]);
-      obj = JSON.parse(obj);
-      newArr.push({payload: obj})
-    }
-  }
-
-  // In order of priority: 1. HTML text OR mustache syntax, 2. msg.msgProp 
-  function parseField(msg, nodeProp, msgProp) {
-    var field = null;
-    var isTemplatedField = (nodeProp||"").indexOf("{{") != -1
-    if (isTemplatedField) {
-      field = mustache.render(nodeProp,msg);
-    }
-    else {
-      field = nodeProp || msg[msgProp];
+     function copyPropertiesExceptMethods(newArr, originalArr, msg) {
+        for (var i = 0; i < originalArr.length; i++){
+            var clonedMsg = RED.util.cloneMessage(msg);
+            clonedMsg.payload = JSON.parse(JSON.stringify(originalArr[i]));
+            newArr.push(clonedMsg);
+        }
     }
 
-    return field;
-  }
+    // Check for mustache syntax
+    function parseField(msg, nodeProp) {
+        var field = null;
+        var isTemplatedField = (nodeProp||"").indexOf("{{") != -1
+        if (isTemplatedField) {
+            field = mustache.render(nodeProp,msg);
+        }
+        else {
+            field = nodeProp;
+        }
+
+        return field;
+    }
 
   // setup the credentials for each node
   // ex:  var node = this;
@@ -49,29 +50,29 @@ module.exports = function(RED) {
     return options;
   }
 
-  const snoowrap = require('snoowrap');
-  const snoostorm= require('snoostorm');
+    const snoowrap = require('snoowrap');
+    const snoostorm= require('snoostorm');
 
-  function ConfigNode(n) {
-    RED.nodes.createNode(this,n);
-    this.username = n.username;
-    this.user_agent = n.user_agent;
-    this.auth_type = n.auth_type;
-    this.name = n.name;
-  }
-  RED.nodes.registerType("reddit-credentials",ConfigNode,{
-    credentials: {
-      password: {type: "password"},
-      client_id: {type: "password"},
-      client_secret: {type: "password"},
-      refresh_token: {type: "password"},
-      access_token: {type: "password"}
+    function ConfigNode(n) {
+        RED.nodes.createNode(this,n);
+        this.username = n.username;
+        this.user_agent = n.user_agent;
+        this.auth_type = n.auth_type;
+        this.name = n.name;
     }
-  });
+    RED.nodes.registerType("reddit-credentials",ConfigNode,{
+      credentials: {
+        password: {type: "password"},
+        client_id: {type: "password"},
+        client_secret: {type: "password"},
+        refresh_token: {type: "password"},
+        access_token: {type: "password"}
+      }
+    });
 
-  // subreddit stream node
+// stream node
 
-  function StreamSubreddit(n) {
+  function Stream(n) {
     RED.nodes.createNode(this, n);
     
     let node = this;
@@ -110,6 +111,13 @@ module.exports = function(RED) {
           count++;
           node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count});
         });
+      } else if (n.kind === "inbox") {
+        stream = s.InboxStream({});
+        stream.on("PrivateMessage", (pm) => {
+          node.send({payload: pm});
+          count++;
+          node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count});
+        });
       }
 
       // stop streaming after optional user-provided timeout
@@ -130,9 +138,9 @@ module.exports = function(RED) {
     });
 
     // don't start streaming until we get user input
-    if (n.kind != "" && n.subreddit != "") {
+    if (n.kind == "inbox" || (n.kind != "" && n.subreddit != "")) {
       node.emit("input", {});
     }
   }
-  RED.nodes.registerType("stream", StreamSubreddit);
+  RED.nodes.registerType("stream", Stream);
 }
