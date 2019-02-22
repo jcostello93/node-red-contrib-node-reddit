@@ -95,6 +95,8 @@
         return this.username || this.name;
       },
       exportable: false,
+      icon: "snoo2.png",
+      color:"#ffa27f",
       oneditprepare: oneditprepare
     });
 </script>
@@ -115,7 +117,7 @@
     </ul>
 </script>
 <!-- END Config Node -->
- 
+
 <!-- START Stream -->
 <script type="text/javascript">
   RED.nodes.registerType('stream', {
@@ -124,21 +126,36 @@
     defaults: {
       name: {value: ""},
       reddit: {type: "reddit-credentials", required: true},
-      kind: {value: "submissions", required: true},
-      subreddit: {value: "", required: true},
+      kind: {value: "", required: true},
+      subreddit: {value: ""},
       timeout: {value: ""}
     },
     inputs: 0,
     outputs: 1,
-    icon: "inject.png",
+    icon: "snoo2.png",
+    color:"#ffa27f",
     label: function() {
+      let creds = RED.nodes.node(this.reddit);
       if (this.name) {
         return this.name;
+      } else if (this.kind === "inbox") {
+        return creds ? "u/" + creds.username : "PM stream";
       } else if (this.subreddit) {
         return "r/" + this.subreddit;
       } else {
         return "stream";
       }
+    },
+    oneditprepare: () => {
+      $("#node-input-kind").change(() => {
+        $("#node-action-subreddit").hide();
+  
+        let type = $("#node-input-kind option:selected").val();
+        
+        if (type === "submissions" || type === "comments") {
+          $("#node-action-subreddit").show();
+        }
+      });
     }
   });
 </script>
@@ -157,30 +174,31 @@
     <label for="node-input-kind"><i class="fa fa-wrench"></i> Stream</label>
     <select type="text" id="node-input-kind" style="display: inline-block; width: 250px; vertical-align: top;">
       <option value="submissions" outputs="1">Submissions</option>                            
-      <option value="comments" outputs="1">Comments</option>                            
+      <option value="comments" outputs="1">Comments</option>
+      <option value="inbox" outputs="1">Private Messages</option>
     </select>
   </div>
-  <div class="form-row">
+  <div class="form-row" id="node-action-subreddit">
     <label for="node-input-subreddit"><i class="icon-tag"></i> Subreddit</label>
     <input type="text" id="node-input-subreddit" placeholder="subreddit name">
   </div>
   <div class="form-row">
-    <label for="node-input-subreddit"><i class="icon-tag"></i> Timeout (s)</label>
+    <label for="node-input-timeout"><i class="icon-tag"></i> Timeout (s)</label>
     <input type="text" id="node-input-timeout" placeholder="optional timeout in seconds">
   </div>
 </script>
   
 <script type="text/x-red" data-help-name="stream">
-  <p>Stream submissions or comments from a subreddit.</p>
+  <p>Stream submissions and comments from a subreddit or private messages from your inbox.</p>
     
   <h3>Inputs</h3>
     <dl class="message-properties">
       <dt>credentials <span class="property-type">config node</span></dt>
       <dd> your reddit credentials.</dd>
       <dt>stream <span class="property-type">selection</span></dt>
-      <dd> choose comments or submissions.</dd>
+      <dd> choose comments, submissions, or PMs.</dd>
       <dt>subreddit <span class="property-type">string</span></dt>
-      <dd> the subreddit to stream.</dd>
+      <dd> the subreddit to stream (unused for PMs).</dd>
 
       <dt class="optional">name <span class="property-type">string</span></dt>
       <dd> the name of this node.</dd>
@@ -193,7 +211,7 @@
       <li>Standard output
         <dl class="message-properties">
           <dt>payload <span class="property-type">object</span></dt>
-          <dd> details of the comment or submission.</dd>
+          <dd> details of the comment, submission, or PM.</dd>
         </dl>
       </li>
       <li>Standard error

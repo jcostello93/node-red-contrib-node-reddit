@@ -431,9 +431,9 @@ module.exports = function(RED) {
   }
   RED.nodes.registerType("create-submission", CreateSubmission);
 
-// subreddit stream node
+// stream node
 
-  function StreamSubreddit(n) {
+  function Stream(n) {
     RED.nodes.createNode(this, n);
     
     let node = this;
@@ -472,6 +472,13 @@ module.exports = function(RED) {
           count++;
           node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count});
         });
+      } else if (n.kind === "inbox") {
+        stream = s.InboxStream({});
+        stream.on("PrivateMessage", (pm) => {
+          node.send({payload: pm});
+          count++;
+          node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count});
+        });
       }
 
       // stop streaming after optional user-provided timeout
@@ -492,11 +499,11 @@ module.exports = function(RED) {
     });
 
     // don't start streaming until we get user input
-    if (n.kind != "" && n.subreddit != "") {
+    if (n.kind == "inbox" || (n.kind != "" && n.subreddit != "")) {
       node.emit("input", {});
     }
   }
-  RED.nodes.registerType("stream", StreamSubreddit);
+  RED.nodes.registerType("stream", Stream);
 
   function DeleteContent(n){
     RED.nodes.createNode(this,n);
