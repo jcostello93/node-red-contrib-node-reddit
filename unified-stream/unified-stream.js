@@ -112,8 +112,11 @@ module.exports = function(RED) {
           node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count});
         });
       } else if (n.kind === "inbox") {
-        stream = s.InboxStream({});
+        stream = s.InboxStream({
+          polltime: 20000
+        });
         stream.on("PrivateMessage", (pm) => {
+          r.markMessagesAsRead([pm]);
           node.send({payload: pm});
           count++;
           node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count});
