@@ -70,80 +70,94 @@ module.exports = function(RED) {
       }
     });
 
-// stream node
+// create node
 
-  function Stream(n) {
+  function Create(n) {
     RED.nodes.createNode(this, n);
-    
+  
     let node = this;
     let options = parseCredentials(n);
    
     const r = new snoowrap(options);
-    const s = new snoostorm(r);
-
-    node.status({});
-
-    let stream;
     
-    node.on('input', () => {
-      // begin displaying the stream counter
-      let count = 0;
-      node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count}); 
+    node.status({});
+    
+    node.on('input', msg => {
 
-      // stream and update the stream counter
-      if (n.kind === "submissions") {
-        stream = s.SubmissionStream({
-          subreddit: n.subreddit,
-          results: 10
+      node.status({fill: "blue", shape: "dot", text: "submitting"});
+      // parse user input
+      let submissionType = n.submissionType;
+      let subreddit = parseField(msg, n.subreddit);
+      let title = parseField(msg, n.title);
+      let url = parseField(msg, n.url);
+      let text = parseField(msg, n.text);
+      let original = parseField(msg, n.original);
+      let to = parseField(msg, n.to);
+      let recipient = parseField(msg, n.recipient);
+      let subject = parseField(msg, n.subject);
+      let message = parseField(msg, n.message);
+
+      // show the correct status message
+      let statusMessage;
+
+      if (submissionType === "pm") {
+        statusMessage = "sending";
+      } else {
+        statusMessage = "submitting";
+      }
+
+      node.status({fill: "blue", shape: "dot", text: statusMessage});
+
+      // prepare submission
+      let snooCall;
+
+      if (submissionType === "self") {
+        snooCall = r.submitSelfpost({
+          subredditName: subreddit,
+          title: title,
+          text: text
         });
-        stream.on("submission", (post) => {
-          node.send({payload: post});
-          count++;
-          node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count});
-        });        
-      } else if (n.kind === "comments") {
-        stream = s.CommentStream({
-          subreddit: n.subreddit,
-          results: 10
+      } else if (submissionType === "link") {
+        snooCall = r.submitLink({
+          subredditName: subreddit,
+          title: title,
+          url: url
         });
-        stream.on("comment", (comment) => {
-          node.send({payload: comment});
-          count++;
-          node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count});
+      } else if (submissionType === "cross") {
+        snooCall = r.submitCrosspost({
+          title: title,
+          originalPost: original,
+          subredditName: subreddit
         });
-      } else if (n.kind === "inbox") {
-        stream = s.InboxStream({
-          polltime: 20000
-        });
-        stream.on("PrivateMessage", (pm) => {
-          r.markMessagesAsRead([pm]);
-          node.send({payload: pm});
-          count++;
-          node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count});
+      } else if (submissionType === "pm") {
+        snooCall = r.composeMessage({
+          to: recipient,
+          subject: subject,
+          text: message
         });
       }
 
-      // stop streaming after optional user-provided timeout
-      if (n.timeout != "") {
-        let timeout = parseInt(n.timeout, 10);
-        if ( !isNaN(timeout) ) {
-          setTimeout( () => { 
-            stream.emit("stop");
-            node.status({fill: "green", shape: "dot", text: "complete: " + count + " " + n.kind});
-          }, timeout * 1000);
+      // submit
+      snooCall.then(response => {
+        let responseMessage;
+        if (response.name !== undefined) {
+          responseMessage = response.name;
+          msg.payload = response;
+        } else {
+          responseMessage = "PM sent";
+          msg.payload = {
+            recipient: recipient,
+            subject: subject,
+            message: message
+          }
         }
-      }
-    });
-
-    // stop streaming if node deleted from flow
-    node.on("close", () => {
-      stream.emit("stop");
-    });
-
-    // don't start streaming until we get user input
-    if (n.kind == "inbox" || (n.kind != "" && n.subreddit != "")) {
-      node.emit("input", {});
-    }
+        node.status({fill: "green", shape: "dot", text: "success: " + responseMessage});
+        node.send(msg);
+      }).catch(err => {
+        node.error(err);
+        node.status({fill: "red", shape: "dot", text: "error"});
+      });
+    });       
   }
-  RED.nodes.registerType("stream", Stream);
+  RED.nodes.registerType("create", Create);
 }

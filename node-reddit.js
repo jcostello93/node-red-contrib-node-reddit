@@ -372,9 +372,9 @@ module.exports = function(RED) {
     }
     RED.nodes.registerType("search",SearchNode);  
 
-// create submission
+// create node
 
-  function CreateSubmission(n) {
+  function Create(n) {
     RED.nodes.createNode(this, n);
   
     let node = this;
@@ -385,8 +385,8 @@ module.exports = function(RED) {
     node.status({});
     
     node.on('input', msg => {
-      node.status({fill: "blue", shape: "dot", text: "submitting"});
 
+      node.status({fill: "blue", shape: "dot", text: "submitting"});
       // parse user input
       let submissionType = n.submissionType;
       let subreddit = parseField(msg, n.subreddit);
@@ -394,6 +394,21 @@ module.exports = function(RED) {
       let url = parseField(msg, n.url);
       let text = parseField(msg, n.text);
       let original = parseField(msg, n.original);
+      let to = parseField(msg, n.to);
+      let recipient = parseField(msg, n.recipient);
+      let subject = parseField(msg, n.subject);
+      let message = parseField(msg, n.message);
+
+      // show the correct status message
+      let statusMessage;
+
+      if (submissionType === "pm") {
+        statusMessage = "sending";
+      } else {
+        statusMessage = "submitting";
+      }
+
+      node.status({fill: "blue", shape: "dot", text: statusMessage});
 
       // prepare submission
       let snooCall;
@@ -416,12 +431,29 @@ module.exports = function(RED) {
           originalPost: original,
           subredditName: subreddit
         });
+      } else if (submissionType === "pm") {
+        snooCall = r.composeMessage({
+          to: recipient,
+          subject: subject,
+          text: message
+        });
       }
 
       // submit
       snooCall.then(response => {
-        node.status({fill: "green", shape: "dot", text: "success: " + response.name});
-        msg.payload = response;
+        let responseMessage;
+        if (response.name !== undefined) {
+          responseMessage = response.name;
+          msg.payload = response;
+        } else {
+          responseMessage = "PM sent";
+          msg.payload = {
+            recipient: recipient,
+            subject: subject,
+            message: message
+          }
+        }
+        node.status({fill: "green", shape: "dot", text: "success: " + responseMessage});
         node.send(msg);
       }).catch(err => {
         node.error(err);
@@ -429,7 +461,7 @@ module.exports = function(RED) {
       });
     });       
   }
-  RED.nodes.registerType("create-submission", CreateSubmission);
+  RED.nodes.registerType("create", Create);
 
 // stream node
 
@@ -473,8 +505,11 @@ module.exports = function(RED) {
           node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count});
         });
       } else if (n.kind === "inbox") {
-        stream = s.InboxStream({});
+        stream = s.InboxStream({
+          polltime: 20000
+        });
         stream.on("PrivateMessage", (pm) => {
+          r.markMessagesAsRead([pm]);
           node.send({payload: pm});
           count++;
           node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count});
