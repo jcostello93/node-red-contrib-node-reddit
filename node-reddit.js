@@ -26,6 +26,17 @@ module.exports = function(RED) {
         return field;
     }
 
+    function parseError(err) {
+        var errorMsg;
+        if (err.error) {
+            errorMsg = err.error.error + " " + err.error.message, msg;
+        } else {
+            errorMsg = "403 Forbidden";
+        }
+        
+        return errorMsg;
+    }
+
   // setup the credentials for each node
   // ex:  var node = this;
   //      var options = parseCredentials(n);
@@ -105,7 +116,8 @@ module.exports = function(RED) {
                             node.status({});
                             node.send([responseArr]);
                         }).catch(err => {
-                            node.error(err.error.error + " " + err.error.message, msg)
+                            var errorMsg = parseError(err);
+                            node.error(errorMsg, msg);
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })   
                     } else if (sort == "hot") {
@@ -114,7 +126,8 @@ module.exports = function(RED) {
                             node.status({})
                             node.send([responseArr])  
                         }).catch(err => {
-                            node.error(err.error.error + " " + err.error.message, msg)
+                            var errorMsg = parseError(err);
+                            node.error(errorMsg, msg);
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })   
                     } else if (sort == "new") {
@@ -123,7 +136,8 @@ module.exports = function(RED) {
                             node.status({})
                             node.send([responseArr])  
                         }).catch(err => {
-                            node.error(err.error.error + " " + err.error.message, msg)
+                            var errorMsg = parseError(err);
+                            node.error(errorMsg, msg);
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })   
                     } else if (sort == "rising") {
@@ -132,7 +146,8 @@ module.exports = function(RED) {
                             node.status({})
                             node.send([responseArr])  
                         }).catch(err => {
-                            node.error(err.error.error + " " + err.error.message, msg)
+                            var errorMsg = parseError(err);
+                            node.error(errorMsg, msg);
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })   
                     } else if (sort == "top") {
@@ -141,12 +156,11 @@ module.exports = function(RED) {
                             node.status({})
                             node.send([responseArr])  
                         }).catch(err => {
-                            node.error(err.error.error + " " + err.error.message, msg)
+                            var errorMsg = parseError(err);
+                            node.error(errorMsg, msg);
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })   
-                    } else {
-                        node.error("Invalid parameters for submission request")
-                    }
+                    } 
                 } else if (submission_source == "user") {
                     if (fetch_all == "true") {
                         r.getUser(user).getSubmissions().fetchAll().then(response => {
@@ -154,7 +168,8 @@ module.exports = function(RED) {
                             node.status({})
                             node.send([responseArr]) 
                         }).catch(err => {
-                            node.error(err.error.error + " " + err.error.message, msg)
+                            var errorMsg = parseError(err);
+                            node.error(errorMsg, msg);
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })   
                     } else {
@@ -163,7 +178,8 @@ module.exports = function(RED) {
                             node.status({})
                             node.send([responseArr]) 
                         }).catch(err => {
-                            node.error(err.error.error + " " + err.error.message, msg)
+                            var errorMsg = parseError(err);
+                            node.error(errorMsg, msg);
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })   
                     }
@@ -173,7 +189,8 @@ module.exports = function(RED) {
                         node.status({});
                         node.send(msg); 
                     }).catch(err => {
-                        node.error(err.error.error + " " + err.error.message, msg)
+                        var errorMsg = parseError(err);
+                        node.error(errorMsg, msg);
                         node.status({fill:"red",shape:"dot",text:"error"});
                     }) 
                 }                          
@@ -184,7 +201,8 @@ module.exports = function(RED) {
                         node.status({})
                         node.send([responseArr])  
                     }).catch(err => {
-                        node.error(err.error.error + " " + err.error.message, msg)
+                        var errorMsg = parseError(err);
+                        node.error(errorMsg, msg);
                         node.status({fill:"red",shape:"dot",text:"error"});
                     })
                 } else if (comment_source == "user") {
@@ -194,7 +212,8 @@ module.exports = function(RED) {
                             node.status({})
                             node.send([responseArr]) 
                         }).catch(err => {
-                            node.error(err.error.error + " " + err.error.message, msg)
+                            var errorMsg = parseError(err);
+                            node.error(errorMsg, msg);
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })   
                     } else {
@@ -203,7 +222,8 @@ module.exports = function(RED) {
                             node.status({})
                             node.send([responseArr]) 
                         }).catch(err => {
-                            node.error(err.error.error + " " + err.error.message, msg)
+                            var errorMsg = parseError(err);
+                            node.error(errorMsg, msg);
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })   
                     }
@@ -218,7 +238,8 @@ module.exports = function(RED) {
                         node.status({})
                         node.send([responseArr]) 
                     }).catch(err => {
-                        node.error(err.error.error + " " + err.error.message, msg)
+                        var errorMsg = parseError(err);
+                        node.error(errorMsg, msg);
                         node.status({fill:"red",shape:"dot",text:"error"});
                     })   
                 } else if (comment_source == "id") {
@@ -227,8 +248,8 @@ module.exports = function(RED) {
                         node.status({});
                         node.send(msg); 
                     }).catch(err => {
-                        // Snoowrap doesn't handle this error correctly
-                        node.error("404 Not Found", msg)
+                        var errorMsg = parseError(err);
+                        node.error(errorMsg, msg);
                         node.status({fill:"red",shape:"dot",text:"error"});
                     }) 
                 }
@@ -240,7 +261,8 @@ module.exports = function(RED) {
                             node.status({})
                             node.send([responseArr])  
                         }).catch(err => {
-                            node.error(err.error.error + " " + err.error.message, msg)
+                            var errorMsg = parseError(err);
+                            node.error(errorMsg, msg);
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })
                     } else {
@@ -249,7 +271,8 @@ module.exports = function(RED) {
                             node.status({})
                             node.send([responseArr])  
                         }).catch(err => {
-                            node.error(err.error.error + " " + err.error.message, msg)
+                            var errorMsg = parseError(err);
+                            node.error(errorMsg, msg);
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })
                     }
@@ -259,7 +282,8 @@ module.exports = function(RED) {
                         node.status({});
                         node.send(msg); 
                     }).catch(err => {
-                        node.error(err.error.error + " " + err.error.message, msg)
+                        var errorMsg = parseError(err);
+                        node.error(errorMsg, msg);
                         node.status({fill:"red",shape:"dot",text:"error"});
                     }) 
                 }
@@ -297,7 +321,8 @@ module.exports = function(RED) {
                 node.status({fill: "green", shape: "dot", text: "success: " + response.name});
                 node.send(msg) 
             }).catch(function(err) {
-                node.error(err.error.error + " " + err.error.message, msg)
+                var errorMsg = parseError(err);
+                node.error(errorMsg, msg);
                 node.status({fill:"red",shape:"dot",text:"error"});
             })
         });        
@@ -325,7 +350,8 @@ module.exports = function(RED) {
                 node.status({})
                 node.send([responseArr]) 
             }).catch(function(err) {
-                node.error(err.error.error + " " + err.error.message, msg)
+                var errorMsg = parseError(err);
+                node.error(errorMsg, msg);
                 node.status({fill:"red",shape:"dot",text:"error"});
             })
         });       
