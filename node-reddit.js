@@ -71,7 +71,7 @@ module.exports = function(RED) {
     });
 
 
-    function GetContentNode(n) {
+    function GetNode(n) {
         RED.nodes.createNode(this,n);
         var node = this;
         var options = parseCredentials(n);
@@ -102,207 +102,171 @@ module.exports = function(RED) {
                     if (sort == "controversial") {
                         r.getControversial(subreddit, {time: time, limit:limit}).then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg);
-                                node.status({});
+                            node.status({});
                             node.send([responseArr]);
-                        })
-                        .catch(err => {
-                            node.error(err)
+                        }).catch(err => {
+                            node.error(err.error.error + " " + err.error.message, msg)
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })   
-                    }
-                    else if (sort == "hot") {
+                    } else if (sort == "hot") {
                         r.getHot(subreddit, {limit: limit}).then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
                             node.status({})
                             node.send([responseArr])  
-                        })
-                        .catch(err => {
-                            node.error(err)
+                        }).catch(err => {
+                            node.error(err.error.error + " " + err.error.message, msg)
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })   
-                    }
-                    else if (sort == "new") {
+                    } else if (sort == "new") {
                         r.getNew(subreddit, {limit: limit}).then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
                             node.status({})
                             node.send([responseArr])  
-                        })
-                        .catch(err => {
-                            node.error(err)
+                        }).catch(err => {
+                            node.error(err.error.error + " " + err.error.message, msg)
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })   
-                    }
-                    else if (sort == "rising") {
+                    } else if (sort == "rising") {
                         r.getRising(subreddit, {limit: limit}).then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
                             node.status({})
                             node.send([responseArr])  
-                        })
-                        .catch(err => {
-                            node.error(err)
+                        }).catch(err => {
+                            node.error(err.error.error + " " + err.error.message, msg)
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })   
-                    }
-                    else if (sort == "top") {
+                    } else if (sort == "top") {
                         r.getTop(subreddit, {time: time, limit:limit}).then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
                             node.status({})
                             node.send([responseArr])  
-                        })
-                        .catch(err => {
-                            node.error(err)
+                        }).catch(err => {
+                            node.error(err.error.error + " " + err.error.message, msg)
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })   
-                    }
-                    else {
+                    } else {
                         node.error("Invalid parameters for submission request")
                     }
-                }
-                else if (submission_source == "user") {
+                } else if (submission_source == "user") {
                     if (fetch_all == "true") {
                         r.getUser(user).getSubmissions().fetchAll().then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
                             node.status({})
                             node.send([responseArr]) 
-                        }) 
-                        .catch(err => {
-                            node.error(err)
+                        }).catch(err => {
+                            node.error(err.error.error + " " + err.error.message, msg)
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })   
-                    }
-                    else {
+                    } else {
                         r.getUser(user).getSubmissions({limit: limit}).then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
                             node.status({})
                             node.send([responseArr]) 
-                        }) 
-                        .catch(err => {
-                            node.error(err)
+                        }).catch(err => {
+                            node.error(err.error.error + " " + err.error.message, msg)
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })   
                     }
-                }
-                else if (submission_source == "id") {
+                } else if (submission_source == "id") {
                     r.getSubmission(content_id).fetch().then(response => {
                         msg.payload = JSON.parse(JSON.stringify(response));
                         node.status({});
                         node.send(msg); 
-                    }) 
-                    .catch(err => {
-                        node.error(err)
+                    }).catch(err => {
+                        node.error(err.error.error + " " + err.error.message, msg)
                         node.status({fill:"red",shape:"dot",text:"error"});
                     }) 
-                }
-                          
-            } 
-            else if (content_type == "comment") {
+                }                          
+            } else if (content_type == "comment") {
                 if (comment_source == "subreddit") {
                     r.getSubreddit(subreddit).getNewComments({limit:limit}).then(response => {
                         copyPropertiesExceptMethods(responseArr, response, msg)
                         node.status({})
                         node.send([responseArr])  
-                    })
-                    .catch(err => {
-                        node.error(err)
+                    }).catch(err => {
+                        node.error(err.error.error + " " + err.error.message, msg)
                         node.status({fill:"red",shape:"dot",text:"error"});
                     })
-                }
-                else if (comment_source == "user") {
+                } else if (comment_source == "user") {
                     if (fetch_all == "true") { 
                         r.getUser(user).getComments().fetchAll().then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
                             node.status({})
                             node.send([responseArr]) 
-                        }) 
-                        .catch(err => {
-                            node.error(err)
+                        }).catch(err => {
+                            node.error(err.error.error + " " + err.error.message, msg)
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })   
-                    }
-                    else {
+                    } else {
                         r.getUser(user).getComments({limit: limit}).then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
                             node.status({})
                             node.send([responseArr]) 
-                        }) 
-                        .catch(err => {
-                            node.error(err)
+                        }).catch(err => {
+                            node.error(err.error.error + " " + err.error.message, msg)
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })   
                     }
-                }
-                else if (comment_source == "submission") {
+                } else if (comment_source == "submission") {
                     if (fetch_all == "true") { 
                         limit = Infinity; 
                         depth = Infinity; 
                     }
 
                     r.getSubmission(content_id).expandReplies({limit: limit, depth: depth}).then(response => {
-                        console.log(response.comments.length)
                         copyPropertiesExceptMethods(responseArr, response.comments, msg);
                         node.status({})
                         node.send([responseArr]) 
-                    }) 
-                    .catch(err => {
-                        node.error(err)
+                    }).catch(err => {
+                        node.error(err.error.error + " " + err.error.message, msg)
                         node.status({fill:"red",shape:"dot",text:"error"});
                     })   
-                }
-                else if (comment_source == "id") {
+                } else if (comment_source == "id") {
                     r.getComment(content_id).fetch().then(response => {
                         msg.payload = JSON.parse(JSON.stringify(response));
                         node.status({});
                         node.send(msg); 
-                    }) 
-                    .catch(err => {
-                        node.error(err)
+                    }).catch(err => {
+                        // Snoowrap doesn't handle this error correctly
+                        node.error("404 Not Found", msg)
                         node.status({fill:"red",shape:"dot",text:"error"});
                     }) 
                 }
-            }
-            else if (content_type == "pm") {
+            } else if (content_type == "pm") {
                 if (pm_source == "inbox") {
                     if (fetch_all == "true") {
                         r.getInbox({filter:"messages"}).fetchAll().then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
                             node.status({})
                             node.send([responseArr])  
-                        })
-                        .catch(err => {
-                            node.error(err)
+                        }).catch(err => {
+                            node.error(err.error.error + " " + err.error.message, msg)
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })
-                    }
-                    else {
+                    } else {
                         r.getInbox({limit:limit, filter:"messages"}).then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
                             node.status({})
                             node.send([responseArr])  
-                        })
-                        .catch(err => {
-                            node.error(err)
+                        }).catch(err => {
+                            node.error(err.error.error + " " + err.error.message, msg)
                             node.status({fill:"red",shape:"dot",text:"error"});
                         })
                     }
-                }
-                else if (pm_source == "id") {
+                } else if (pm_source == "id") {
                     r.getMessage(content_id).fetch().then(response => {
                         msg.payload = JSON.parse(JSON.stringify(response));
                         node.status({});
                         node.send(msg); 
-                    }) 
-                    .catch(err => {
-                        node.error(err)
+                    }).catch(err => {
+                        node.error(err.error.error + " " + err.error.message, msg)
                         node.status({fill:"red",shape:"dot",text:"error"});
                     }) 
                 }
             }
-            else {
-                node.error("content_type is required")
-            }
         });        
     }
-    RED.nodes.registerType("get content",GetContentNode);
+    RED.nodes.registerType("get",GetNode);
 
 
     function ReplyNode(n) {
@@ -322,20 +286,17 @@ module.exports = function(RED) {
             var snoowrap_obj;
             if (content_type == "submission") {
                 snoowrap_obj = r.getSubmission(content_id);
-            }
-            else if (content_type == "comment") {
+            } else if (content_type == "comment") {
                 snoowrap_obj = r.getComment(content_id);
-            }
-            else if (content_type == "pm") {
+            } else if (content_type == "pm") {
                 snoowrap_obj = r.getMessage(content_id);
             }
 
             snoowrap_obj.reply(text).then(response => {
                 msg.payload = response;
                 node.status({fill: "green", shape: "dot", text: "success: " + response.name});
-                //node.send(msg) 
-            })              
-            .catch(function(err) {
+                node.send(msg) 
+            }).catch(function(err) {
                 node.error(err.error.error + " " + err.error.message, msg)
                 node.status({fill:"red",shape:"dot",text:"error"});
             })
@@ -363,9 +324,8 @@ module.exports = function(RED) {
                 copyPropertiesExceptMethods(responseArr, response, msg)
                 node.status({})
                 node.send([responseArr]) 
-            })              
-            .catch(function(err) {
-                node.error(err)
+            }).catch(function(err) {
+                node.error(err.error.error + " " + err.error.message, msg)
                 node.status({fill:"red",shape:"dot",text:"error"});
             })
         });       
