@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
-    "snoostorm": "^0.0.5",  
+    "snoostorm": "^1.0.1",  
     "snoowrap": "^1.15.2",
     "mustache": "^3.0.1"
   },
