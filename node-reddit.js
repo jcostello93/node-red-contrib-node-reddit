@@ -28,8 +28,8 @@ module.exports = function(RED) {
 
     function parseError(err) {
         var errorMsg;
-        if (err.error) {
-            errorMsg = err.error.error + " " + err.error.message, msg;
+        if (err.error && err.error.error && err.error.message) {
+            errorMsg = err.error.error + " " + err.error.message;
         } else {
             errorMsg = "403 Forbidden";
         }
