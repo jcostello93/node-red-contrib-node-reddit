@@ -900,6 +900,8 @@
       reddit: {type: "reddit-credentials", required: true},
       kind: {value: "", required: true},
       subreddit: {value: ""},
+      filter: {value: "inbox"},
+      markedAsRead: {},
       timeout: {value: ""}
     },
     inputs: 0,
@@ -919,13 +921,27 @@
       }
     },
     oneditprepare: () => {
+      $("#node-input-markedAsRead").prop("disabled", true);
+
       $("#node-input-kind").change(() => {
         $("#node-action-subreddit").hide();
+        $("#node-action-filter").hide();
+        $("#node-action-markedAsRead").hide();
   
         let type = $("#node-input-kind option:selected").val();
         
         if (type === "submissions" || type === "comments") {
           $("#node-action-subreddit").show();
+        } else if (type === "inbox") {
+          $("#node-action-filter").show();
+          $("#node-action-markedAsRead").show();
+        }
+      });
+
+      $("#node-input-filter").change(() => {
+        $("#node-input-markedAsRead").prop("disabled", true);
+        if ($("#node-input-filter").val() === "unread") {
+          $("#node-input-markedAsRead").prop("disabled", false);
         }
       });
     }
@@ -954,6 +970,21 @@
     <label for="node-input-subreddit"><i class="icon-tag"></i> Subreddit</label>
     <input type="text" id="node-input-subreddit" placeholder="subreddit name">
   </div>
+  <div class="form-row" id="node-action-filter">
+    <label for="node-input-filter"><i class="fa fa-wrench"></i> Filter</label>
+    <select type="text" id="node-input-filter" style="display: inline-block; width: 250px; vertical-align: top;">
+      <option value="inbox" outputs="1">inbox</option>
+      <option value="unread" outputs="1">unread</option>
+      <option value="messages" outputs="1">messages</option>
+      <option value="comments" outputs="1">comments</option>
+      <option value="selfreply" outputs="1">selfreply</option>
+      <option value="mentions" outputs="1">mentions</option>
+    </select>
+  </div>
+  <div class="form-row" id="node-action-markedAsRead">
+    <label for="node-input-markedAsRead" style="width:auto"><i class="icon-tag"></i> Mark as read</label>
+    <input type="checkbox" id="node-input-markedAsRead" style="width:23px">
+  </div>
   <div class="form-row">
     <label for="node-input-timeout"><i class="icon-tag"></i> Timeout (s)</label>
     <input type="text" id="node-input-timeout" placeholder="optional timeout in seconds">
@@ -967,13 +998,15 @@
     <dl class="message-properties">
       <dt>credentials <span class="property-type">config node</span></dt>
       <dd> your reddit credentials.</dd>
+      <dt class="optional">name <span class="property-type">string</span></dt>
+      <dd> the name of this node.</dd>
       <dt>stream <span class="property-type">selection</span></dt>
       <dd> choose comments, submissions, or PMs.</dd>
       <dt>subreddit <span class="property-type">string</span></dt>
       <dd> the subreddit to stream (unused for PMs).</dd>
-
-      <dt class="optional">name <span class="property-type">string</span></dt>
-      <dd> the name of this node.</dd>
+      <dt>filter <span class="property-type">selection</span></dt>
+      <dd> choose which type of messages to stream from Inbox</dd>
+      <dt class="optional">mark as read <span class="property-type">checkbox</span></dt>
       <dt class="optional">timeout <span class="property-type">number</span></dt>
       <dd> the length of time to stream in seconds.</dd>
     </dl>
@@ -998,9 +1031,7 @@
     <p>Exclude the "r/" when entering your <code>subreddit</code>. "r/<code>subreddit</code>" will be 
     used for the display name if <code>name</code> is left empty.
     </p>
-    <p>    
-    All PMs will be marked as read upon arrival. "u/<code>credentials.username</code>" will be
-    used for the display name if <code>name</code> is left empty.
+    <p>"u/<code>credentials.username</code>" will be used for the display name if <code>name</code> is left empty.
     </p>
     <p>The <code>timeout</code> will stop the stream after the desired number of seconds.
     If left blank, the stream will continue until the node is deleted from the flow, an error is thrown,
