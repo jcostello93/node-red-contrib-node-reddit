@@ -913,7 +913,7 @@
       let creds = RED.nodes.node(this.reddit);
       if (this.name) {
         return this.name;
-      } else if (this.kind === "inbox") {
+      } else if (this.kind === "PMs") {
         return creds ? "u/" + creds.username : "PM stream";
       } else if (this.subreddit) {
         return "r/" + this.subreddit;
@@ -933,7 +933,7 @@
         
         if (type === "submissions" || type === "comments") {
           $("#node-action-subreddit").show();
-        } else if (type === "inbox") {
+        } else if (type === "PMs") {
           $("#node-action-filter").show();
           $("#node-action-markedAsRead").show();
         }
@@ -964,7 +964,7 @@
     <select type="text" id="node-input-kind" style="display: inline-block; width: 250px; vertical-align: top;">
       <option value="submissions" outputs="1">Submissions</option>                            
       <option value="comments" outputs="1">Comments</option>
-      <option value="inbox" outputs="1">Private Messages</option>
+      <option value="PMs" outputs="1">Private Messages</option>
     </select>
   </div>
   <div class="form-row" id="node-action-subreddit">
