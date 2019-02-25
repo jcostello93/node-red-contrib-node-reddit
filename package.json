@@ -4,7 +4,7 @@
   "description": "",
   "dependencies": {
     "mustache": "^3.0.1",
-    "snoostorm-es6": "^1.0.0",
+    "snoostorm-es6": "^1.0.2",
     "snoowrap": "^1.15.2"
   },
   "node-red": {
