@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
-    "snoostorm": "^1.0.2",  
-    "snoowrap": "^1.15.2",
-    "mustache": "^3.0.1"
+    "mustache": "^3.0.1",
+    "snoostorm-es6": "^1.0.2",
+    "snoowrap": "^1.15.2"
   },
-  "node-red" : {
+  "node-red": {
     "nodes": {
-        "node-reddit": "node-reddit.js"
+      "node-reddit": "node-reddit.js"
     }
   },
   "main": "node-reddit.js",
