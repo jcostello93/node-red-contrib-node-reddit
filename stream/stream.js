@@ -26,6 +26,17 @@ module.exports = function(RED) {
         return field;
     }
 
+    function parseError(err) {
+        var errorMsg;
+        if (err.error && err.error.error && err.error.message) {
+            errorMsg = err.error.error + " " + err.error.message;
+        } else {
+            errorMsg = "403 Forbidden";
+        }
+        
+        return errorMsg;
+    }
+
   // setup the credentials for each node
   // ex:  var node = this;
   //      var options = parseCredentials(n);
@@ -51,7 +62,7 @@ module.exports = function(RED) {
   }
 
     const snoowrap = require('snoowrap');
-    const snoostorm= require('snoostorm');
+    const snoostorm= require('snoostorm-es6');
 
     function ConfigNode(n) {
         RED.nodes.createNode(this,n);
@@ -69,7 +80,7 @@ module.exports = function(RED) {
         access_token: {type: "password"}
       }
     });
-  
+
   // stream node
 
   function Stream(n) {
@@ -79,6 +90,7 @@ module.exports = function(RED) {
     let options = parseCredentials(n);
 
     const r = new snoowrap(options);
+    const s = new snoostorm(r);
 
     node.status({});
 
@@ -92,15 +104,17 @@ module.exports = function(RED) {
 
         // stream and update the stream counter
         if (n.kind === "submissions") {
-          stream = new snoostorm.SubmissionStream(r, {
+          stream = s.Stream("submission", {
             subreddit: n.subreddit,
+            results: 10
           });
         } else if (n.kind === "comments") {
-          stream = new snoostorm.CommentStream(r, {
+          stream = s.Stream("comment", {
             subreddit: n.subreddit,
+            results: 10,
           });
-        } else if (n.kind === "inbox") {
-          stream = new snoostorm.InboxStream(r, {
+        } else if (n.kind === "PMs") {
+          stream = s.Stream("inbox", {
             pollTime: 10000,
             filter: n.filter
           });
@@ -113,7 +127,7 @@ module.exports = function(RED) {
           node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count});
 
           // for PMs only
-          if (n.kind === "inbox" && n.markedAsRead) {
+          if (n.kind === "PMs" && n.markedAsRead) {
             item.markAsRead();
           }
         });
@@ -128,7 +142,7 @@ module.exports = function(RED) {
           let timeout = parseInt(n.timeout, 10);
           if ( !isNaN(timeout) ) {
             setTimeout( () => { 
-              stream.end();
+              stream.emit("end");
             }, timeout * 1000);
           }
         }
@@ -136,7 +150,7 @@ module.exports = function(RED) {
 
       // stop streaming if node deleted from flow
       node.on("close", () => {
-        stream.end();
+        stream.emit("end");
       });
 
       // don't start streaming until we get user input
