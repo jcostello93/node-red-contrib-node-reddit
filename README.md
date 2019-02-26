@@ -1,4 +1,4 @@
-# Node-Reddit
+# node-red-contib-node-reddit
 
 ## Overview
 These things do stuff
