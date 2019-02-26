@@ -19,18 +19,18 @@ There are 3 ways to provide authentication:
 
 ### Get
 
-This node will get submissions, comments, or personal messages from subreddits, users, your inbox, or the 's id, according to its configuration. 
+* This node will get submissions, comments, or personal messages from subreddits, users, your inbox, or the 's id, according to its configuration. 
 
 ### Create
 
 
 ### Reply
 
-This node will reply to a submission, comment, or personal message, identified by its Reddit content id.
+* This node will reply to a submission, comment, or personal message, identified by its Reddit content id.
 
 ### Search
 
-This node will perform a Reddit search query in a subreddit.
+* This node will perform a Reddit search query in a subreddit.
 
 ### Edit
 
