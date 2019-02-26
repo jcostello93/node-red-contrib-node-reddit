@@ -1049,7 +1049,7 @@
 
 <!-- START Delete -->
 <script type="text/javascript">
-    RED.nodes.registerType('reddit-delete',{
+    RED.nodes.registerType('delete',{
         category: 'reddit',
         color: '#a6bbcf',
         defaults: {
@@ -1059,30 +1059,31 @@
 			content_id: {value:""}
         },
         inputs:1,
-        outputs:1,
+        outputs:0,
         icon: "snoo2.png",
         color:"#ffa27f",
         label: function() {
-            return this.name||"reddit-delete";
+            return this.name||"delete";
         }
     });
 </script>
 
-<script type="text/x-red" data-template-name="reddit-delete">
+<script type="text/x-red" data-template-name="delete">
     <div class="form-row">
-        <label for="node-input-reddit"><i class="fa fa-key"></i> <span>Credentials</span></label>
+        <label for="node-input-reddit"><i class="fa fa-reddit"></i> <span>Credentials</span></label>
         <input type="text" id="node-input-reddit">
     </div>
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Optional name for this node">
     </div>
+	<hr>
 	<div class="form-row" id="node-action-content_id">
-        <label for="node-input-content_id"><i class="icon-tag"></i> Content_id</label>
+        <label for="node-input-content_id"><i class="icon-tag"></i> Content id</label>
         <input type="text" id="node-input-content_id" placeholder="content_id">
     </div>
 	<div class="form-row">
-        <label for="node-input-content_type"><i class="fa fa-ellipsis-h"></i> Content Type</label>
+        <label for="node-input-content_type"><i class="fa fa-wrench"></i>Type</label>
         <select type="text" id="node-input-content_type">
             <option value="submission" outputs="1">Submission</option>
             <option value="comment" outputs="1">Comment</option>
@@ -1091,7 +1092,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="reddit-delete">
+<script type="text/x-red" data-help-name="delete">
     <p>A simple node that deletes a comment, a submission, or a private message of a certain user on Reddit.</p>
 	<p>Content id, and content type selection are required.</p>
 	
@@ -1152,7 +1153,7 @@
 
 <!-- START Edit -->
 <script type="text/javascript">
-    RED.nodes.registerType('reddit-edit',{
+    RED.nodes.registerType('edit',{
         category: 'reddit',
         color: '#a6bbcf',
         defaults: {
@@ -1163,42 +1164,43 @@
 			content_id: {value:""}
         },
         inputs:1,
-        outputs:1,
+        outputs:0,
         icon: "snoo2.png",
         color:"#ffa27f",
         label: function() {
-            return this.name||"reddit-edit";
+            return this.name||"edit";
         }
     });
 </script>
 
-<script type="text/x-red" data-template-name="reddit-edit">
+<script type="text/x-red" data-template-name="edit">
     <div class="form-row">
-        <label for="node-input-reddit"><i class="fa fa-key"></i> <span>Credentials</span></label>
+        <label for="node-input-reddit"><i class="fa fa-reddit"></i> <span>Credentials</span></label>
         <input type="text" id="node-input-reddit">
     </div>
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Optional name for this node">
     </div>
+	<hr>
 	<div class="form-row" id="node-action-content_id">
-        <label for="node-input-content_id"><i class="icon-tag"></i> Content_id</label>
+        <label for="node-input-content_id"><i class="icon-tag"></i> Content id</label>
         <input type="text" id="node-input-content_id" placeholder="content_id">
     </div>
 	<div class="form-row">
-        <label for="node-input-content_type"><i class="fa fa-ellipsis-h"></i> Content Type</label>
+        <label for="node-input-content_type"><i class="fa fa-wrench"></i>Type</label>
         <select type="text" id="node-input-content_type">
 			<option value="submission" outputs="1">Submission</option>
 			<option value="comment" outputs="1">Comment</option>
         </select>
     </div>
     <div class="form-row">
-		<label for="node-input-edit_content"><i class="fa fa-quote-left"></i> New Contents</label>
+		<label for="node-input-edit_content"><i class="icon-tag"></i>Text</label>
 		<input type="text" id="node-input-edit_content" placeholder="Type new contents here.">
 	</div>
 </script>
 
-<script type="text/x-red" data-help-name="reddit-edit">
+<script type="text/x-red" data-help-name="edit">
     <p>A node that edits a comment or a submission of a certain user on Reddit.</p>
 	<p>Content id, content type selection, and new contents are required.</p>
 	
@@ -1260,7 +1262,7 @@
 
 <!-- START React -->
 <script type="text/javascript">
-    RED.nodes.registerType('reddit-react',{
+    RED.nodes.registerType('react',{
         category: 'reddit',
         color: '#a6bbcf',
         defaults: {
@@ -1274,37 +1276,38 @@
 			report: {value: ""}
         },
         inputs:1,
-        outputs:1,
+        outputs:0,
         icon: "snoo2.png",
         color:"#ffa27f",
         label: function() {
-            return this.name||"reddit-react";
+            return this.name||"react";
         }
     });
 </script>
 
-<script type="text/x-red" data-template-name="reddit-react">
+<script type="text/x-red" data-template-name="react">
     <div class="form-row">
-        <label for="node-input-reddit"><i class="fa fa-key"></i> <span>Credentials</span></label>
+        <label for="node-input-reddit"><i class="fa fa-reddit"></i> <span>Credentials</span></label>
         <input type="text" id="node-input-reddit">
     </div>
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Optional name for this node">
     </div>
+	<hr>
 	<div class="form-row" id="node-action-content_id">
-        <label for="node-input-content_id"><i class="icon-tag"></i> Content_id</label>
+        <label for="node-input-content_id"><i class="icon-tag"></i> Content id</label>
         <input type="text" id="node-input-content_id" placeholder="content_id">
     </div>
     <div class="form-row">
-        <label for="node-input-content_type"><i class="fa fa-ellipsis-h"></i> Content Type</label>
+        <label for="node-input-content_type"><i class="fa fa-wrench"></i>Type</label>
         <select type="text" id="node-input-content_type">
             <option value="submission" outputs="1">Submission</option>
             <option value="comment" outputs="1">Comment</option>
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-vote"> Vote</label>
+        <label for="node-input-vote"><i class="fa fa-wrench"></i> Vote</label>
         <select type="text" id="node-input-vote">
             <option value="upvote" outputs="1">Upvote</option>
             <option value="upvote" outputs="1">Downvote</option>
@@ -1313,7 +1316,7 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-save"> Save</label>
+        <label for="node-input-save"><i class="fa fa-wrench"></i> Save</label>
         <select type="text" id="node-input-save">
             <option value="save" outputs="1">Save</option>
             <option value="unsave" outputs="1">Unsave</option>
@@ -1323,7 +1326,7 @@
 </script>
 
 
-<script type="text/x-red" data-help-name="reddit-react">
+<script type="text/x-red" data-help-name="react">
     <p>A node that allows user to react to a submissoin or a comment on Reddit.</p>
 	<p>Content id, and content type selection are required.</p>
 	
