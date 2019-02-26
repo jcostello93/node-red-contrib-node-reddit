@@ -1,4 +1,4 @@
-# node-red-contib-node-reddit
+# node-red-contrib-node-reddit
 
 ## Overview
 These things do stuff
