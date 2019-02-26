@@ -1,44 +1,44 @@
 <!-- START Config Node -->
 <script type="text/x-red" data-template-name="reddit-credentials">
     <div class="form-row">
-        <label for="node-config-input-name"><i class="fa fa-tag"></i> <span> Name</span></label>
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> <span> name</span></label>
         <input type="text" id="node-config-input-name">
     </div>
     <hr>
     <div class="form-row">
-        <label for="node-config-input-client_id"><i class="fa fa-tag"></i> <span>Client ID</span></label>
+        <label for="node-config-input-client_id"><i class="fa fa-tag"></i> <span> client ID</span></label>
         <input type="text" id="node-config-input-client_id">
     </div>
     <div class="form-row">
-        <label for="node-config-input-client_secret"><i class="fa fa-key"></i> <span> Client secret</span></label>
+        <label for="node-config-input-client_secret"><i class="fa fa-key"></i> <span> client secret</span></label>
         <input type="text" id="node-config-input-client_secret">
     </div>
     <div class="form-row">
-        <label for="node-config-input-user_agent"><i class="fa fa-tag"></i> <span> User agent</span></label>
+        <label for="node-config-input-user_agent"><i class="fa fa-tag"></i> <span> user agent</span></label>
         <input type="text" id="node-config-input-user_agent">
     </div>
     <div class="form-row" id="node-action-auth_type"> 
-        <label for="node-config-input-auth_type"><i class="fa fa-wrench"></i> Authentication</label>
+        <label for="node-config-input-auth_type"><i class="fa fa-wrench"></i> authentication</label>
         <select type="text" id="node-config-input-auth_type" style="display: inline-block; width: 250px; vertical-align: top;">
-            <option value="username_password" outputs="1">Username/password</option>
-            <option value="refresh_token" outputs="1">Refresh token</option>
-            <option value="access_token" outputs="1">Access token</option>
+            <option value="username_password" outputs="1">username/password</option>
+            <option value="refresh_token" outputs="1">refresh token</option>
+            <option value="access_token" outputs="1">access token</option>
         </select>
     </div>
     <div class="form-row" id="node-action-username">
-        <label for="node-config-input-username"><i class="fa fa-tag"></i> <span> Username</span></label>
+        <label for="node-config-input-username"><i class="fa fa-tag"></i> <span> username</span></label>
             <input type="text" id="node-config-input-username">
     </div>
     <div class="form-row" id="node-action-password">
-        <label for="node-config-input-password"><i class="fa fa-key"></i> <span> Password</span></label>
+        <label for="node-config-input-password"><i class="fa fa-key"></i> <span> password</span></label>
         <input type="password" id="node-config-input-password">
     </div>
     <div class="form-row" id="node-action-refresh_token">
-        <label for="node-config-input-refresh_token"><i class="fa fa-key"></i> <span> Refresh Token</span></label>
+        <label for="node-config-input-refresh_token"><i class="fa fa-key"></i> <span> refresh Token</span></label>
         <input type="text" id="node-config-input-refresh_token">
     </div>
     <div class="form-row" id="node-action-access_token">
-        <label for="node-config-input-access_token"><i class="fa fa-key"></i> <span> Access Token</span></label>
+        <label for="node-config-input-access_token"><i class="fa fa-key"></i> <span> access Token</span></label>
         <input type="text" id="node-config-input-access_token">
     </div>
 </script>
@@ -305,7 +305,18 @@
         color:"#ffa27f",
         label: function() {
             var type = (this.content_type == "pm") ? "PM" : this.content_type;
-            return this.name || "get " + type + "s";
+            var submission_source = this.submission_source;
+            var comment_source = this.comment_source;
+            var pm_source = this.pm_source;
+            var label; 
+            if ((type == "submission" && submission_source == "id") || (type == "comment" && comment_source == "id") || (type == "PM" && pm_source == "id")) {
+                label = "get " + type;
+            }
+            else {
+                label = "get " + type + "s";
+            }
+
+            return this.name || label;
         },
         oneditprepare: oneditprepare
     });
@@ -313,99 +324,99 @@
 
 <script type="text/x-red" data-template-name="get">
     <div class="form-row">
-        <label for="node-input-reddit"><i class="fa fa-reddit"></i> <span>Credentials</span></label>
+        <label for="node-input-reddit"><i class="fa fa-reddit"></i> <span> credentials</span></label>
         <input type="text" id="node-input-reddit">
     </div>
     <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
+        <label for="node-input-name"><i class="icon-tag"></i> name</label>
+        <input type="text" id="node-input-name" placeholder="name">
     </div>
     <hr>
     <div class="form-row">
-        <label for="node-input-content_type"><i class="fa fa-wrench"></i> Type</label>
+        <label for="node-input-content_type"><i class="fa fa-wrench"></i> type</label>
         <select type="text" id="node-input-content_type" style="display: inline-block; width: 250px; vertical-align: top;">
-            <option value="submission" outputs="1">Submission</option>
-            <option value="comment" outputs="1">Comment</option>
+            <option value="submission" outputs="1">submission</option>
+            <option value="comment" outputs="1">comment</option>
             <option value="pm" outputs="1">PM</option>
         </select>
     </div>
     <div class="form-row" id="node-action-submission_source">
-        <label for="node-input-submission_source"><i class="fa fa-wrench"></i> Source</label>
+        <label for="node-input-submission_source"><i class="fa fa-wrench"></i> source</label>
         <select type="text" id="node-input-submission_source" style="display: inline-block; width: 250px; vertical-align: top;">
-            <option value="subreddit" outputs="1">Subreddit</option>
-            <option value="user" outputs="1">User</option>
-            <option value="id" outputs="1">Id</option>
+            <option value="subreddit" outputs="1">subreddit</option>
+            <option value="user" outputs="1">user</option>
+            <option value="id" outputs="1">id</option>
         </select>
     </div>
     <div class="form-row" id="node-action-comment_source">
-        <label for="node-input-comment_source"><i class="fa fa-wrench"></i> Source</label>
+        <label for="node-input-comment_source"><i class="fa fa-wrench"></i> source</label>
         <select type="text" id="node-input-comment_source" style="display: inline-block; width: 250px; vertical-align: top;">
-            <option value="subreddit" outputs="1">Subreddit</option>
-            <option value="user" outputs="1">User</option>
-            <option value="submission" outputs="1">Submission</option>
-            <option value="id" outputs="1">Id</option>
+            <option value="subreddit" outputs="1">subreddit</option>
+            <option value="user" outputs="1">user</option>
+            <option value="submission" outputs="1">submission</option>
+            <option value="id" outputs="1">id</option>
         </select>
     </div>
     <div class="form-row" id="node-action-pm_source">
-        <label for="node-input-pm_source"><i class="fa fa-wrench"></i> Source</label>
+        <label for="node-input-pm_source"><i class="fa fa-wrench"></i> source</label>
         <select type="text" id="node-input-pm_source" style="display: inline-block; width: 250px; vertical-align: top;">
-            <option value="inbox" outputs="1">Inbox</option>
-            <option value="id" outputs="1">Id</option>
+            <option value="inbox" outputs="1">inbox</option>
+            <option value="id" outputs="1">id</option>
         </select>
     </div>
     <div class="form-row" id="node-action-subreddit">
-        <label for="node-input-subreddit"><i class="icon-tag"></i> Subreddit</label>
+        <label for="node-input-subreddit"><i class="icon-tag"></i> subreddit</label>
         <input type="text" id="node-input-subreddit" placeholder="subreddit">
     </div>
     <div class="form-row" id="node-action-user">
-        <label for="node-input-user"><i class="icon-tag"></i> User</label>
+        <label for="node-input-user"><i class="icon-tag"></i> user</label>
         <input type="text" id="node-input-user" placeholder="user">
     </div>
     <div class="form-row" id="node-action-content_id">
-        <label for="node-input-content_id"><i class="icon-tag"></i> Content_id</label>
+        <label for="node-input-content_id"><i class="icon-tag"></i> content_id</label>
         <input type="text" id="node-input-content_id" placeholder="content_id">
     </div>
     <div class="form-row" id="node-action-sort"> 
-        <label for="node-input-sort"><i class="fa fa-wrench"></i> Sort</label>
+        <label for="node-input-sort"><i class="fa fa-wrench"></i> sort</label>
         <select type="text" id="node-input-sort" style="display: inline-block; width: 250px; vertical-align: top;">
-            <option value="hot" outputs="1">Hot</option>
-            <option value="new" outputs="1">New</option>
-            <option value="rising" outputs="1">Rising</option>
-            <option value="controversial" outputs="1">Controversial</option>
-            <option value="top" outputs="1">Top</option>
+            <option value="hot" outputs="1">hot</option>
+            <option value="new" outputs="1">new</option>
+            <option value="rising" outputs="1">rising</option>
+            <option value="controversial" outputs="1">controversial</option>
+            <option value="top" outputs="1">top</option>
         </select>
     </div>
     <div class="form-row" id="node-action-time"> 
-        <label for="node-input-time"><i class="fa fa-wrench"></i> Time</label>
+        <label for="node-input-time"><i class="fa fa-wrench"></i> time</label>
         <select type="text" id="node-input-time" style="display: inline-block; width: 250px; vertical-align: top;">
-            <option value="hour" outputs="1">Hour</option>
-            <option value="day" outputs="1">Day</option>
-            <option value="week" outputs="1">Week</option>
-            <option value="month" outputs="1">Month</option>
-            <option value="year" outputs="1">Year</option>
-            <option value="all" outputs="1">All time</option>
+            <option value="hour" outputs="1">hour</option>
+            <option value="day" outputs="1">day</option>
+            <option value="week" outputs="1">week</option>
+            <option value="month" outputs="1">month</option>
+            <option value="year" outputs="1">year</option>
+            <option value="all" outputs="1">all time</option>
         </select>
     </div>
     <div class="form-row" id="node-action-fetch_all">
-        <label for="node-input-fetch_all"><i class="icon-tag"></i> Fetch All</label>
+        <label for="node-input-fetch_all"><i class="icon-tag"></i> fetch All</label>
         <select type="text" id="node-input-fetch_all" style="display: inline-block; width: 250px; vertical-align: top;">
-            <option value="true" outputs="1">True</option>
-            <option value="false" outputs="1">False</option>
+            <option value="true" outputs="1">true</option>
+            <option value="false" outputs="1">false</option>
         </select>
     </div>
     <div class="form-row" id="node-action-limit">
-        <label for="node-input-limit"><i class="icon-tag"></i> Limit</label>
+        <label for="node-input-limit"><i class="icon-tag"></i> limit</label>
         <input type="number" min="0" id="node-input-limit" placeholder="limit">
     </div>
     <div class="form-row" id="node-action-depth">
-        <label for="node-input-depth"><i class="icon-tag"></i> Depth</label>
+        <label for="node-input-depth"><i class="icon-tag"></i> depth</label>
         <input type="number" min="0" id="node-input-depth" placeholder="depth">
     </div>    
 </script>
 
 <script type="text/x-red" data-help-name="get">
     <p>Get Reddit submissions, comments, or PMs</p>
-    <p>This node will get submissions, comments, or personal messages from subreddits, users, or your inbox, according to its configuration.</p>
+    <p>This node will get submissions, comments, or personal messages from subreddits, users, your inbox or the listing's id, according to its configuration.</p>
     <h3>Inputs</h3>
     <dl class="message-properties">
         <dt>type
@@ -515,29 +526,29 @@
 
 <script type="text/x-red" data-template-name="reply">
     <div class="form-row">
-        <label for="node-input-reddit"><i class="fa fa-key"></i> <span>Credentials</span></label>
+        <label for="node-input-reddit"><i class="fa fa-key"></i> <span> credentials</span></label>
         <input type="text" id="node-input-reddit">
     </div>
     <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
+        <label for="node-input-name"><i class="icon-tag"></i> name</label>
+        <input type="text" id="node-input-name" placeholder="name">
     </div>
     <hr>
     <div class="form-row">
-        <label for="node-input-content_type"><i class="fa fa-wrench"></i> Type</label>
+        <label for="node-input-content_type"><i class="fa fa-wrench"></i> type</label>
         <select type="text" id="node-input-content_type" style="display: inline-block; width: 250px; vertical-align: top;">
-            <option value="submission" outputs="1">Submission</option>
-            <option value="comment" outputs="1">Comment</option>
+            <option value="submission" outputs="1">submission</option>
+            <option value="comment" outputs="1">comment</option>
             <option value="pm" outputs="1">PM</option>
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-content_id"><i class="icon-tag"></i> Content_id</label>
-        <input type="text" id="node-input-content_id" placeholder="Content_id">
+        <label for="node-input-content_id"><i class="icon-tag"></i> content_id</label>
+        <input type="text" id="node-input-content_id" placeholder="content_id">
     </div>
     <div class="form-row">
-        <label for="node-input-text"><i class="icon-tag"></i> Text</label>
-        <input type="text" id="node-input-text" placeholder="Text">
+        <label for="node-input-text"><i class="icon-tag"></i> text</label>
+        <input type="text" id="node-input-text" placeholder="text">
     </div>
 </script>
 
@@ -613,41 +624,41 @@
 
 <script type="text/x-red" data-template-name="search">
     <div class="form-row">
-        <label for="node-input-reddit"><i class="fa fa-key"></i> <span>Credentials</span></label>
+        <label for="node-input-reddit"><i class="fa fa-key"></i> <span>credentials</span></label>
         <input type="text" id="node-input-reddit">
     </div>
     <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
+        <label for="node-input-name"><i class="icon-tag"></i> name</label>
+        <input type="text" id="node-input-name" placeholder="name">
     </div>
     <hr>
     <div class="form-row">
-        <label for="node-input-subreddit"><i class="icon-tag"></i> Subreddit</label>
-        <input type="text" id="node-input-subreddit" placeholder="Subreddit">
+        <label for="node-input-subreddit"><i class="icon-tag"></i> subreddit</label>
+        <input type="text" id="node-input-subreddit" placeholder="subreddit">
     </div>
     <div class="form-row">
-        <label for="node-input-query"><i class="icon-tag"></i> Query</label>
-        <input type="text" id="node-input-query" placeholder="Query">
+        <label for="node-input-query"><i class="icon-tag"></i> query</label>
+        <input type="text" id="node-input-query" placeholder="query">
     </div>
     <div class="form-row" id="node-action-time"> 
-        <label for="node-input-time"><i class="fa fa-wrench"></i> Time</label>
+        <label for="node-input-time"><i class="fa fa-wrench"></i> time</label>
         <select type="text" id="node-input-time" style="display: inline-block; width: 250px; vertical-align: top;">
-            <option value="hour" outputs="1">Hour</option>
-            <option value="day" outputs="1">Day</option>
-            <option value="week" outputs="1">Week</option>
-            <option value="month" outputs="1">Month</option>
-            <option value="year" outputs="1">Year</option>
-            <option value="all" outputs="1">All time</option>
+            <option value="hour" outputs="1">hour</option>
+            <option value="day" outputs="1">day</option>
+            <option value="week" outputs="1">week</option>
+            <option value="month" outputs="1">month</option>
+            <option value="year" outputs="1">year</option>
+            <option value="all" outputs="1">all time</option>
         </select>
     </div>
     <div class="form-row" id="node-action-sort"> 
-        <label for="node-input-sort"><i class="fa fa-wrench"></i> Sort</label>
+        <label for="node-input-sort"><i class="fa fa-wrench"></i> sort</label>
         <select type="text" id="node-input-sort" style="display: inline-block; width: 250px; vertical-align: top;">
-            <option value="relevance" outputs="1">Relevance</option>
-            <option value="hot" outputs="1">Hot</option>
-            <option value="new" outputs="1">New</option>
-            <option value="comments" outputs="1">Comments</option>
-            <option value="top" outputs="1">Top</option>
+            <option value="relevance" outputs="1">relevance</option>
+            <option value="hot" outputs="1">hot</option>
+            <option value="new" outputs="1">new</option>
+            <option value="comments" outputs="1">comments</option>
+            <option value="top" outputs="1">top</option>
         </select>
     </div>
 </script>

@@ -90,10 +90,9 @@ module.exports = function(RED) {
         const r = new snoowrap(options);
 
         node.status({});
-        node.on('input', function(msg) {        
+        node.on('input', function(msg) {       
             node.status({fill:"blue",shape:"dot",text:"loading"});
-
-            // Get all possible parameters
+            
             var content_type = n.content_type;
             var subreddit = parseField(msg, n.subreddit);
             var user =  parseField(msg, n.user);
@@ -108,12 +107,13 @@ module.exports = function(RED) {
             var fetch_all = n.fetch_all;       
             
             var responseArr = [];
-            if (content_type == "submission") {  
+            if (content_type == "submission") {                  
                 if (submission_source == "subreddit") {
                     if (sort == "controversial") {
                         r.getControversial(subreddit, {time: time, limit:limit}).then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg);
-                            node.status({});
+                            var statusMsg = (subreddit == "") ? "home/controversial" : "r/" + subreddit + "/controversial"
+                            node.status({fill:"green",shape:"dot",text: statusMsg});
                             node.send([responseArr]);
                         }).catch(err => {
                             var errorMsg = parseError(err);
@@ -123,7 +123,8 @@ module.exports = function(RED) {
                     } else if (sort == "hot") {
                         r.getHot(subreddit, {limit: limit}).then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
-                            node.status({})
+                            var statusMsg = (subreddit == "") ? "home/hot" : "r/" + subreddit + "/hot"
+                            node.status({fill:"green",shape:"dot",text: statusMsg});
                             node.send([responseArr])  
                         }).catch(err => {
                             var errorMsg = parseError(err);
@@ -133,7 +134,8 @@ module.exports = function(RED) {
                     } else if (sort == "new") {
                         r.getNew(subreddit, {limit: limit}).then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
-                            node.status({})
+                            var statusMsg = (subreddit == "") ? "home/new" : "r/" + subreddit + "/new"
+                            node.status({fill:"green",shape:"dot",text: statusMsg});
                             node.send([responseArr])  
                         }).catch(err => {
                             var errorMsg = parseError(err);
@@ -143,7 +145,8 @@ module.exports = function(RED) {
                     } else if (sort == "rising") {
                         r.getRising(subreddit, {limit: limit}).then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
-                            node.status({})
+                            var statusMsg = (subreddit == "") ? "home/rising" : "r/" + subreddit + "/rising"
+                            node.status({fill:"green",shape:"dot",text: statusMsg});
                             node.send([responseArr])  
                         }).catch(err => {
                             var errorMsg = parseError(err);
@@ -153,7 +156,8 @@ module.exports = function(RED) {
                     } else if (sort == "top") {
                         r.getTop(subreddit, {time: time, limit:limit}).then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
-                            node.status({})
+                            var statusMsg = (subreddit == "") ? "home/top" : "r/" + subreddit + "/top"
+                            node.status({fill:"green",shape:"dot",text: statusMsg});
                             node.send([responseArr])  
                         }).catch(err => {
                             var errorMsg = parseError(err);
@@ -165,7 +169,7 @@ module.exports = function(RED) {
                     if (fetch_all == "true") {
                         r.getUser(user).getSubmissions().fetchAll().then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
-                            node.status({})
+                            node.status({fill:"green",shape:"dot",text: "u/" + user});
                             node.send([responseArr]) 
                         }).catch(err => {
                             var errorMsg = parseError(err);
@@ -175,7 +179,7 @@ module.exports = function(RED) {
                     } else {
                         r.getUser(user).getSubmissions({limit: limit}).then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
-                            node.status({})
+                            node.status({fill:"green",shape:"dot",text: "u/" + user});
                             node.send([responseArr]) 
                         }).catch(err => {
                             var errorMsg = parseError(err);
@@ -186,7 +190,7 @@ module.exports = function(RED) {
                 } else if (submission_source == "id") {
                     r.getSubmission(content_id).fetch().then(response => {
                         msg.payload = JSON.parse(JSON.stringify(response));
-                        node.status({});
+                        node.status({fill:"green",shape:"dot",text: content_id});
                         node.send(msg); 
                     }).catch(err => {
                         var errorMsg = parseError(err);
@@ -198,7 +202,8 @@ module.exports = function(RED) {
                 if (comment_source == "subreddit") {
                     r.getSubreddit(subreddit).getNewComments({limit:limit}).then(response => {
                         copyPropertiesExceptMethods(responseArr, response, msg)
-                        node.status({})
+                        var statusMsg = (subreddit == "") ? "home" : "r/" + subreddit
+                        node.status({fill:"green",shape:"dot",text: statusMsg});
                         node.send([responseArr])  
                     }).catch(err => {
                         var errorMsg = parseError(err);
@@ -209,7 +214,7 @@ module.exports = function(RED) {
                     if (fetch_all == "true") { 
                         r.getUser(user).getComments().fetchAll().then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
-                            node.status({})
+                            node.status({fill:"green",shape:"dot",text: "u/" + user});
                             node.send([responseArr]) 
                         }).catch(err => {
                             var errorMsg = parseError(err);
@@ -219,7 +224,7 @@ module.exports = function(RED) {
                     } else {
                         r.getUser(user).getComments({limit: limit}).then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
-                            node.status({})
+                            node.status({fill:"green",shape:"dot",text: "u/" + user});
                             node.send([responseArr]) 
                         }).catch(err => {
                             var errorMsg = parseError(err);
@@ -235,7 +240,7 @@ module.exports = function(RED) {
 
                     r.getSubmission(content_id).expandReplies({limit: limit, depth: depth}).then(response => {
                         copyPropertiesExceptMethods(responseArr, response.comments, msg);
-                        node.status({})
+                        node.status({fill:"green",shape:"dot",text: content_id});
                         node.send([responseArr]) 
                     }).catch(err => {
                         var errorMsg = parseError(err);
@@ -245,7 +250,7 @@ module.exports = function(RED) {
                 } else if (comment_source == "id") {
                     r.getComment(content_id).fetch().then(response => {
                         msg.payload = JSON.parse(JSON.stringify(response));
-                        node.status({});
+                        node.status({fill:"green",shape:"dot",text: content_id});
                         node.send(msg); 
                     }).catch(err => {
                         var errorMsg = parseError(err);
@@ -258,7 +263,7 @@ module.exports = function(RED) {
                     if (fetch_all == "true") {
                         r.getInbox({filter:"messages"}).fetchAll().then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
-                            node.status({})
+                            node.status({fill:"green",shape:"dot",text: "inbox"});
                             node.send([responseArr])  
                         }).catch(err => {
                             var errorMsg = parseError(err);
@@ -268,7 +273,7 @@ module.exports = function(RED) {
                     } else {
                         r.getInbox({limit:limit, filter:"messages"}).then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg)
-                            node.status({})
+                            node.status({fill:"green",shape:"dot",text: "inbox"});
                             node.send([responseArr])  
                         }).catch(err => {
                             var errorMsg = parseError(err);
@@ -279,7 +284,7 @@ module.exports = function(RED) {
                 } else if (pm_source == "id") {
                     r.getMessage(content_id).fetch().then(response => {
                         msg.payload = JSON.parse(JSON.stringify(response));
-                        node.status({});
+                        node.status({fill:"green",shape:"dot",text: content_id});
                         node.send(msg); 
                     }).catch(err => {
                         var errorMsg = parseError(err);
@@ -301,11 +306,11 @@ module.exports = function(RED) {
         const r = new snoowrap(options);
         node.status({});
         node.on('input', function(msg) {
-            node.status({fill:"blue",shape:"dot",text:"loading"});
-
             var content_type = n.content_type;
             var content_id = parseField(msg, n.content_id);
             var text = parseField(msg, n.text);
+
+            node.status({fill:"blue",shape:"dot",text:content_type});
 
             var snoowrap_obj;
             if (content_type == "submission") {
@@ -318,7 +323,7 @@ module.exports = function(RED) {
 
             snoowrap_obj.reply(text).then(response => {
                 msg.payload = response;
-                node.status({fill: "green", shape: "dot", text: "success: " + response.name});
+                node.status({fill: "green", shape: "dot", text: response.name});
                 node.send(msg) 
             }).catch(function(err) {
                 var errorMsg = parseError(err);
@@ -337,17 +342,19 @@ module.exports = function(RED) {
         const r = new snoowrap(options);
         node.status({});
         node.on('input', function(msg) {
-            node.status({fill:"blue",shape:"dot",text:"loading"});
-
             var subreddit = parseField(msg, n.subreddit);
             var query = parseField(msg, n.query);
             var sort = n.sort;
             var time = n.time;
             var responseArr = []
 
+            var statusMsg = (subreddit == "") ? "searching" : "r/" + subreddit
+            node.status({fill:"blue",shape:"dot",text: statusMsg});
+
             r.getSubreddit(subreddit).search({query: query, sort: sort, time: time}).then(response => {
                 copyPropertiesExceptMethods(responseArr, response, msg)
-                node.status({})
+                var statusMsg = (subreddit == "") ? "success" : "r/" + subreddit
+                node.status({fill:"green",shape:"dot",text: statusMsg});
                 node.send([responseArr]) 
             }).catch(function(err) {
                 var errorMsg = parseError(err);
