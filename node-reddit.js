@@ -616,63 +616,63 @@ module.exports = function(RED) {
 	
 	
 	
-	/***** Edit Node *****/
+    /***** Edit Node *****/
     function EditContent(n){
         RED.nodes.createNode(this,n);
         //var config = RED.nodes.getNode(n.reddit);
         //var credentials = config.credentials;
-		var node = this;
-		var options = parseCredentials(n);
-		
-		const r = new snoowrap(options);
+        var node = this;
+        var options = parseCredentials(n);
+        
+        const r = new snoowrap(options);
         node.status({});
-		
-		node.on('input', function(msg) {
-			//node.status({fill:"grey",shape:"dot",text:"loading"});
-			
-			var content_type = n.content_type || msg.content_type;
-			var edit_content = n.edit_content || msg.edit_content;
-			var content_id = parseField(msg, n.content_id);
-			
-			//console.log(n.name);
-			if (content_type == "comment"){
-				node.status({fill:"blue",shape:"dot",text:"editing comment"});
-				
-				r.getComment(content_id).edit(edit_content).then(response => {
-					msg.payload = response;
-					node.status({fill:"green",shape:"dot",text:"comment edited"});
-					node.send(msg);
-				}).catch(function(err){
-					var errorMsg = parseError(err);
-					//console.log(errorMsg);
-					node.error(errorMsg, msg);
-					node.status({fill:"red",shape:"dot",text:"error"});
-				});
-				
-				node.status({});
-			} else if (content_type == "submission"){
-				node.status({fill:"blue",shape:"dot",text:"editing submission"});
-				
-				r.getSubmission(content_id).edit(edit_content).then(response => {
-					msg.payload = response;
-					node.send(msg);
-					node.status({fill:"green",shape:"dot",text:"submission edited"});
-				}).catch(function(err){
-					var errorMsg = parseError(err);
-					//console.log(errorMsg);
-					node.error(errorMsg, msg);
-					node.status({fill:"red",shape:"dot",text:"error"});
-				});
-					
-				node.status({});
-			}
-			
+
+        node.on('input', function(msg) {
+            //node.status({fill:"grey",shape:"dot",text:"loading"});
+            
+            var content_type = n.content_type || msg.content_type;
+            var edit_content = n.edit_content || msg.edit_content;
+            var content_id = parseField(msg, n.content_id);
+            
+            //console.log(n.name);
+            if (content_type == "comment"){
+                node.status({fill:"blue",shape:"dot",text:"editing comment"});
+
+                r.getComment(content_id).edit(edit_content).then(response => {
+                    msg.payload = response;
+                    node.status({fill:"green",shape:"dot",text:"comment edited"});
+                    node.send(msg);
+                }).catch(function(err){
+                    var errorMsg = parseError(err);
+                    //console.log(errorMsg);
+                    node.error(errorMsg, msg);
+                    node.status({fill:"red",shape:"dot",text:"error"});
+                });
+
+                node.status({});
+            } else if (content_type == "submission"){
+                node.status({fill:"blue",shape:"dot",text:"editing submission"});
+                
+                r.getSubmission(content_id).edit(edit_content).then(response => {
+                    msg.payload = response;
+                    node.send(msg);
+                    node.status({fill:"green",shape:"dot",text:"submission edited"});
+                }).catch(function(err){
+                    var errorMsg = parseError(err);
+                    //console.log(errorMsg);
+                    node.error(errorMsg, msg);
+                    node.status({fill:"red",shape:"dot",text:"error"});
+                });
+
+                node.status({});
+            }
+            
         });
-	}
-	RED.nodes.registerType("edit", EditContent);
-	
-	
-	/***** React Node *****/
+    }
+    RED.nodes.registerType("edit", EditContent);
+    
+    
+    /***** React Node *****/
 	function ReactContent(n){
 		RED.nodes.createNode(this,n);
 		//var config = RED.nodes.getNode(n.reddit);
