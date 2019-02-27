@@ -673,168 +673,168 @@ module.exports = function(RED) {
     
     
     /***** React Node *****/
-	function ReactContent(n){
-		RED.nodes.createNode(this,n);
-		//var config = RED.nodes.getNode(n.reddit);
-		//var credentials = config.credentials;
-		var node = this;
-		var options = parseCredentials(n);
-		
-		const r = new snoowrap(options);
-		node.status({});
-		
-		node.on('input', function(msg) {
-			//node.status({fill:"grey",shape:"dot",text:"loading"});
-			
-			var content_type = n.content_type || msg.content_type;
-			var vote = n.vote || msg.vote;
-			var save_value = n.save || msg.save;
-			var content_id = parseField(msg, n.content_id);
-			//var gild_value = n.gild || msg.gild;
+    function ReactContent(n){
+        RED.nodes.createNode(this,n);
+        //var config = RED.nodes.getNode(n.reddit);
+        //var credentials = config.credentials;
+        var node = this;
+        var options = parseCredentials(n);
+        
+        const r = new snoowrap(options);
+        node.status({});
+        
+        node.on('input', function(msg) {
+            //node.status({fill:"grey",shape:"dot",text:"loading"});
+            
+            var content_type = n.content_type || msg.content_type;
+            var vote = n.vote || msg.vote;
+            var save_value = n.save || msg.save;
+            var content_id = parseField(msg, n.content_id);
+            //var gild_value = n.gild || msg.gild;
 
-			//console.log(n.name);
-			if (content_type == "comment"){
-				if (vote == "upvote"){
-					node.status({fill:"blue",shape:"dot",text:"upvoting comment"});
-					r.getComment(content_id).upvote().then(response => {
-						msg.payload = response;
-						node.send(msg);
-						node.status({fill:"green",shape:"dot",text:"comment upvoted"});
-					}).catch(function(err){
-						var errorMsg = parseError(err);
-						//console.log(errorMsg);
-						node.error(errorMsg, msg);
-						node.status({fill:"red",shape:"dot",text:"error"});
-					});
-					
-				} else if (vote == "downvote"){
-					node.status({fill:"blue",shape:"dot",text:"downvoting comment"});
-					r.getComment(content_id).downvote().then(response => {
-							msg.payload = response;
-							node.send(msg);
-							node.status({fill:"green",shape:"dot",text:"comment downvoted"});
-						}).catch(function(err){
-							var errorMsg = parseError(err);
-							//console.log(errorMsg);
-							node.error(errorMsg, msg);
-							node.status({fill:"red",shape:"dot",text:"error"});
-						});
-					
-				} else if (vote == "unvote") {
-				node.status({ fill: "blue", shape: "dot", text: "unvoting comment" });
-				r.getComment(content_id).unvote().then(response => {
-							msg.payload = response;
-							node.send(msg);
-							node.status({fill:"green",shape:"dot",text:"comment un-voted"});
-						}).catch(function(err){
-							var errorMsg = parseError(err);
-							//console.log(errorMsg);
-							node.error(errorMsg, msg);
-							node.status({fill:"red",shape:"dot",text:"error"});
-						});
-					
-				}
+            //console.log(n.name);
+            if (content_type == "comment"){
+                if (vote == "upvote"){
+                    node.status({fill:"blue",shape:"dot",text:"upvoting comment"});
+                    r.getComment(content_id).upvote().then(response => {
+                        msg.payload = response;
+                        node.send(msg);
+                        node.status({fill:"green",shape:"dot",text:"comment upvoted"});
+                    }).catch(function(err){
+                        var errorMsg = parseError(err);
+                        //console.log(errorMsg);
+                        node.error(errorMsg, msg);
+                        node.status({fill:"red",shape:"dot",text:"error"});
+                    });
+                    
+                } else if (vote == "downvote"){
+                    node.status({fill:"blue",shape:"dot",text:"downvoting comment"});
+                    r.getComment(content_id).downvote().then(response => {
+                            msg.payload = response;
+                            node.send(msg);
+                            node.status({fill:"green",shape:"dot",text:"comment downvoted"});
+                        }).catch(function(err){
+                            var errorMsg = parseError(err);
+                            //console.log(errorMsg);
+                            node.error(errorMsg, msg);
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        });
+                    
+                } else if (vote == "unvote") {
+                node.status({ fill: "blue", shape: "dot", text: "unvoting comment" });
+                r.getComment(content_id).unvote().then(response => {
+                            msg.payload = response;
+                            node.send(msg);
+                            node.status({fill:"green",shape:"dot",text:"comment un-voted"});
+                        }).catch(function(err){
+                            var errorMsg = parseError(err);
+                            //console.log(errorMsg);
+                            node.error(errorMsg, msg);
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        });
+                    
+                }
 
-				if (save_value == "save") {
-				node.status({ fill: "blue", shape: "dot", text: "saving comment" });
-				r.getComment(content_id).save().then(response => {
-							msg.payload = response;
-							node.send(msg);
-							node.status({fill:"green",shape:"dot",text:"comment saved"});
-						}).catch(function(err){
-							var errorMsg = parseError(err);
-							//console.log(errorMsg);
-							node.error(errorMsg, msg);
-							node.status({fill:"red",shape:"dot",text:"error"});
-						});
-					
-				} else if (save_value == "unsave") {
-					node.status({ fill: "blue", shape: "dot", text: "unsaving comment" });
-					r.getComment(content_id).unsave().then(response => {
-							msg.payload = response;
-							node.send(msg);
-							node.status({fill:"green",shape:"dot",text:"comment un-saved"});
-						}).catch(function(err){
-							var errorMsg = parseError(err);
-							//console.log(errorMsg);
-							node.error(errorMsg, msg);
-							node.status({fill:"red",shape:"dot",text:"error"});
-						});
+                if (save_value == "save") {
+                node.status({ fill: "blue", shape: "dot", text: "saving comment" });
+                r.getComment(content_id).save().then(response => {
+                            msg.payload = response;
+                            node.send(msg);
+                            node.status({fill:"green",shape:"dot",text:"comment saved"});
+                        }).catch(function(err){
+                            var errorMsg = parseError(err);
+                            //console.log(errorMsg);
+                            node.error(errorMsg, msg);
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        });
+                    
+                } else if (save_value == "unsave") {
+                    node.status({ fill: "blue", shape: "dot", text: "unsaving comment" });
+                    r.getComment(content_id).unsave().then(response => {
+                            msg.payload = response;
+                            node.send(msg);
+                            node.status({fill:"green",shape:"dot",text:"comment un-saved"});
+                        }).catch(function(err){
+                            var errorMsg = parseError(err);
+                            //console.log(errorMsg);
+                            node.error(errorMsg, msg);
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        });
 
-				}
-			} else if (content_type == "submission"){
-				if (vote == "upvote"){
-					node.status({fill:"blue",shape:"dot",text:"upvoting submission"});
-					r.getSubmission(content_id).upvote().then(response => {
-							msg.payload = response;
-							node.send(msg);
-							node.status({fill:"green",shape:"dot",text:"submission upvoted"});
-						}).catch(function(err){
-							var errorMsg = parseError(err);
-							//console.log(errorMsg);
-							node.error(errorMsg, msg);
-							node.status({fill:"red",shape:"dot",text:"error"});
-						});
-					
-				} else if (vote == "downvote"){
-					node.status({fill:"blue",shape:"dot",text:"downvoting submission"});
-					r.getSubmission(content_id).downvote().then(response => {
-							msg.payload = response;
-							node.send(msg);
-							node.status({fill:"green",shape:"dot",text:"submission downvoted"});
-						}).catch(function(err){
-							var errorMsg = parseError(err);
-							//console.log(errorMsg);
-							node.error(errorMsg, msg);
-							node.status({fill:"red",shape:"dot",text:"error"});
-						});
-					
-				} else if (vote == "unvote") {
-					node.status({ fill: "blue", shape: "dot", text: "unvoting submission" });
-					r.getSubmission(content_id).unvote().then(response => {
-							msg.payload = response;
-							node.send(msg);
-							node.status({fill:"green",shape:"dot",text:"submission un-voted"});
-						}).catch(function(err){
-							var errorMsg = parseError(err);
-							//console.log(errorMsg);
-							node.error(errorMsg, msg);
-							node.status({fill:"red",shape:"dot",text:"error"});
-						});
-					
-				}
+                }
+            } else if (content_type == "submission"){
+                if (vote == "upvote"){
+                    node.status({fill:"blue",shape:"dot",text:"upvoting submission"});
+                    r.getSubmission(content_id).upvote().then(response => {
+                            msg.payload = response;
+                            node.send(msg);
+                            node.status({fill:"green",shape:"dot",text:"submission upvoted"});
+                        }).catch(function(err){
+                            var errorMsg = parseError(err);
+                            //console.log(errorMsg);
+                            node.error(errorMsg, msg);
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        });
+                    
+                } else if (vote == "downvote"){
+                    node.status({fill:"blue",shape:"dot",text:"downvoting submission"});
+                    r.getSubmission(content_id).downvote().then(response => {
+                            msg.payload = response;
+                            node.send(msg);
+                            node.status({fill:"green",shape:"dot",text:"submission downvoted"});
+                        }).catch(function(err){
+                            var errorMsg = parseError(err);
+                            //console.log(errorMsg);
+                            node.error(errorMsg, msg);
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        });
+                    
+                } else if (vote == "unvote") {
+                    node.status({ fill: "blue", shape: "dot", text: "unvoting submission" });
+                    r.getSubmission(content_id).unvote().then(response => {
+                            msg.payload = response;
+                            node.send(msg);
+                            node.status({fill:"green",shape:"dot",text:"submission un-voted"});
+                        }).catch(function(err){
+                            var errorMsg = parseError(err);
+                            //console.log(errorMsg);
+                            node.error(errorMsg, msg);
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        });
+                    
+                }
 
-				if (save_value == "save") {
-					node.status({ fill: "blue", shape: "dot", text: "saving submission" });
-					r.getSubmission(content_id).save().then(response => {
-							msg.payload = response;
-							node.send(msg);
-							node.status({fill:"green",shape:"dot",text:"submission saved"});
-						}).catch(function(err){
-							var errorMsg = parseError(err);
-							//console.log(errorMsg);
-							node.error(errorMsg, msg);
-							node.status({fill:"red",shape:"dot",text:"error"});
-						});
-					
-				} else if (save_value == "unsave") {
-					node.status({ fill: "blue", shape: "dot", text: "unsaving submission" });
-					r.getSubmission(content_id).unsave().then(response => {
-							msg.payload = response;
-							node.send(msg);
-							node.status({fill:"green",shape:"dot",text:"submission un-saved"});
-						}).catch(function(err){
-							var errorMsg = parseError(err);
-							//console.log(errorMsg);
-							node.error(errorMsg, msg);
-							node.status({fill:"red",shape:"dot",text:"error"});
-						});
-				
-				}
-			}
-			
-			//node.status({});
-		});
-	}
-	RED.nodes.registerType("react", ReactContent);
+                if (save_value == "save") {
+                    node.status({ fill: "blue", shape: "dot", text: "saving submission" });
+                    r.getSubmission(content_id).save().then(response => {
+                            msg.payload = response;
+                            node.send(msg);
+                            node.status({fill:"green",shape:"dot",text:"submission saved"});
+                        }).catch(function(err){
+                            var errorMsg = parseError(err);
+                            //console.log(errorMsg);
+                            node.error(errorMsg, msg);
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        });
+                    
+                } else if (save_value == "unsave") {
+                    node.status({ fill: "blue", shape: "dot", text: "unsaving submission" });
+                    r.getSubmission(content_id).unsave().then(response => {
+                            msg.payload = response;
+                            node.send(msg);
+                            node.status({fill:"green",shape:"dot",text:"submission un-saved"});
+                        }).catch(function(err){
+                            var errorMsg = parseError(err);
+                            //console.log(errorMsg);
+                            node.error(errorMsg, msg);
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        });
+                
+                }
+            }
+            
+            //node.status({});
+        });
+    }
+    RED.nodes.registerType("react", ReactContent);
 }
