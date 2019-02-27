@@ -617,9 +617,9 @@ module.exports = function(RED) {
 	
 	
 	/***** Edit Node *****/
-	function EditContent(n){
+    function EditContent(n){
         RED.nodes.createNode(this,n);
-		
+		//var config = RED.nodes.getNode(n.reddit);
 		//var credentials = config.credentials;
 		var node = this;
 		var options = parseCredentials(n);
