@@ -118,6 +118,162 @@
 </script>
 <!-- END Config Node -->
 
+<!-- START Stream -->
+<script type="text/javascript">
+    RED.nodes.registerType('stream', {
+      category: 'reddit',
+      color: '#a6bbcf',
+      defaults: {
+        name: {value: ""},
+        reddit: {type: "reddit-credentials", required: true},
+        kind: {value: "", required: true},
+        subreddit: {value: ""},
+        filter: {value: "inbox"},
+        markedAsRead: {},
+        timeout: {value: ""}
+      },
+      inputs: 0,
+      outputs: 1,
+      icon: "snoo2.png",
+      color:"#ffa27f",
+      label: function() {
+        let creds = RED.nodes.node(this.reddit);
+        if (this.name) {
+          return this.name;
+        } else if (this.kind === "PMs") {
+          return creds ? "u/" + creds.username : "PM stream";
+        } else if (this.subreddit) {
+          return "r/" + this.subreddit;
+        } else {
+          return "stream";
+        }
+      },
+      oneditprepare: () => {
+        $("#node-input-markedAsRead").prop("disabled", true);
+  
+        $("#node-input-kind").change(() => {
+          $("#node-action-subreddit").hide();
+          $("#node-action-filter").hide();
+          $("#node-action-markedAsRead").hide();
+    
+          let type = $("#node-input-kind option:selected").val();
+          
+          if (type === "submissions" || type === "comments") {
+            $("#node-action-subreddit").show();
+          } else if (type === "PMs") {
+            $("#node-action-filter").show();
+            $("#node-action-markedAsRead").show();
+          }
+        });
+  
+        $("#node-input-filter").change(() => {
+          $("#node-input-markedAsRead").prop("disabled", true);
+          if ($("#node-input-filter").val() === "unread") {
+            $("#node-input-markedAsRead").prop("disabled", false);
+          }
+        });
+      }
+    });
+  </script>
+    
+  <script type="text/x-red" data-template-name="stream">
+    <div class="form-row">
+      <label for="node-input-reddit"><i class="fa fa-key"></i> Credentials</label>
+      <input type="text" id="node-input-reddit">
+    </div>
+    <div class="form-row">
+      <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+      <input type="text" id="node-input-name" placeholder="optional name for this node">
+    </div>
+    <hr>
+    <div class="form-row"> 
+      <label for="node-input-kind"><i class="fa fa-wrench"></i> Stream</label>
+      <select type="text" id="node-input-kind" style="display: inline-block; width: 250px; vertical-align: top;">
+        <option value="submissions" outputs="1">Submissions</option>                            
+        <option value="comments" outputs="1">Comments</option>
+        <option value="PMs" outputs="1">Private Messages</option>
+      </select>
+    </div>
+    <div class="form-row" id="node-action-subreddit">
+      <label for="node-input-subreddit"><i class="icon-tag"></i> Subreddit</label>
+      <input type="text" id="node-input-subreddit" placeholder="subreddit name">
+    </div>
+    <div class="form-row" id="node-action-filter">
+      <label for="node-input-filter"><i class="fa fa-wrench"></i> Filter</label>
+      <select type="text" id="node-input-filter" style="display: inline-block; width: 250px; vertical-align: top;">
+        <option value="inbox" outputs="1">inbox</option>
+        <option value="unread" outputs="1">unread</option>
+        <option value="messages" outputs="1">messages</option>
+        <option value="comments" outputs="1">comments</option>
+        <option value="selfreply" outputs="1">selfreply</option>
+        <option value="mentions" outputs="1">mentions</option>
+      </select>
+    </div>
+    <div class="form-row" id="node-action-markedAsRead">
+      <label for="node-input-markedAsRead" style="width:auto"><i class="icon-tag"></i> Mark as read</label>
+      <input type="checkbox" id="node-input-markedAsRead" style="width:23px">
+    </div>
+    <div class="form-row">
+      <label for="node-input-timeout"><i class="icon-tag"></i> Timeout (s)</label>
+      <input type="text" id="node-input-timeout" placeholder="optional timeout in seconds">
+    </div>
+  </script>
+    
+  <script type="text/x-red" data-help-name="stream">
+    <p>Stream submissions and comments from a subreddit or PMs from your inbox.</p>
+      
+    <h3>Inputs</h3>
+      <dl class="message-properties">
+        <dt>credentials <span class="property-type">config node</span></dt>
+        <dd> your reddit credentials.</dd>
+        <dt class="optional">name <span class="property-type">string</span></dt>
+        <dd> the name of this node.</dd>
+        <dt>stream <span class="property-type">selection</span></dt>
+        <dd> choose comments, submissions, or PMs.</dd>
+        <dt>subreddit <span class="property-type">string</span></dt>
+        <dd> the subreddit to stream (unused for PMs).</dd>
+        <dt>filter <span class="property-type">selection</span></dt>
+        <dd> choose which type of messages to stream from Inbox</dd>
+        <dt class="optional">mark as read <span class="property-type">checkbox</span></dt>
+        <dt class="optional">timeout <span class="property-type">number</span></dt>
+        <dd> the length of time to stream in seconds.</dd>
+      </dl>
+  
+    <h3>Outputs</h3>
+      <ol class="node-ports">
+        <li>Standard output
+          <dl class="message-properties">
+            <dt>payload <span class="property-type">object</span></dt>
+            <dd> details of the comment, submission, or PM.</dd>
+          </dl>
+        </li>
+        <li>Standard error
+          <dl class="message-properties">
+            <dt>payload <span class="property-type">string</span></dt>
+            <dd>the standard error of the command.</dd>
+           </dl>
+        </li>
+      </ol>
+  
+    <h3>Details</h3>
+      <p>Exclude the "r/" when entering your <code>subreddit</code>. "r/<code>subreddit</code>" will be 
+      used for the display name if <code>name</code> is left empty.
+      </p>
+      <p>"u/<code>credentials.username</code>" will be used for the display name if <code>name</code> is left empty.
+      </p>
+      <p>The <code>timeout</code> will stop the stream after the desired number of seconds.
+      If left blank, the stream will continue until the node is deleted from the flow, an error is thrown,
+      or node-RED is shutdown.
+      </p>
+  
+    <h3>References</h3>
+      <ul>
+        <li><a href='https://www.reddit.com/dev/api/'>Reddit API docs</a> - descriptions of comment and submission listings</li>
+        <li><a href='https://github.com/jcostello93/Node-Red'>Node-Reddit on GitHub</a> - the Node-Reddit github repository</li>
+      </ul>
+  </script>
+  <!-- END Stream -->
+
 
 <!-- START Get -->
 <script type="text/javascript">
@@ -497,9 +653,196 @@
     </ul>
 
 </script>
-
 <!-- END Get -->
 
+<!-- START Create -->
+<script type="text/javascript">
+    RED.nodes.registerType('create', {
+      category: 'reddit',
+      color: '#a6bbcf',
+      defaults: {
+        name: {value: ""},
+        reddit: { type: "reddit-credentials", required: true},
+        submissionType: {value: "self"},
+        subreddit: {value: ""},
+        title: {value: ""},
+        url: {value: ""},
+        text: {value: ""},
+        original: {value: ""},
+        recipient: {value: ""},
+        subject: {value: ""},
+        message: {value: ""},
+      },
+      inputs:1,
+      outputs:1,
+      icon: "snoo2.png",
+      color:"#ffa27f",
+      label: function() {
+        if (this.name) {
+          return this.name;
+        } else if (this.subreddit && this.subreddit.indexOf("{{") == -1) {
+          return "r/" + this.subreddit;
+        } else if (this.recipient && this.recipient.indexOf("{{") == -1) {
+          return "u/" + this.recipient;
+        } else {
+          return "create";
+        }
+      },
+      oneditprepare: () => {
+        $("#node-input-submissionType").change(() => {
+          $("#node-action-subreddit").hide();
+          $("#node-action-title").hide();
+          $("#node-action-text").hide();
+          $("#node-action-url").hide();
+          $("#node-action-original").hide();
+          $("#node-action-subject").hide();
+          $("#node-action-recipient").hide();
+          $("#node-action-message").hide();
+    
+          let type = $("#node-input-submissionType option:selected").val();
+  
+          if (type === "self") {
+            $("#node-action-subreddit").show();
+            $("#node-action-title").show();
+            $("#node-action-text").show();
+          } else if (type === "link") {
+            $("#node-action-subreddit").show();
+            $("#node-action-title").show();
+            $("#node-action-url").show();
+          } else if (type === "cross") {
+            $("#node-action-subreddit").show();
+            $("#node-action-title").show();
+            $("#node-action-original").show();
+          } else if (type === "pm") {
+            $("#node-action-recipient").show();
+            $("#node-action-subject").show();
+            $("#node-action-message").show();
+          }
+        });
+      },
+    });
+  </script>
+    
+  <script type="text/x-red" data-template-name="create">
+    <div class="form-row">
+      <label for="node-input-reddit"><i class="fa fa-key"></i>Credentials</label>
+      <input type="text" id="node-input-reddit">
+    </div>
+    <div class="form-row">
+      <label for="node-input-name"><i class="icon-tag"></i>Name</label>
+      <input type="text" id="node-input-name" placeholder="optional name for this node">
+    </div>
+    <hr>
+    <div class="form-row"> 
+      <label for="node-input-submissionType"><i class="fa fa-wrench"></i>Type</label>
+      <select type="text" id="node-input-submissionType" style="display: inline-block; width: 250px; vertical-align: top;">
+        <option value="self" outputs="1">self-post</option>
+        <option value="link" outputs="1">link post</option>
+        <option value="cross" outputs="1">cross-post</option>
+        <option value="pm" outputs="1">private message</option>
+      </select>
+    </div>
+    <div class="form-row" id="node-action-subreddit">
+      <label for="node-input-subreddit"><i class="icon-tag"></i>Subreddit</label>
+      <input type="text" id="node-input-subreddit" placeholder="subreddit name">
+    </div>
+    <div class="form-row" id="node-action-title">
+      <label for="node-input-title"><i class="icon-tag"></i>Title</label>
+      <input type="text" id="node-input-title" placeholder="post title">
+    </div>
+    <div class="form-row" id="node-action-text">
+      <label for="node-input-text"><i class="icon-tag"></i>Text</label>
+      <input type="text" id="node-input-text" placeholder="content">
+    </div>
+    <div class="form-row" id="node-action-url">
+      <label for="node-input-url"><i class="icon-tag"></i>URL</label>
+      <input type="text" id="node-input-url" placeholder="url to link">
+    </div>
+    <div class="form-row" id="node-action-original">
+      <label for="node-input-original"><i class="icon-tag"></i>Original</label>
+      <input type="text" id="node-input-original" placeholder="original submission id">
+    </div>
+    <div class="form-row" id="node-action-recipient">
+      <label for="node-input-recipient"><i class="icon-tag"></i>To</label>
+      <input type="text" id="node-input-recipient" placeholder="recipient's username">
+    </div>
+    <div class="form-row" id="node-action-subject">
+      <label for="node-input-subject"><i class="icon-tag"></i>Subject</label>
+      <input type="text" id="node-input-subject" placeholder="message subject">
+    </div>
+    <div class="form-row" id="node-action-message">
+      <label for="node-input-message"><i class="icon-tag"></i>Message</label>
+      <input type="text" id="node-input-message" placeholder="message">
+    </div>
+  </script>
+  
+  <script type="text/x-red" data-help-name="create">
+    <p>Create a new Reddit submission or PM.</p>
+  
+    <h3>Inputs</h3>
+      <dl class="message-properties">
+        <dt>credentials <span class="property-type">config node</span></dt>
+        <dd> your reddit credentials.</dd>
+        <dt class="optional">name <span class="property-type">string</span></dt>
+        <dd> the name of this node.</dd>
+        <dt>type <span class="property-type">selection</span></dt>
+        <dd> choose self-, link-,  or cross-post, or PM.</dd>
+        <hr>
+        &nbsp;<b>For Submissions:</b>
+        <dt>subreddit <span class="property-type">string</span></dt>
+        <dd> the subreddit to submit to.</dd>
+        <dt>title <span class="property-type">string</span></dt>
+        <dd> the title of the submission.</dd>
+        <dt>  - text <span class="property-type">string</span></dt>
+        <dd>     the text of a self-post.</dd>
+        <dt>  - url <span class="property-type">string</span></dt>
+        <dd>     the url of a link-post.</dd>
+        <dt>  - original <span class="property-type">string</span></dt>
+        <dd>     the original listing name for a cross-post.</dd>
+        <hr>
+        &nbsp;<b>For PMs:</b>
+        <dt>recipient <span class="property-type">string</span></dt>
+        <dd> the recipient of the PM.</dd>
+        <dt>subject <span class="property-type">string</span></dt>
+        <dd> the subject of the PM.</dd>
+        <dt>message <span class="property-type">string</span></dt>
+        <dd> the mesage of a PM.</dd>
+      </dl>
+  
+    <h3>Outputs</h3>
+      <ol class="node-ports">
+        <li>Standard output
+          <dl class="message-properties">
+            <dt>payload <span class="property-type">object</span></dt>
+            <dd> the name of the new submission listing.</dd>
+          </dl>
+        </li>
+        <li>Standard error
+          <dl class="message-properties">
+            <dt>payload <span class="property-type">string</span></dt>
+            <dd>the standard error of the command.</dd>
+           </dl>
+        </li>
+      </ol>
+  
+    <h3>Details</h3>
+      <p>Exclude the "r/" when entering your <code>subreddit</code>. "r/<code>subreddit</code>" will be 
+      used for the display name if <code>name</code> is left empty.
+      </p>
+      <p>Exclude the "u/" when entering your <code>recipient</code>. "u/<code>recipient</code>" will be
+      used for the display name if <code>name</code> is left empty.
+      </p>
+      <p>
+      Properties can also be set using mustache syntax of the <code>msg.payload</code>. 
+      </p>
+  
+    <h3>References</h3>
+      <ul>
+        <li><a href='https://www.reddit.com/dev/api/'>Reddit API docs</a> - descriptions of the 3 submission types</li>
+        <li><a href='https://github.com/jcostello93/Node-Red'>Node-Reddit on GitHub</a> - the Node-Reddit github repository</li>
+      </ul>
+  </script>
+<!-- END Create  -->
 
 <!-- START Reply -->
 <script type="text/javascript">
@@ -712,351 +1055,6 @@
     </ul>
 </script>
 <!-- END Search -->
-
-<!-- START Create -->
-<script type="text/javascript">
-  RED.nodes.registerType('create', {
-    category: 'reddit',
-    color: '#a6bbcf',
-    defaults: {
-      name: {value: ""},
-      reddit: { type: "reddit-credentials", required: true},
-      submissionType: {value: "self"},
-      subreddit: {value: ""},
-      title: {value: ""},
-      url: {value: ""},
-      text: {value: ""},
-      original: {value: ""},
-      recipient: {value: ""},
-      subject: {value: ""},
-      message: {value: ""},
-    },
-    inputs:1,
-    outputs:1,
-    icon: "snoo2.png",
-    color:"#ffa27f",
-    label: function() {
-      if (this.name) {
-        return this.name;
-      } else if (this.subreddit && this.subreddit.indexOf("{{") == -1) {
-        return "r/" + this.subreddit;
-      } else if (this.recipient && this.recipient.indexOf("{{") == -1) {
-        return "u/" + this.recipient;
-      } else {
-        return "create";
-      }
-    },
-    oneditprepare: () => {
-      $("#node-input-submissionType").change(() => {
-        $("#node-action-subreddit").hide();
-        $("#node-action-title").hide();
-        $("#node-action-text").hide();
-        $("#node-action-url").hide();
-        $("#node-action-original").hide();
-        $("#node-action-subject").hide();
-        $("#node-action-recipient").hide();
-        $("#node-action-message").hide();
-  
-        let type = $("#node-input-submissionType option:selected").val();
-
-        if (type === "self") {
-          $("#node-action-subreddit").show();
-          $("#node-action-title").show();
-          $("#node-action-text").show();
-        } else if (type === "link") {
-          $("#node-action-subreddit").show();
-          $("#node-action-title").show();
-          $("#node-action-url").show();
-        } else if (type === "cross") {
-          $("#node-action-subreddit").show();
-          $("#node-action-title").show();
-          $("#node-action-original").show();
-        } else if (type === "pm") {
-          $("#node-action-recipient").show();
-          $("#node-action-subject").show();
-          $("#node-action-message").show();
-        }
-      });
-    },
-  });
-</script>
-  
-<script type="text/x-red" data-template-name="create">
-  <div class="form-row">
-    <label for="node-input-reddit"><i class="fa fa-key"></i>Credentials</label>
-    <input type="text" id="node-input-reddit">
-  </div>
-  <div class="form-row">
-    <label for="node-input-name"><i class="icon-tag"></i>Name</label>
-    <input type="text" id="node-input-name" placeholder="optional name for this node">
-  </div>
-  <hr>
-  <div class="form-row"> 
-    <label for="node-input-submissionType"><i class="fa fa-wrench"></i>Type</label>
-    <select type="text" id="node-input-submissionType" style="display: inline-block; width: 250px; vertical-align: top;">
-      <option value="self" outputs="1">self-post</option>
-      <option value="link" outputs="1">link post</option>
-      <option value="cross" outputs="1">cross-post</option>
-      <option value="pm" outputs="1">private message</option>
-    </select>
-  </div>
-  <div class="form-row" id="node-action-subreddit">
-    <label for="node-input-subreddit"><i class="icon-tag"></i>Subreddit</label>
-    <input type="text" id="node-input-subreddit" placeholder="subreddit name">
-  </div>
-  <div class="form-row" id="node-action-title">
-    <label for="node-input-title"><i class="icon-tag"></i>Title</label>
-    <input type="text" id="node-input-title" placeholder="post title">
-  </div>
-  <div class="form-row" id="node-action-text">
-    <label for="node-input-text"><i class="icon-tag"></i>Text</label>
-    <input type="text" id="node-input-text" placeholder="content">
-  </div>
-  <div class="form-row" id="node-action-url">
-    <label for="node-input-url"><i class="icon-tag"></i>URL</label>
-    <input type="text" id="node-input-url" placeholder="url to link">
-  </div>
-  <div class="form-row" id="node-action-original">
-    <label for="node-input-original"><i class="icon-tag"></i>Original</label>
-    <input type="text" id="node-input-original" placeholder="original submission id">
-  </div>
-  <div class="form-row" id="node-action-recipient">
-    <label for="node-input-recipient"><i class="icon-tag"></i>To</label>
-    <input type="text" id="node-input-recipient" placeholder="recipient's username">
-  </div>
-  <div class="form-row" id="node-action-subject">
-    <label for="node-input-subject"><i class="icon-tag"></i>Subject</label>
-    <input type="text" id="node-input-subject" placeholder="message subject">
-  </div>
-  <div class="form-row" id="node-action-message">
-    <label for="node-input-message"><i class="icon-tag"></i>Message</label>
-    <input type="text" id="node-input-message" placeholder="message">
-  </div>
-</script>
-
-<script type="text/x-red" data-help-name="create">
-  <p>Create a new Reddit submission or PM.</p>
-
-  <h3>Inputs</h3>
-    <dl class="message-properties">
-      <dt>credentials <span class="property-type">config node</span></dt>
-      <dd> your reddit credentials.</dd>
-      <dt class="optional">name <span class="property-type">string</span></dt>
-      <dd> the name of this node.</dd>
-      <dt>type <span class="property-type">selection</span></dt>
-      <dd> choose self-, link-,  or cross-post, or PM.</dd>
-      <hr>
-      &nbsp;<b>For Submissions:</b>
-      <dt>subreddit <span class="property-type">string</span></dt>
-      <dd> the subreddit to submit to.</dd>
-      <dt>title <span class="property-type">string</span></dt>
-      <dd> the title of the submission.</dd>
-      <dt>  - text <span class="property-type">string</span></dt>
-      <dd>     the text of a self-post.</dd>
-      <dt>  - url <span class="property-type">string</span></dt>
-      <dd>     the url of a link-post.</dd>
-      <dt>  - original <span class="property-type">string</span></dt>
-      <dd>     the original listing name for a cross-post.</dd>
-      <hr>
-      &nbsp;<b>For PMs:</b>
-      <dt>recipient <span class="property-type">string</span></dt>
-      <dd> the recipient of the PM.</dd>
-      <dt>subject <span class="property-type">string</span></dt>
-      <dd> the subject of the PM.</dd>
-      <dt>message <span class="property-type">string</span></dt>
-      <dd> the mesage of a PM.</dd>
-    </dl>
-
-  <h3>Outputs</h3>
-    <ol class="node-ports">
-      <li>Standard output
-        <dl class="message-properties">
-          <dt>payload <span class="property-type">object</span></dt>
-          <dd> the name of the new submission listing.</dd>
-        </dl>
-      </li>
-      <li>Standard error
-        <dl class="message-properties">
-          <dt>payload <span class="property-type">string</span></dt>
-          <dd>the standard error of the command.</dd>
-         </dl>
-      </li>
-    </ol>
-
-  <h3>Details</h3>
-    <p>Exclude the "r/" when entering your <code>subreddit</code>. "r/<code>subreddit</code>" will be 
-    used for the display name if <code>name</code> is left empty.
-    </p>
-    <p>Exclude the "u/" when entering your <code>recipient</code>. "u/<code>recipient</code>" will be
-    used for the display name if <code>name</code> is left empty.
-    </p>
-    <p>
-    Properties can also be set using mustache syntax of the <code>msg.payload</code>. 
-    </p>
-
-  <h3>References</h3>
-    <ul>
-      <li><a href='https://www.reddit.com/dev/api/'>Reddit API docs</a> - descriptions of the 3 submission types</li>
-      <li><a href='https://github.com/jcostello93/Node-Red'>Node-Reddit on GitHub</a> - the Node-Reddit github repository</li>
-    </ul>
-</script>
-<!-- END Create  -->
-  
-<!-- START Stream -->
-<script type="text/javascript">
-  RED.nodes.registerType('stream', {
-    category: 'reddit',
-    color: '#a6bbcf',
-    defaults: {
-      name: {value: ""},
-      reddit: {type: "reddit-credentials", required: true},
-      kind: {value: "", required: true},
-      subreddit: {value: ""},
-      filter: {value: "inbox"},
-      markedAsRead: {},
-      timeout: {value: ""}
-    },
-    inputs: 0,
-    outputs: 1,
-    icon: "snoo2.png",
-    color:"#ffa27f",
-    label: function() {
-      let creds = RED.nodes.node(this.reddit);
-      if (this.name) {
-        return this.name;
-      } else if (this.kind === "PMs") {
-        return creds ? "u/" + creds.username : "PM stream";
-      } else if (this.subreddit) {
-        return "r/" + this.subreddit;
-      } else {
-        return "stream";
-      }
-    },
-    oneditprepare: () => {
-      $("#node-input-markedAsRead").prop("disabled", true);
-
-      $("#node-input-kind").change(() => {
-        $("#node-action-subreddit").hide();
-        $("#node-action-filter").hide();
-        $("#node-action-markedAsRead").hide();
-  
-        let type = $("#node-input-kind option:selected").val();
-        
-        if (type === "submissions" || type === "comments") {
-          $("#node-action-subreddit").show();
-        } else if (type === "PMs") {
-          $("#node-action-filter").show();
-          $("#node-action-markedAsRead").show();
-        }
-      });
-
-      $("#node-input-filter").change(() => {
-        $("#node-input-markedAsRead").prop("disabled", true);
-        if ($("#node-input-filter").val() === "unread") {
-          $("#node-input-markedAsRead").prop("disabled", false);
-        }
-      });
-    }
-  });
-</script>
-  
-<script type="text/x-red" data-template-name="stream">
-  <div class="form-row">
-    <label for="node-input-reddit"><i class="fa fa-key"></i> Credentials</label>
-    <input type="text" id="node-input-reddit">
-  </div>
-  <div class="form-row">
-    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-    <input type="text" id="node-input-name" placeholder="optional name for this node">
-  </div>
-  <hr>
-  <div class="form-row"> 
-    <label for="node-input-kind"><i class="fa fa-wrench"></i> Stream</label>
-    <select type="text" id="node-input-kind" style="display: inline-block; width: 250px; vertical-align: top;">
-      <option value="submissions" outputs="1">Submissions</option>                            
-      <option value="comments" outputs="1">Comments</option>
-      <option value="PMs" outputs="1">Private Messages</option>
-    </select>
-  </div>
-  <div class="form-row" id="node-action-subreddit">
-    <label for="node-input-subreddit"><i class="icon-tag"></i> Subreddit</label>
-    <input type="text" id="node-input-subreddit" placeholder="subreddit name">
-  </div>
-  <div class="form-row" id="node-action-filter">
-    <label for="node-input-filter"><i class="fa fa-wrench"></i> Filter</label>
-    <select type="text" id="node-input-filter" style="display: inline-block; width: 250px; vertical-align: top;">
-      <option value="inbox" outputs="1">inbox</option>
-      <option value="unread" outputs="1">unread</option>
-      <option value="messages" outputs="1">messages</option>
-      <option value="comments" outputs="1">comments</option>
-      <option value="selfreply" outputs="1">selfreply</option>
-      <option value="mentions" outputs="1">mentions</option>
-    </select>
-  </div>
-  <div class="form-row" id="node-action-markedAsRead">
-    <label for="node-input-markedAsRead" style="width:auto"><i class="icon-tag"></i> Mark as read</label>
-    <input type="checkbox" id="node-input-markedAsRead" style="width:23px">
-  </div>
-  <div class="form-row">
-    <label for="node-input-timeout"><i class="icon-tag"></i> Timeout (s)</label>
-    <input type="text" id="node-input-timeout" placeholder="optional timeout in seconds">
-  </div>
-</script>
-  
-<script type="text/x-red" data-help-name="stream">
-  <p>Stream submissions and comments from a subreddit or PMs from your inbox.</p>
-    
-  <h3>Inputs</h3>
-    <dl class="message-properties">
-      <dt>credentials <span class="property-type">config node</span></dt>
-      <dd> your reddit credentials.</dd>
-      <dt class="optional">name <span class="property-type">string</span></dt>
-      <dd> the name of this node.</dd>
-      <dt>stream <span class="property-type">selection</span></dt>
-      <dd> choose comments, submissions, or PMs.</dd>
-      <dt>subreddit <span class="property-type">string</span></dt>
-      <dd> the subreddit to stream (unused for PMs).</dd>
-      <dt>filter <span class="property-type">selection</span></dt>
-      <dd> choose which type of messages to stream from Inbox</dd>
-      <dt class="optional">mark as read <span class="property-type">checkbox</span></dt>
-      <dt class="optional">timeout <span class="property-type">number</span></dt>
-      <dd> the length of time to stream in seconds.</dd>
-    </dl>
-
-  <h3>Outputs</h3>
-    <ol class="node-ports">
-      <li>Standard output
-        <dl class="message-properties">
-          <dt>payload <span class="property-type">object</span></dt>
-          <dd> details of the comment, submission, or PM.</dd>
-        </dl>
-      </li>
-      <li>Standard error
-        <dl class="message-properties">
-          <dt>payload <span class="property-type">string</span></dt>
-          <dd>the standard error of the command.</dd>
-         </dl>
-      </li>
-    </ol>
-
-  <h3>Details</h3>
-    <p>Exclude the "r/" when entering your <code>subreddit</code>. "r/<code>subreddit</code>" will be 
-    used for the display name if <code>name</code> is left empty.
-    </p>
-    <p>"u/<code>credentials.username</code>" will be used for the display name if <code>name</code> is left empty.
-    </p>
-    <p>The <code>timeout</code> will stop the stream after the desired number of seconds.
-    If left blank, the stream will continue until the node is deleted from the flow, an error is thrown,
-    or node-RED is shutdown.
-    </p>
-
-  <h3>References</h3>
-    <ul>
-      <li><a href='https://www.reddit.com/dev/api/'>Reddit API docs</a> - descriptions of comment and submission listings</li>
-      <li><a href='https://github.com/jcostello93/Node-Red'>Node-Reddit on GitHub</a> - the Node-Reddit github repository</li>
-    </ul>
-</script>
-<!-- END Stream -->
 
 <!-- START Delete -->
 <script type="text/javascript">
