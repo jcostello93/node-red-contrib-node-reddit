@@ -634,8 +634,8 @@ module.exports = function(RED) {
         node.on('input', function(msg) {
             //node.status({fill:"grey",shape:"dot",text:"loading"});
             
-            var content_type = n.content_type || msg.content_type;
-            var edit_content = n.edit_content || msg.edit_content;
+            var content_type = n.content_type;
+            var edit_content = n.edit_content;
             var content_id = parseField(msg, n.content_id);
             
             //console.log(n.name);
@@ -643,7 +643,7 @@ module.exports = function(RED) {
                 node.status({fill:"blue",shape:"dot",text:"editing comment"});
 
                 r.getComment(content_id).edit(edit_content).then(response => {
-                    msg.payload = response;
+                    msg.payload = response.json.data.things[0];
                     node.status({fill:"green",shape:"dot",text:"comment edited"});
                     node.send(msg);
                 }).catch(function(err){
@@ -658,7 +658,7 @@ module.exports = function(RED) {
                 node.status({fill:"blue",shape:"dot",text:"editing submission"});
                 
                 r.getSubmission(content_id).edit(edit_content).then(response => {
-                    msg.payload = response;
+                    msg.payload = response.json.data.things[0];
                     node.send(msg);
                     node.status({fill:"green",shape:"dot",text:"submission edited"});
                 }).catch(function(err){
