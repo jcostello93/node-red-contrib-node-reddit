@@ -531,91 +531,91 @@ module.exports = function(RED) {
     }
   }
   RED.nodes.registerType("stream", Stream);
-	
-	
-	
-	/***** Delete Node *****/
-	function DeleteContent(n){
-		RED.nodes.createNode(this,n);
-		//var config = RED.nodes.getNode(n.reddit);
-		//var credentials = config.credentials;
-		var node = this;
-		var options = parseCredentials(n);
-	
-		const r = new snoowrap(options);
-		node.status({});
-		node.on('input', function(msg) {
+    
+    
+    
+    /***** Delete Node *****/
+    function DeleteContent(n){
+        RED.nodes.createNode(this,n);
+        //var config = RED.nodes.getNode(n.reddit);
+        //var credentials = config.credentials;
+        var node = this;
+        var options = parseCredentials(n);
+    
+        const r = new snoowrap(options);
+        node.status({});
+        node.on('input', function(msg) {
 
-			var content_type = n.content_type || msg.content_type;
-			var content_id = parseField(msg, n.content_id);
-			//console.log(n.name);
-			
-			if (content_type == "comment"){
-				node.status({fill:"blue",shape:"dot",text:"deleting comment"});
-				/*
-				r.getComment(content_id).catch(function(err){
-					//console.log(err);
-					var errorMsg = parseError(err);
-					//console.log(errorMsg);
-					node.error(errorMsg, msg);
-					node.status({fill:"red",shape:"dot",text:"error"});
-				});
-				*/
-				r.getComment(content_id).delete().then(response => {
-					//console.log(response);
-					msg.payload = response;
-					node.send(msg);
-					node.status({fill:"green",shape:"dot",text:"comment deleted"});
-				}).catch(function(err){
-					//console.log(err);
-					var errorMsg = parseError(err);
-					//console.log(errorMsg);
-					node.error(errorMsg, msg);
-					node.status({fill:"red",shape:"dot",text:"error"});
-				});
-				
-			} else if (content_type == "submission"){
-				node.status({fill:"blue",shape:"dot",text:"deleting submission"});
-				
-				r.getSubmission(content_id).delete().then(response => {
-					//console.log(response);
-					msg.payload = response;
-					node.send(msg);
-					node.status({fill:"green",shape:"dot",text:"submission deleted"});
-				}).catch(function(err){
-					//console.log(err);
-					var errorMsg = parseError(err);
-					//console.log(errorMsg);
-					node.error(errorMsg, msg);
-					node.status({fill:"red",shape:"dot",text:"error"});
-				});
-				
-			} else if (content_type == "private_message"){
-				node.status({fill:"blue",shape:"dot",text:"deleting PM"});
-				
-				r.getMessage(content_id).deleteFromInbox().then(response => {
-					//console.log(response);
-					msg.payload = response;
-					node.send(msg);
-					node.status({fill:"green",shape:"dot",text:"PM deleted"});
-				}).catch(function(err){
-					//console.log(err);
-					var errorMsg = parseError(err);
-					//console.log(errorMsg);
-					node.error(errorMsg, msg);
-					node.status({fill:"red",shape:"dot",text:"error"});
-				});
-			
-			}
-		
-		node.status({});
-		
-		});
-	}
-	RED.nodes.registerType("delete", DeleteContent);
-	
-	
-	
+            var content_type = n.content_type || msg.content_type;
+            var content_id = parseField(msg, n.content_id);
+            //console.log(n.name);
+            
+            if (content_type == "comment"){
+                node.status({fill:"blue",shape:"dot",text:"deleting comment"});
+                /*
+                r.getComment(content_id).catch(function(err){
+                    //console.log(err);
+                    var errorMsg = parseError(err);
+                    //console.log(errorMsg);
+                    node.error(errorMsg, msg);
+                    node.status({fill:"red",shape:"dot",text:"error"});
+                });
+                */
+                r.getComment(content_id).delete().then(response => {
+                    //console.log(response);
+                    msg.payload = response;
+                    node.send(msg);
+                    node.status({fill:"green",shape:"dot",text:"comment deleted"});
+                }).catch(function(err){
+                    //console.log(err);
+                    var errorMsg = parseError(err);
+                    //console.log(errorMsg);
+                    node.error(errorMsg, msg);
+                    node.status({fill:"red",shape:"dot",text:"error"});
+                });
+                
+            } else if (content_type == "submission"){
+                node.status({fill:"blue",shape:"dot",text:"deleting submission"});
+                
+                r.getSubmission(content_id).delete().then(response => {
+                    //console.log(response);
+                    msg.payload = response;
+                    node.send(msg);
+                    node.status({fill:"green",shape:"dot",text:"submission deleted"});
+                }).catch(function(err){
+                    //console.log(err);
+                    var errorMsg = parseError(err);
+                    //console.log(errorMsg);
+                    node.error(errorMsg, msg);
+                    node.status({fill:"red",shape:"dot",text:"error"});
+                });
+                
+            } else if (content_type == "private_message"){
+                node.status({fill:"blue",shape:"dot",text:"deleting PM"});
+                
+                r.getMessage(content_id).deleteFromInbox().then(response => {
+                    //console.log(response);
+                    msg.payload = response;
+                    node.send(msg);
+                    node.status({fill:"green",shape:"dot",text:"PM deleted"});
+                }).catch(function(err){
+                    //console.log(err);
+                    var errorMsg = parseError(err);
+                    //console.log(errorMsg);
+                    node.error(errorMsg, msg);
+                    node.status({fill:"red",shape:"dot",text:"error"});
+                });
+            
+            }
+        
+        node.status({});
+        
+        });
+    }
+    RED.nodes.registerType("delete", DeleteContent);
+    
+    
+    
     /***** Edit Node *****/
     function EditContent(n){
         RED.nodes.createNode(this,n);
