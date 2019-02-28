@@ -41,9 +41,9 @@ module.exports = function(RED) {
 	// ex:  var node = this;
 	//      var options = parseCredentials(n);
 	const parseCredentials = (n) => {
-		let config = RED.nodes.getNode(n.reddit);
-		let credentials = config.credentials;
-		let options = {
+		var config = RED.nodes.getNode(n.reddit);
+		var credentials = config.credentials;
+		var options = {
 			userAgent: config.user_agent,
 			clientId: credentials.client_id,
 			clientSecret: credentials.client_secret
@@ -370,8 +370,8 @@ module.exports = function(RED) {
 	function Create(n) {
 		RED.nodes.createNode(this, n);
 
-		let node = this;
-		let options = parseCredentials(n);
+		var node = this;
+		var options = parseCredentials(n);
 
 		const r = new snoowrap(options);
 
@@ -381,19 +381,19 @@ module.exports = function(RED) {
 
 			node.status({fill: "blue", shape: "dot", text: "submitting"});
 			// parse user input
-			let submissionType = n.submissionType;
-			let subreddit = parseField(msg, n.subreddit);
-			let title = parseField(msg, n.title);
-			let url = parseField(msg, n.url);
-			let text = parseField(msg, n.text);
-			let original = parseField(msg, n.original);
-			let to = parseField(msg, n.to);
-			let recipient = parseField(msg, n.recipient);
-			let subject = parseField(msg, n.subject);
-			let message = parseField(msg, n.message);
+			var submissionType = n.submissionType;
+			var subreddit = parseField(msg, n.subreddit);
+			var title = parseField(msg, n.title);
+			var url = parseField(msg, n.url);
+			var text = parseField(msg, n.text);
+			var original = parseField(msg, n.original);
+			var to = parseField(msg, n.to);
+			var recipient = parseField(msg, n.recipient);
+			var subject = parseField(msg, n.subject);
+			var message = parseField(msg, n.message);
 
 			// show the correct status message
-			let statusMessage;
+			var statusMessage;
 
 			if (submissionType === "pm") {
 				statusMessage = "sending";
@@ -404,7 +404,7 @@ module.exports = function(RED) {
 			node.status({fill: "blue", shape: "dot", text: statusMessage});
 
 			// prepare submission
-			let snooCall;
+			var snooCall;
 
 			if (submissionType === "self") {
 				snooCall = r.submitSelfpost({
@@ -434,7 +434,7 @@ module.exports = function(RED) {
 
 			// submit
 			snooCall.then(response => {
-				let responseMessage;
+				var responseMessage;
 				if (response.name !== undefined) {
 					responseMessage = response.name;
 					msg.payload = response;
@@ -461,20 +461,20 @@ module.exports = function(RED) {
 	function Stream(n) {
 		RED.nodes.createNode(this, n);
 
-		let node = this;
-		let options = parseCredentials(n);
+		var node = this;
+		var options = parseCredentials(n);
 
 		const r = new snoowrap(options);
 		const s = new snoostorm(r);
 
 		node.status({});
 
-		let stream;
+		var stream;
 
 		try {
 			node.on('input', () => {
 				// begin displaying the stream counter
-				let count = 0;
+				var count = 0;
 				node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count}); 
 
 				// stream and update the stream counter
@@ -514,7 +514,7 @@ module.exports = function(RED) {
 
 				// stop streaming after optional user-provided timeout
 				if (n.timeout !== "") {
-					let timeout = parseInt(n.timeout, 10);
+					var timeout = parseInt(n.timeout, 10);
 					if ( !isNaN(timeout) ) {
 						setTimeout( () => { 
 							stream.emit("end");
