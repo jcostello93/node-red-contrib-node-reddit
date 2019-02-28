@@ -1056,110 +1056,6 @@
 </script>
 <!-- END Search -->
 
-<!-- START Delete -->
-<script type="text/javascript">
-    RED.nodes.registerType('delete',{
-        category: 'reddit',
-        color: '#a6bbcf',
-        defaults: {
-            name: {value:""},
-            reddit: { type:"reddit-credentials",required:true},
-			content_type: {value:"submission"},
-			content_id: {value:""}
-        },
-        inputs:1,
-        outputs:0,
-        icon: "snoo2.png",
-        color:"#ffa27f",
-        label: function() {
-            return this.name||"delete";
-        }
-    });
-</script>
-
-<script type="text/x-red" data-template-name="delete">
-    <div class="form-row">
-        <label for="node-input-reddit"><i class="fa fa-reddit"></i> <span>Credentials</span></label>
-        <input type="text" id="node-input-reddit">
-    </div>
-    <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Optional name for this node">
-    </div>
-	<hr>
-	<div class="form-row" id="node-action-content_id">
-        <label for="node-input-content_id"><i class="icon-tag"></i> Content id</label>
-        <input type="text" id="node-input-content_id" placeholder="content_id">
-    </div>
-	<div class="form-row">
-        <label for="node-input-content_type"><i class="fa fa-wrench"></i>Type</label>
-        <select type="text" id="node-input-content_type">
-            <option value="submission" outputs="1">Submission</option>
-            <option value="comment" outputs="1">Comment</option>
-			<option value="private_message" outputs="1">Private Message</option>
-        </select>
-    </div>
-</script>
-
-<script type="text/x-red" data-help-name="delete">
-    <p>A simple node that deletes a comment, a submission, or a private message of a certain user on Reddit.</p>
-	<p>Content id, and content type selection are required.</p>
-	
-	
-	<h3>Inputs</h3>
-    <dl class="message-properties">
-        <dt>payload
-            <span class="property-type">string | buffer</span>
-        </dt>
-        <dd> The Reddit id of the content to be deleted. </dd>
-		<dt>content type
-            <span class="property-type">string | buffer</span>
-        </dt>
-        <dd> The type of the content to be deleted. </dd>
-    </dl>
-	
-	
-	<h3>Outputs</h3>
-    <ol class="node-ports">
-         <li>Standard output
-             <dl class="message-properties">
-                 <dt>payload <span class="property-type">string</span></dt>
-                 <dd>None.</dd>
-             </dl>
-         </li>
-         <li>Standard error
-             <dl class="message-properties">
-                 <dt>payload <span class="property-type">string</span></dt>
-                 <dd>Any standard errors associated with the command.</dd>
-             </dl>
-         </li>
-    </ol>
-	 
-	 
-	<h3>Details</h3>
-		<p>*You can only delete your own Reddit content.*</p>
-		<p>After double clicking on the node (and entering all the credentials), the "Content_id" and "Content Type", 
-		both need to be filled or selected.</p>
-		<p>For "Content_id", the user could either use the "inject" node to inject the content’s Reddit id or 
-		manually enter the id in the field.
-		If using the "inject" node, put the content id as a "string" inside the "inject" node’s "payload" field, 
-		then put "{{payload}}" inside the "Content_id" field in this node.
-		If manually entering the id, this node still needs an "inject" node linking with the input, but this time
-		the "inject" node’s payload can be left blank.</p>
-		<p>If this node’s output is linked to a "debug" node, any error messages
-		will be displayed inside the debug window on the right. This node doesn’t have any other output otherwise.</p>
-	
-	
-	<h3>References</h3>
-		<ul>
-			<li><a href="https://www.reddit.com/dev/api/">Reddit API docs</a> - full description of reddit API</li>
-			<li><a href="https://not-an-aardvark.github.io/snoowrap/">Snoowrap API</a> - information about Snoowrap API used for this node.</li>
-			<li><a href="https://github.com/jcostello93/Node-Red">Github</a> - source code</li>
-		</ul>
-	
-</script>
-<!-- END Delete -->
-
 <!-- START Edit -->
 <script type="text/javascript">
     RED.nodes.registerType('edit',{
@@ -1268,6 +1164,110 @@
 		</ul>
 </script>
 <!-- END Edit -->
+
+<!-- START Delete -->
+<script type="text/javascript">
+    RED.nodes.registerType('delete',{
+        category: 'reddit',
+        color: '#a6bbcf',
+        defaults: {
+            name: {value:""},
+            reddit: { type:"reddit-credentials",required:true},
+			content_type: {value:"submission"},
+			content_id: {value:""}
+        },
+        inputs:1,
+        outputs:0,
+        icon: "snoo2.png",
+        color:"#ffa27f",
+        label: function() {
+            return this.name||"delete";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="delete">
+    <div class="form-row">
+        <label for="node-input-reddit"><i class="fa fa-reddit"></i> <span>Credentials</span></label>
+        <input type="text" id="node-input-reddit">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Optional name for this node">
+    </div>
+	<hr>
+	<div class="form-row" id="node-action-content_id">
+        <label for="node-input-content_id"><i class="icon-tag"></i> Content id</label>
+        <input type="text" id="node-input-content_id" placeholder="content_id">
+    </div>
+	<div class="form-row">
+        <label for="node-input-content_type"><i class="fa fa-wrench"></i>Type</label>
+        <select type="text" id="node-input-content_type">
+            <option value="submission" outputs="1">Submission</option>
+            <option value="comment" outputs="1">Comment</option>
+			<option value="private_message" outputs="1">Private Message</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="delete">
+    <p>A simple node that deletes a comment, a submission, or a private message of a certain user on Reddit.</p>
+	<p>Content id, and content type selection are required.</p>
+	
+	
+	<h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload
+            <span class="property-type">string | buffer</span>
+        </dt>
+        <dd> The Reddit id of the content to be deleted. </dd>
+		<dt>content type
+            <span class="property-type">string | buffer</span>
+        </dt>
+        <dd> The type of the content to be deleted. </dd>
+    </dl>
+	
+	
+	<h3>Outputs</h3>
+    <ol class="node-ports">
+         <li>Standard output
+             <dl class="message-properties">
+                 <dt>payload <span class="property-type">string</span></dt>
+                 <dd>None.</dd>
+             </dl>
+         </li>
+         <li>Standard error
+             <dl class="message-properties">
+                 <dt>payload <span class="property-type">string</span></dt>
+                 <dd>Any standard errors associated with the command.</dd>
+             </dl>
+         </li>
+    </ol>
+	 
+	 
+	<h3>Details</h3>
+		<p>*You can only delete your own Reddit content.*</p>
+		<p>After double clicking on the node (and entering all the credentials), the "Content_id" and "Content Type", 
+		both need to be filled or selected.</p>
+		<p>For "Content_id", the user could either use the "inject" node to inject the content’s Reddit id or 
+		manually enter the id in the field.
+		If using the "inject" node, put the content id as a "string" inside the "inject" node’s "payload" field, 
+		then put "{{payload}}" inside the "Content_id" field in this node.
+		If manually entering the id, this node still needs an "inject" node linking with the input, but this time
+		the "inject" node’s payload can be left blank.</p>
+		<p>If this node’s output is linked to a "debug" node, any error messages
+		will be displayed inside the debug window on the right. This node doesn’t have any other output otherwise.</p>
+	
+	
+	<h3>References</h3>
+		<ul>
+			<li><a href="https://www.reddit.com/dev/api/">Reddit API docs</a> - full description of reddit API</li>
+			<li><a href="https://not-an-aardvark.github.io/snoowrap/">Snoowrap API</a> - information about Snoowrap API used for this node.</li>
+			<li><a href="https://github.com/jcostello93/Node-Red">Github</a> - source code</li>
+		</ul>
+	
+</script>
+<!-- END Delete -->
 
 <!-- START React -->
 <script type="text/javascript">
