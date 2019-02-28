@@ -41,9 +41,9 @@ module.exports = function(RED) {
 	// ex:  var node = this;
 	//      var options = parseCredentials(n);
 	const parseCredentials = (n) => {
-		let config = RED.nodes.getNode(n.reddit);
-		let credentials = config.credentials;
-		let options = {
+		var config = RED.nodes.getNode(n.reddit);
+		var credentials = config.credentials;
+		var options = {
 			userAgent: config.user_agent,
 			clientId: credentials.client_id,
 			clientSecret: credentials.client_secret
@@ -370,8 +370,8 @@ module.exports = function(RED) {
 	function Create(n) {
 		RED.nodes.createNode(this, n);
 
-		let node = this;
-		let options = parseCredentials(n);
+		var node = this;
+		var options = parseCredentials(n);
 
 		const r = new snoowrap(options);
 
@@ -381,18 +381,18 @@ module.exports = function(RED) {
 
 			node.status({fill: "blue", shape: "dot", text: "submitting"});
 			// parse user input
-			let submissionType = n.submissionType;
-			let subreddit = parseField(msg, n.subreddit);
-			let title = parseField(msg, n.title);
-			let url = parseField(msg, n.url);
-			let text = parseField(msg, n.text);
-			let original = parseField(msg, n.original);
-			let recipient = parseField(msg, n.recipient);
-			let subject = parseField(msg, n.subject);
-			let message = parseField(msg, n.message);
+			var submissionType = n.submissionType;
+			var subreddit = parseField(msg, n.subreddit);
+			var title = parseField(msg, n.title);
+			var url = parseField(msg, n.url);
+			var text = parseField(msg, n.text);
+			var original = parseField(msg, n.original);
+			var recipient = parseField(msg, n.recipient);
+			var subject = parseField(msg, n.subject);
+			var message = parseField(msg, n.message);
 
 			// show the correct status message
-			let statusMessage;
+			var statusMessage;
 
 			if (submissionType === "pm") {
 				statusMessage = "sending";
@@ -403,7 +403,7 @@ module.exports = function(RED) {
 			node.status({fill: "blue", shape: "dot", text: statusMessage});
 
 			// prepare submission
-			let snooCall;
+			var snooCall;
 
 			if (submissionType === "self") {
 				snooCall = r.submitSelfpost({
@@ -433,7 +433,7 @@ module.exports = function(RED) {
 
 			// submit
 			snooCall.then(response => {
-				let responseMessage;
+				var responseMessage;
 				if (response.name !== undefined) {
 					responseMessage = response.name;
 					msg.payload = response;
@@ -461,20 +461,20 @@ module.exports = function(RED) {
 	function Stream(n) {
 		RED.nodes.createNode(this, n);
 
-		let node = this;
-		let options = parseCredentials(n);
+		var node = this;
+		var options = parseCredentials(n);
 
 		const r = new snoowrap(options);
 		const s = new snoostorm(r);
 
 		node.status({});
 
-		let stream;
+		var stream;
 
 		try {
 			node.on('input', () => {
 				// begin displaying the stream counter
-				let count = 0;
+				var count = 0;
 				node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count}); 
 
 				// stream and update the stream counter
@@ -509,12 +509,12 @@ module.exports = function(RED) {
 
 				// notify the user when the stream ends
 				stream.on("end", () => {
-					node.status({fill: "green", shape: "dot", text: "complete: " + count + " " + n.kind});
+					node.status({fill: "green", shape: "dot", text: "compvare: " + count + " " + n.kind});
 				});
 
 				// stop streaming after optional user-provided timeout
 				if (n.timeout !== "") {
-					let timeout = parseInt(n.timeout, 10);
+					var timeout = parseInt(n.timeout, 10);
 					if ( !isNaN(timeout) ) {
 						setTimeout( () => { 
 							stream.emit("end");
@@ -523,7 +523,7 @@ module.exports = function(RED) {
 				}
 			});
 
-			// stop streaming if node deleted from flow
+			// stop streaming if node devared from flow
 			node.on("close", () => {
 				stream.emit("end");
 			});
@@ -540,8 +540,8 @@ module.exports = function(RED) {
 
 	RED.nodes.registerType("stream", Stream);
 
-	/***** Delete Node *****/
-	function DeleteContent(n){
+	/***** Devare Node *****/
+	function DevareContent(n){
 		RED.nodes.createNode(this,n);
 		//var config = RED.nodes.getNode(n.reddit);
 		//var credentials = config.credentials;
@@ -565,23 +565,23 @@ module.exports = function(RED) {
 				item = r.getMessage(content_id);
 			}
 
-			node.status({fill:"blue",shape:"dot",text:"deleting " + content_type});            
+			node.status({fill:"blue",shape:"dot",text:"devaring " + content_type});            
 
 			if (content_type == "comment"){
 				item.fetch().then((response) => {
-					if ("[deleted]" === response.author.name){
-						var errorMsg = content_id + " is already deleted";
+					if ("[devared]" === response.author.name){
+						var errorMsg = content_id + " is already devared";
 						node.error(errorMsg, msg);
 						node.status({fill:"red",shape:"dot",text:"error"});
 
 					} else if (options.username !== response.author.name) {
-						var errorMsg = "403 Forbidden - unauthorized to delete";
+						var errorMsg = "403 Forbidden - unauthorized to devare";
 						node.error(errorMsg, msg);
 						node.status({fill:"red",shape:"dot",text:"error"});
 
 					} else {
-						response.delete().then((deletedItem) => {
-							node.status({fill:"green",shape:"dot",text:"comment deleted"});
+						response.devare().then((devaredItem) => {
+							node.status({fill:"green",shape:"dot",text:"comment devared"});
 						}).catch((err) => {
 							var errorMsg = parseError(err);
 							//console.log(errorMsg);
@@ -596,19 +596,19 @@ module.exports = function(RED) {
 
 			} else if (content_type == "submission"){
 				item.fetch().then((response) => {
-					if ("[deleted]" === response.author.name){
-						var errorMsg = content_id + " is already deleted";
+					if ("[devared]" === response.author.name){
+						var errorMsg = content_id + " is already devared";
 						node.error(errorMsg, msg);
 						node.status({fill:"red",shape:"dot",text:"error"});
 
 					} else if (options.username !== response.author.name) {
-						var errorMsg = "403 Forbidden - unauthorized to delete";
+						var errorMsg = "403 Forbidden - unauthorized to devare";
 						node.error(errorMsg, msg);
 						node.status({fill:"red",shape:"dot",text:"error"});
 
 					} else {
-						response.delete().then((deletedItem) => {
-							node.status({fill:"green",shape:"dot",text:"submission deleted"});
+						response.devare().then((devaredItem) => {
+							node.status({fill:"green",shape:"dot",text:"submission devared"});
 						}).catch((err) => {
 							var errorMsg = parseError(err);
 							//console.log(errorMsg);
@@ -623,11 +623,11 @@ module.exports = function(RED) {
 
 			} else if (content_type == "private_message"){
 				item.fetch().then((response) => {                                          
-					response.deleteFromInbox().then(deletedItem => {                        
-						//send deletedItem and update status
-						msg.payload = deletedItem;
+					response.devareFromInbox().then(devaredItem => {                        
+						//send devaredItem and update status
+						msg.payload = devaredItem;
 						node.send(msg);
-						node.status({fill:"green",shape:"dot",text: content_type + " deleted"});
+						node.status({fill:"green",shape:"dot",text: content_type + " devared"});
 
 					}).catch((err) => {                                                       
 						//parseError, send it, and update status
@@ -650,7 +650,7 @@ module.exports = function(RED) {
 
 		});
 	}
-	RED.nodes.registerType("delete", DeleteContent);
+	RED.nodes.registerType("devare", DevareContent);
 
 
 
