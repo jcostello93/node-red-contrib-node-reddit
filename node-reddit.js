@@ -81,88 +81,6 @@ module.exports = function(RED) {
       }
     });
 
-    // stream node
-
-  function Stream(n) {
-    RED.nodes.createNode(this, n);
-
-    let node = this;
-    let options = parseCredentials(n);
-
-    const r = new snoowrap(options);
-    const s = new snoostorm(r);
-
-    node.status({});
-
-    let stream;
-
-    try {
-      node.on('input', () => {
-        // begin displaying the stream counter
-        let count = 0;
-        node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count}); 
-
-        // stream and update the stream counter
-        if (n.kind === "submissions") {
-          stream = s.Stream("submission", {
-            subreddit: n.subreddit,
-            results: 10
-          });
-        } else if (n.kind === "comments") {
-          stream = s.Stream("comment", {
-            subreddit: n.subreddit,
-            results: 10,
-          });
-        } else if (n.kind === "PMs") {
-          stream = s.Stream("inbox", {
-            pollTime: 10000,
-            filter: n.filter
-          });
-        }
-
-        // notify the user when item arrives
-        stream.on("item", (item) => {
-          node.send({payload: item});
-          count++;
-          node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count});
-
-          // for PMs only
-          if (n.kind === "PMs" && n.markedAsRead) {
-            item.markAsRead();
-          }
-        });
-
-        // notify the user when the stream ends
-        stream.on("end", () => {
-          node.status({fill: "green", shape: "dot", text: "complete: " + count + " " + n.kind});
-        });
-
-        // stop streaming after optional user-provided timeout
-        if (n.timeout !== "") {
-          let timeout = parseInt(n.timeout, 10);
-          if ( !isNaN(timeout) ) {
-            setTimeout( () => { 
-              stream.emit("end");
-            }, timeout * 1000);
-          }
-        }
-      });
-
-      // stop streaming if node deleted from flow
-      node.on("close", () => {
-        stream.emit("end");
-      });
-
-      // don't start streaming until we get user input
-      if (n.kind == "inbox" || (n.kind != "" && n.subreddit != "")) {
-        node.emit("input", {});
-      }
-    } catch(err) {
-      node.error(err);
-      node.status({fill: "red", shape: "dot", text: "error"});
-    }
-  }
-  RED.nodes.registerType("stream", Stream);
 
     function GetNode(n) {
         RED.nodes.createNode(this,n);
@@ -379,7 +297,75 @@ module.exports = function(RED) {
     }
     RED.nodes.registerType("get",GetNode);
 
-    // create node
+
+    function ReplyNode(n) {
+        RED.nodes.createNode(this,n);
+        var node = this;
+        var options = parseCredentials(n);
+
+        const r = new snoowrap(options);
+        node.status({});
+        node.on('input', function(msg) {
+            var content_type = n.content_type;
+            var content_id = parseField(msg, n.content_id);
+            var text = parseField(msg, n.text);
+
+            node.status({fill:"blue",shape:"dot",text:content_type});
+
+            var snoowrap_obj;
+            if (content_type == "submission") {
+                snoowrap_obj = r.getSubmission(content_id);
+            } else if (content_type == "comment") {
+                snoowrap_obj = r.getComment(content_id);
+            } else if (content_type == "pm") {
+                snoowrap_obj = r.getMessage(content_id);
+            }
+
+            snoowrap_obj.reply(text).then(response => {
+                msg.payload = response;
+                node.status({fill: "green", shape: "dot", text: response.name});
+                node.send(msg) 
+            }).catch(function(err) {
+                var errorMsg = parseError(err);
+                node.error(errorMsg, msg);
+                node.status({fill:"red",shape:"dot",text:"error"});
+            })
+        });        
+    }
+    RED.nodes.registerType("reply",ReplyNode);
+
+    function SearchNode(n) {
+        RED.nodes.createNode(this,n);
+        var node = this;
+        var options = parseCredentials(n);
+
+        const r = new snoowrap(options);
+        node.status({});
+        node.on('input', function(msg) {
+            var subreddit = parseField(msg, n.subreddit);
+            var query = parseField(msg, n.query);
+            var sort = n.sort;
+            var time = n.time;
+            var responseArr = []
+
+            var statusMsg = (subreddit == "") ? "searching" : "r/" + subreddit
+            node.status({fill:"blue",shape:"dot",text: statusMsg});
+
+            r.getSubreddit(subreddit).search({query: query, sort: sort, time: time}).then(response => {
+                copyPropertiesExceptMethods(responseArr, response, msg)
+                var statusMsg = (subreddit == "") ? "success" : "r/" + subreddit
+                node.status({fill:"green",shape:"dot",text: statusMsg});
+                node.send([responseArr]) 
+            }).catch(function(err) {
+                var errorMsg = parseError(err);
+                node.error(errorMsg, msg);
+                node.status({fill:"red",shape:"dot",text:"error"});
+            })
+        });       
+    }
+    RED.nodes.registerType("search",SearchNode);  
+
+// create node
 
   function Create(n) {
     RED.nodes.createNode(this, n);
@@ -468,75 +454,92 @@ module.exports = function(RED) {
       });
     });       
   }
-  RED.nodes.registerType("create", Create);  
+  RED.nodes.registerType("create", Create);
 
+  // stream node
 
-    function ReplyNode(n) {
-        RED.nodes.createNode(this,n);
-        var node = this;
-        var options = parseCredentials(n);
+  function Stream(n) {
+    RED.nodes.createNode(this, n);
 
-        const r = new snoowrap(options);
-        node.status({});
-        node.on('input', function(msg) {
-            var content_type = n.content_type;
-            var content_id = parseField(msg, n.content_id);
-            var text = parseField(msg, n.text);
+    let node = this;
+    let options = parseCredentials(n);
 
-            node.status({fill:"blue",shape:"dot",text:content_type});
+    const r = new snoowrap(options);
+    const s = new snoostorm(r);
 
-            var snoowrap_obj;
-            if (content_type == "submission") {
-                snoowrap_obj = r.getSubmission(content_id);
-            } else if (content_type == "comment") {
-                snoowrap_obj = r.getComment(content_id);
-            } else if (content_type == "pm") {
-                snoowrap_obj = r.getMessage(content_id);
-            }
+    node.status({});
 
-            snoowrap_obj.reply(text).then(response => {
-                msg.payload = response;
-                node.status({fill: "green", shape: "dot", text: response.name});
-                node.send(msg) 
-            }).catch(function(err) {
-                var errorMsg = parseError(err);
-                node.error(errorMsg, msg);
-                node.status({fill:"red",shape:"dot",text:"error"});
-            })
-        });        
+    let stream;
+
+    try {
+      node.on('input', () => {
+        // begin displaying the stream counter
+        let count = 0;
+        node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count}); 
+
+        // stream and update the stream counter
+        if (n.kind === "submissions") {
+          stream = s.Stream("submission", {
+            subreddit: n.subreddit,
+            results: 10
+          });
+        } else if (n.kind === "comments") {
+          stream = s.Stream("comment", {
+            subreddit: n.subreddit,
+            results: 10,
+          });
+        } else if (n.kind === "PMs") {
+          stream = s.Stream("inbox", {
+            pollTime: 10000,
+            filter: n.filter
+          });
+        }
+
+        // notify the user when item arrives
+        stream.on("item", (item) => {
+          node.send({payload: item});
+          count++;
+          node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count});
+
+          // for PMs only
+          if (n.kind === "PMs" && n.markedAsRead) {
+            item.markAsRead();
+          }
+        });
+
+        // notify the user when the stream ends
+        stream.on("end", () => {
+          node.status({fill: "green", shape: "dot", text: "complete: " + count + " " + n.kind});
+        });
+
+        // stop streaming after optional user-provided timeout
+        if (n.timeout !== "") {
+          let timeout = parseInt(n.timeout, 10);
+          if ( !isNaN(timeout) ) {
+            setTimeout( () => { 
+              stream.emit("end");
+            }, timeout * 1000);
+          }
+        }
+      });
+
+      // stop streaming if node deleted from flow
+      node.on("close", () => {
+        stream.emit("end");
+      });
+
+      // don't start streaming until we get user input
+      if (n.kind == "inbox" || (n.kind != "" && n.subreddit != "")) {
+        node.emit("input", {});
+      }
+    } catch(err) {
+      node.error(err);
+      node.status({fill: "red", shape: "dot", text: "error"});
     }
-    RED.nodes.registerType("reply",ReplyNode);
-
-    function SearchNode(n) {
-        RED.nodes.createNode(this,n);
-        var node = this;
-        var options = parseCredentials(n);
-
-        const r = new snoowrap(options);
-        node.status({});
-        node.on('input', function(msg) {
-            var subreddit = parseField(msg, n.subreddit);
-            var query = parseField(msg, n.query);
-            var sort = n.sort;
-            var time = n.time;
-            var responseArr = []
-
-            var statusMsg = (subreddit == "") ? "searching" : "r/" + subreddit
-            node.status({fill:"blue",shape:"dot",text: statusMsg});
-
-            r.getSubreddit(subreddit).search({query: query, sort: sort, time: time}).then(response => {
-                copyPropertiesExceptMethods(responseArr, response, msg)
-                var statusMsg = (subreddit == "") ? "success" : "r/" + subreddit
-                node.status({fill:"green",shape:"dot",text: statusMsg});
-                node.send([responseArr]) 
-            }).catch(function(err) {
-                var errorMsg = parseError(err);
-                node.error(errorMsg, msg);
-                node.status({fill:"red",shape:"dot",text:"error"});
-            })
-        });       
-    }
-    RED.nodes.registerType("search",SearchNode);      
+  }
+  RED.nodes.registerType("stream", Stream);
+    
+    
     
     /***** Delete Node *****/
     function DeleteContent(n){
@@ -554,64 +557,96 @@ module.exports = function(RED) {
             var content_id = parseField(msg, n.content_id);
             //console.log(n.name);
             
+            var item;
+            if (content_type == "comment") {
+                item = r.getComment(content_id);
+            } else if (content_type == "submission") {
+                item = r.getSubmission(content_id);
+            } else if (content_type == "private_message") {
+                item = r.getMessage(content_id);
+            }
+                                                                                               
+            node.status({fill:"blue",shape:"dot",text:"deleting " + content_type});            
+
             if (content_type == "comment"){
-                node.status({fill:"blue",shape:"dot",text:"deleting comment"});
-                /*
-                r.getComment(content_id).catch(function(err){
-                    //console.log(err);
-                    var errorMsg = parseError(err);
-                    //console.log(errorMsg);
-                    node.error(errorMsg, msg);
-                    node.status({fill:"red",shape:"dot",text:"error"});
+                item.fetch().then((response) => {
+                    if ("[deleted]" === response.author.name){
+                        var errorMsg = content_id + " is already deleted";
+                        node.error(errorMsg, msg);
+                        node.status({fill:"red",shape:"dot",text:"error"});
+                        
+                    } else if (options.username !== response.author.name) {
+                        var errorMsg = "403 Forbidden - unauthorized to delete";
+                        node.error(errorMsg, msg);
+                        node.status({fill:"red",shape:"dot",text:"error"});
+                        
+                    } else {
+                        response.delete().then((deletedItem) => {
+                            node.status({fill:"green",shape:"dot",text:"comment deleted"});
+                        }).catch((err) => {
+                            var errorMsg = parseError(err);
+                            //console.log(errorMsg);
+                            node.error(errorMsg, msg);
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        });
+                    }
+                }).catch((err) => {
+                    node.error("couldn't fetch item");
                 });
-                */
-                r.getComment(content_id).delete().then(response => {
-                    //console.log(response);
-                    msg.payload = response;
-                    node.send(msg);
-                    node.status({fill:"green",shape:"dot",text:"comment deleted"});
-                }).catch(function(err){
-                    //console.log(err);
-                    var errorMsg = parseError(err);
-                    //console.log(errorMsg);
-                    node.error(errorMsg, msg);
-                    node.status({fill:"red",shape:"dot",text:"error"});
-                });
+                
                 
             } else if (content_type == "submission"){
-                node.status({fill:"blue",shape:"dot",text:"deleting submission"});
-                
-                r.getSubmission(content_id).delete().then(response => {
-                    //console.log(response);
-                    msg.payload = response;
-                    node.send(msg);
-                    node.status({fill:"green",shape:"dot",text:"submission deleted"});
-                }).catch(function(err){
-                    //console.log(err);
-                    var errorMsg = parseError(err);
-                    //console.log(errorMsg);
-                    node.error(errorMsg, msg);
-                    node.status({fill:"red",shape:"dot",text:"error"});
+                item.fetch().then((response) => {
+                    if ("[deleted]" === response.author.name){
+                        var errorMsg = content_id + " is already deleted";
+                        node.error(errorMsg, msg);
+                        node.status({fill:"red",shape:"dot",text:"error"});
+                        
+                    } else if (options.username !== response.author.name) {
+                        var errorMsg = "403 Forbidden - unauthorized to delete";
+                        node.error(errorMsg, msg);
+                        node.status({fill:"red",shape:"dot",text:"error"});
+                        
+                    } else {
+                        response.delete().then((deletedItem) => {
+                            node.status({fill:"green",shape:"dot",text:"submission deleted"});
+                        }).catch((err) => {
+                            var errorMsg = parseError(err);
+                            //console.log(errorMsg);
+                            node.error(errorMsg, msg);
+                            node.status({fill:"red",shape:"dot",text:"error"});
+                        });
+                    }
+                }).catch((err) => {
+                    node.error("couldn't fetch item");
                 });
+                
                 
             } else if (content_type == "private_message"){
-                node.status({fill:"blue",shape:"dot",text:"deleting PM"});
-                
-                r.getMessage(content_id).deleteFromInbox().then(response => {
-                    //console.log(response);
-                    msg.payload = response;
-                    node.send(msg);
-                    node.status({fill:"green",shape:"dot",text:"PM deleted"});
-                }).catch(function(err){
-                    //console.log(err);
+                item.fetch().then((response) => {                                          
+                    response.deleteFromInbox().then(deletedItem => {                        
+                        //send deletedItem and update status
+                        msg.payload = deletedItem;
+                        node.send(msg);
+                        node.status({fill:"green",shape:"dot",text: content_type + " deleted"});
+                        
+                    }).catch((err) => {                                                       
+                        //parseError, send it, and update status
+                        //console.log(err);
+                        var errorMsg = parseError(err);
+                        //console.log(errorMsg);
+                        node.error(errorMsg, msg);
+                        node.status({fill:"red",shape:"dot",text:"error"});
+                    });                                                                                                                                          
+                }).catch((err) => {                                                          
+                    //parseError, send it, and update status
                     var errorMsg = parseError(err);
                     //console.log(errorMsg);
                     node.error(errorMsg, msg);
                     node.status({fill:"red",shape:"dot",text:"error"});
                 });
-            
             }
-        
+            
         node.status({});
         
         });
@@ -634,8 +669,8 @@ module.exports = function(RED) {
         node.on('input', function(msg) {
             //node.status({fill:"grey",shape:"dot",text:"loading"});
             
-            var content_type = n.content_type;
-            var edit_content = n.edit_content;
+            var content_type = n.content_type || msg.content_type;
+            var edit_content = n.edit_content || msg.edit_content;
             var content_id = parseField(msg, n.content_id);
             
             //console.log(n.name);
@@ -643,7 +678,7 @@ module.exports = function(RED) {
                 node.status({fill:"blue",shape:"dot",text:"editing comment"});
 
                 r.getComment(content_id).edit(edit_content).then(response => {
-                    msg.payload = response.json.data.things[0];
+                    msg.payload = response;
                     node.status({fill:"green",shape:"dot",text:"comment edited"});
                     node.send(msg);
                 }).catch(function(err){
@@ -658,7 +693,7 @@ module.exports = function(RED) {
                 node.status({fill:"blue",shape:"dot",text:"editing submission"});
                 
                 r.getSubmission(content_id).edit(edit_content).then(response => {
-                    msg.payload = response.json.data.things[0];
+                    msg.payload = response;
                     node.send(msg);
                     node.status({fill:"green",shape:"dot",text:"submission edited"});
                 }).catch(function(err){
