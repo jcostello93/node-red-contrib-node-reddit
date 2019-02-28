@@ -2,7 +2,9 @@
 module.exports = function(RED) {
 	"use strict";
 
-	var mustache = require("mustache");
+	const mustache = require("mustache");
+	const snoowrap = require('snoowrap');
+	const snoostorm= require('snoostorm-es6');
 
 	function copyPropertiesExceptMethods(newArr, originalArr, msg) {
 		for (var i = 0; i < originalArr.length; i++){
@@ -38,9 +40,7 @@ module.exports = function(RED) {
 	}
 
 	// setup the credentials for each node
-	// ex:  var node = this;
-	//      var options = parseCredentials(n);
-	const parseCredentials = (n) => {
+	function parseCredentials(n) {
 		var config = RED.nodes.getNode(n.reddit);
 		var credentials = config.credentials;
 		var options = {
@@ -60,9 +60,6 @@ module.exports = function(RED) {
 
 		return options;
 	}
-
-	const snoowrap = require('snoowrap');
-	const snoostorm= require('snoostorm-es6');
 
 	function ConfigNode(n) {
 		RED.nodes.createNode(this,n);
@@ -387,7 +384,6 @@ module.exports = function(RED) {
 			var url = parseField(msg, n.url);
 			var text = parseField(msg, n.text);
 			var original = parseField(msg, n.original);
-			var to = parseField(msg, n.to);
 			var recipient = parseField(msg, n.recipient);
 			var subject = parseField(msg, n.subject);
 			var message = parseField(msg, n.message);
