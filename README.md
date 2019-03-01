@@ -54,7 +54,7 @@ For all nodes other than config and stream, all text fields may be hardcoded via
 For example, let's say you're getting hot submissions from a subreddit using the get node. If the target <code>subreddit</code> is located in <code>msg.payload.target</code>, then you can fill in <code>{{payload.target}}</code> in the <code>subreddit</code> field.
 
 ## Example flows 
-### Overwrite and delete all of your Reddit comments. Download [flow](/flows/overwrite-comments.json)
+### Overwrite and delete all of your Reddit comments. Download the [flow.](/flows/overwrite-comments.json)
 ![Overwrite and delete comments](/screenshots/Node-Reddit-overwrite-comments.png?raw=true "Overwrite")
 
 ## References
