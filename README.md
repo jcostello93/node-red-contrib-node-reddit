@@ -17,12 +17,15 @@ There are 3 ways to provide authentication:
 
 ### Stream
 
+* This node will stream submissions and comments from a subreddit or PMs from your inbox.
+
 ### Get
 
 * This node will get submissions, comments, or personal messages from subreddits, users, your inbox, or the 's id, according to its configuration. 
 
 ### Create
 
+* This node will create a new Reddit submission or PM
 
 ### Reply
 
@@ -34,9 +37,15 @@ There are 3 ways to provide authentication:
 
 ### Edit
 
+* This node will edit a Reddit submission or comment.
+
 ### Delete
 
+* This node will delete a Reddit submission, comment, or PM
+
 ### React
+
+* This node will save/unsave and/or vote on Reddit content. 
 
 ## Populating fields
 
