@@ -467,70 +467,72 @@ module.exports = function(RED) {
 
 		var stream;
 
-		try {
-			node.on('input', () => {
-				// begin displaying the stream counter
-				var count = 0;
-				node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count}); 
+		node.on('input', () => {
+			// begin displaying the stream counter
+			var count = 0;
+			node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count}); 
 
-				// stream and update the stream counter
-				if (n.kind === "submissions") {
-					stream = s.Stream("submission", {
-						subreddit: n.subreddit,
-						results: 10
-					});
-				} else if (n.kind === "comments") {
-					stream = s.Stream("comment", {
-						subreddit: n.subreddit,
-						results: 10,
-					});
-				} else if (n.kind === "PMs") {
-					stream = s.Stream("inbox", {
-						pollTime: 10000,
-						filter: n.filter
-					});
-				}
-
-				// notify the user when item arrives
-				stream.on("item", (item) => {
-					node.send({payload: item});
-					count++;
-					node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count});
-
-					// for PMs only
-					if (n.kind === "PMs" && n.markedAsRead) {
-						item.markAsRead();
-					}
+			// stream and update the stream counter
+			if (n.kind === "submissions") {
+				stream = s.Stream("submission", {
+					subreddit: n.subreddit,
+					results: 10
 				});
-
-				// notify the user when the stream ends
-				stream.on("end", () => {
-					node.status({fill: "green", shape: "dot", text: "complete: " + count + " " + n.kind});
+			} else if (n.kind === "comments") {
+				stream = s.Stream("comment", {
+					subreddit: n.subreddit,
+					results: 10,
 				});
-
-				// stop streaming after optional user-provided timeout
-				if (n.timeout !== "") {
-					var timeout = parseInt(n.timeout, 10);
-					if ( !isNaN(timeout) ) {
-						setTimeout( () => { 
-							stream.emit("end");
-						}, timeout * 1000);
-					}
-				}
-			});
-
-			// stop streaming if node deleted from flow
-			node.on("close", () => {
-				stream.emit("end");
-			});
-
-			// don't start streaming until we get user input
-			if (n.kind == "inbox" || (n.kind != "" && n.subreddit != "")) {
-				node.emit("input", {});
+			} else if (n.kind === "PMs") {
+				stream = s.Stream("inbox", {
+					pollTime: 10000,
+					filter: n.filter
+				});
 			}
-		} catch(err) {
-			node.error(err);
-			node.status({fill: "red", shape: "dot", text: "error"});
+
+			// notify the user when item arrives
+			stream.on("item", (item) => {
+				node.send({payload: item});
+				count++;
+				node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count});
+
+				// for PMs only
+				if (n.kind === "PMs" && n.markedAsRead) {
+					item.markAsRead();
+				}
+			});
+
+			// notify user of snoostream-es6 breaking the ratelimit
+			stream.on("error", () => {
+				var err = "Reddit's ratelimit has been  exceeded.";
+				node.error(err);
+				node.status({fill: "red", shape: "dot", text: "error"});
+			});
+
+			// notify the user when the stream ends
+			stream.on("end", () => {
+				node.status({fill: "green", shape: "dot", text: "complete: " + count + " " + n.kind});
+			});
+
+			// stop streaming after optional user-provided timeout
+			if (n.timeout !== "") {
+				var timeout = parseInt(n.timeout, 10);
+				if ( !isNaN(timeout) ) {
+					setTimeout( () => { 
+						stream.emit("end");
+					}, timeout * 1000);
+				}
+			}
+		});
+
+		// stop streaming if node deleted from flow
+		node.on("close", () => {
+			stream.emit("end");
+		});
+
+		// don't start streaming until we get user input
+		if (n.kind == "inbox" || (n.kind != "" && n.subreddit != "")) {
+			node.emit("input", {});
 		}
 	}
 	RED.nodes.registerType("stream", Stream);
