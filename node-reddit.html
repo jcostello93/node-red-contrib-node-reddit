@@ -269,7 +269,7 @@
     <h3>References</h3>
       <ul>
         <li><a href='https://www.reddit.com/dev/api/'>Reddit API docs</a> - descriptions of comment and submission listings</li>
-        <li><a href='https://github.com/jcostello93/Node-Red'>Node-Reddit on GitHub</a> - the Node-Reddit github repository</li>
+        <li><a href='https://github.com/jcostello93/node-red-contrib-node-reddit'>node-red-contrib-node-reddit</a> - the Node-Reddit github repository</li>
       </ul>
   </script>
   <!-- END Stream -->
@@ -634,6 +634,8 @@
     </ol>
 
     <h3>Details</h3>
+    <h4>Prefixes</h4>
+    <p>Exclude the "r/" when entering a <code>subreddit</code> and the "u/" when entering a <code>user</code></p>
     <h4>Populating fields</h4>
     <p>All text input properties may be hardcoded via text or dynamically populated via mustache syntax relative to the incoming msg object.</p>
     <p>For example, if the target <code>subreddit</code> is located in <code>msg.payload.target</code>, then you can fill in <code>{{payload.target}}</code> in the <code>subreddit</code> field.</p>
@@ -650,6 +652,7 @@
     <ul>
         <li><a href="https://www.reddit.com/dev/api/">Reddit API docs</a> - full description of the Reddit API</li>
         <li><a href="https://not-an-aardvark.github.io/snoowrap/">Snoowrap docs</a> - information regarding the limit and depth properties</li>
+        <li><a href='https://github.com/jcostello93/node-red-contrib-node-reddit'>node-red-contrib-node-reddit</a> - the Node-Reddit github repository</li>
     </ul>
 
 </script>
@@ -839,7 +842,7 @@
     <h3>References</h3>
       <ul>
         <li><a href='https://www.reddit.com/dev/api/'>Reddit API docs</a> - descriptions of the 3 submission types</li>
-        <li><a href='https://github.com/jcostello93/Node-Red'>Node-Reddit on GitHub</a> - the Node-Reddit github repository</li>
+        <li><a href='https://github.com/jcostello93/node-red-contrib-node-reddit'>node-red-contrib-node-reddit</a> - the Node-Reddit github repository</li>
       </ul>
   </script>
 <!-- END Create  -->
@@ -937,6 +940,7 @@
     <h3>References</h3>
     <ul>
         <li><a href="https://www.reddit.com/dev/api/">Reddit API docs</a> - full description of the Reddit API</li>
+        <li><a href='https://github.com/jcostello93/node-red-contrib-node-reddit'>node-red-contrib-node-reddit</a> - the Node-Reddit github repository</li>
     </ul>
 </script>
 <!-- END Reply -->
@@ -1046,12 +1050,15 @@
     </ol>
 
     <h3>Details</h3>
+    <h4>Prefixes</h4>
+    <p>Exclude the "r/" when entering a <code>subreddit</code> and the "u/" when entering a <code>user</code></p>
     <h4>Populating fields</h4>
     <p><code>content_id</code> and <code>text</code> may be hardcoded via text or dynamically populated via mustache syntax relative to the incoming msg object.</p>
     <p>For example, if the target <code>query</code> is located in <code>msg.payload.target</code>, then you can fill in <code>{{payload.target}}</code> in the <code>query</code> field.</p>
     <h3>References</h3>
     <ul>
         <li><a href="https://www.reddit.com/wiki/search">Reddit search wiki</a> - information regarding search fields and syntax</li>
+        <li><a href='https://github.com/jcostello93/node-red-contrib-node-reddit'>node-red-contrib-node-reddit</a> - the Node-Reddit github repository</li>
     </ul>
 </script>
 <!-- END Search -->
@@ -1106,22 +1113,22 @@
 </script>
 
 <script type="text/x-red" data-help-name="edit">
-    <p>A node that edits a comment or a submission of a certain user on Reddit.</p>
+    <p>Edit a Reddit submission or comment.</p>
 	<p>Content id, content type selection, and new contents are required.</p>
 	
 	
 	<h3>Inputs</h3>
     <dl class="message-properties">
-        <dt>payload
-            <span class="property-type">string | buffer</span>
+        <dt>content_id
+            <span class="property-type">string</span>
         </dt>
-        <dd> The Reddit id of the content to be edited. </dd>
-		<dt>content type
-            <span class="property-type">string | buffer</span>
+        <dd> the Reddit id of the content to be edited. </dd>
+		<dt>type
+            <span class="property-type">string</span>
         </dt>
-        <dd> The type of the content to be edited. </dd>
-        <dt class="optional">new content <span class="property-type">string</span></dt>
-        <dd> The edited content. </dd>
+        <dd> the type of the content to be edited. </dd>
+        <dt>text<span class="property-type">string</span></dt>
+        <dd> the edited content. </dd>
     </dl>
 	
 	
@@ -1130,37 +1137,30 @@
          <li>Standard output
              <dl class="message-properties">
                  <dt>payload <span class="property-type">string</span></dt>
-                 <dd>The old and new contents corresponding to the Reddit content id given.</dd>
+                 <dd>the edited Reddit content</dd>
              </dl>
          </li>
          <li>Standard error
              <dl class="message-properties">
                  <dt>payload <span class="property-type">string</span></dt>
-                 <dd>Any standard errors associated with the command.</dd>
+                 <dd>the standard error of the command.</dd>
              </dl>
          </li>
      </ol>
 	 
 	 
-	 <h3>Details</h3>
-		<p>*You can only edit your own Reddit content.*</p>
-		<p>After double clicking on the node (and entering all the credentials), the "Content_id", "Content Type", 
-		and "New Content" fields all need to be filled or selected.</p>
-		<p>For "Content_id", the user could either use the "inject" node to inject the content’s Reddit id or 
-		manually enter the id in the field.
-		If using the "inject" node, put the content id as a "string" inside the "inject" node’s "payload" field, 
-		then put "{{payload}}" inside the "Content_id" field in this node.
-		If manually entering the id, this node still needs an "inject" node linking with the input, but this time
-		the "inject" node’s payload can be left blank.</p>
-		<p>If this node’s output is linked to a "debug" node, the before and after content, or any error messages, 
-		will be displayed inside the debug window on the right. If this output is linked to other node, it will send
-		two strings to the other node containing the before and after content.</p>
+    <h3>Details</h3>
+    <p>You can only edit your own Reddit content.</p>
+    <h4>Populating fields</h4>
+    <p>All text input properties may be hardcoded via text or dynamically populated via mustache syntax relative to the incoming msg object.</p>
+    <p>For example, if the target <code>content_id</code> is located in <code>msg.payload.target</code>, then you can fill in <code>{{payload.target}}</code> in the <code>content_id</code> field.</p>
+		
 		
 	<h3>References</h3>
 		<ul>
 			<li><a href="https://www.reddit.com/dev/api/">Reddit API docs</a> - full description of reddit API</li>
 			<li><a href="https://not-an-aardvark.github.io/snoowrap/">Snoowrap API</a> - information about Snoowrap API used for this node.</li>
-			<li><a href="https://github.com/jcostello93/Node-Red">Github</a> - source code</li>
+            <li><a href='https://github.com/jcostello93/node-red-contrib-node-reddit'>node-red-contrib-node-reddit</a> - the Node-Reddit github repository</li>
 		</ul>
 </script>
 <!-- END Edit -->
@@ -1211,59 +1211,48 @@
 </script>
 
 <script type="text/x-red" data-help-name="delete">
-    <p>A simple node that deletes a comment, a submission, or a private message of a certain user on Reddit.</p>
+    <p>Delete a Reddit submission, comment, or PM.</p>
 	<p>Content id, and content type selection are required.</p>
 	
 	
 	<h3>Inputs</h3>
     <dl class="message-properties">
-        <dt>payload
-            <span class="property-type">string | buffer</span>
+        <dt>content_id
+            <span class="property-type">string</span>
         </dt>
-        <dd> The Reddit id of the content to be deleted. </dd>
-		<dt>content type
-            <span class="property-type">string | buffer</span>
+        <dd> the Reddit id of the content to be deleted. </dd>
+		<dt>type
+            <span class="property-type">string</span>
         </dt>
-        <dd> The type of the content to be deleted. </dd>
+        <dd> the type of the content to be deleted. </dd>
     </dl>
 	
 	
 	<h3>Outputs</h3>
     <ol class="node-ports">
-         <li>Standard output
-             <dl class="message-properties">
-                 <dt>payload <span class="property-type">string</span></dt>
-                 <dd>None.</dd>
-             </dl>
+         <li>This node has 0 outputs.
          </li>
          <li>Standard error
              <dl class="message-properties">
                  <dt>payload <span class="property-type">string</span></dt>
-                 <dd>Any standard errors associated with the command.</dd>
+                 <dd>the standard error of the command.</dd>
              </dl>
-         </li>
+         </li>  
     </ol>
 	 
 	 
 	<h3>Details</h3>
-		<p>*You can only delete your own Reddit content.*</p>
-		<p>After double clicking on the node (and entering all the credentials), the "Content_id" and "Content Type", 
-		both need to be filled or selected.</p>
-		<p>For "Content_id", the user could either use the "inject" node to inject the content’s Reddit id or 
-		manually enter the id in the field.
-		If using the "inject" node, put the content id as a "string" inside the "inject" node’s "payload" field, 
-		then put "{{payload}}" inside the "Content_id" field in this node.
-		If manually entering the id, this node still needs an "inject" node linking with the input, but this time
-		the "inject" node’s payload can be left blank.</p>
-		<p>If this node’s output is linked to a "debug" node, any error messages
-		will be displayed inside the debug window on the right. This node doesn’t have any other output otherwise.</p>
-	
+    <p>You can only delete your own Reddit content.</p>
+    <h4>Populating fields</h4>
+    <p>All text input properties may be hardcoded via text or dynamically populated via mustache syntax relative to the incoming msg object.</p>
+    <p>For example, if the target <code>content_id</code> is located in <code>msg.payload.target</code>, then you can fill in <code>{{payload.target}}</code> in the <code>content_id</code> field.</p>
+    	
 	
 	<h3>References</h3>
 		<ul>
 			<li><a href="https://www.reddit.com/dev/api/">Reddit API docs</a> - full description of reddit API</li>
 			<li><a href="https://not-an-aardvark.github.io/snoowrap/">Snoowrap API</a> - information about Snoowrap API used for this node.</li>
-			<li><a href="https://github.com/jcostello93/Node-Red">Github</a> - source code</li>
+            <li><a href='https://github.com/jcostello93/node-red-contrib-node-reddit'>node-red-contrib-node-reddit</a> - the Node-Reddit github repository</li>
 		</ul>
 	
 </script>
@@ -1336,59 +1325,45 @@
 
 
 <script type="text/x-red" data-help-name="react">
-    <p>A node that allows user to react to a submissoin or a comment on Reddit.</p>
+    <p>React to a Reddit submission or comment.</p>
 	<p>Content id, and content type selection are required.</p>
 	
 	
 	<h3>Inputs</h3>
     <dl class="message-properties">
-        <dt>payload
+        <dt>content_id
             <span class="property-type">string | buffer</span>
         </dt>
-        <dd> The Reddit id of the content. </dd>
-		<dt>content type
+        <dd> the Reddit id of the content. </dd>
+		<dt>type
             <span class="property-type">string | buffer</span>
         </dt>
-        <dd> The type of the content. </dd>
+        <dd> the type of the content. </dd>
     </dl>
 	
 	
 	<h3>Outputs</h3>
     <ol class="node-ports">
-         <li>Standard output
-             <dl class="message-properties">
-                 <dt>payload <span class="property-type">string</span></dt>
-                 <dd>None.</dd>
-             </dl>
+         <li>This node has 0 outputs. 
          </li>
          <li>Standard error
              <dl class="message-properties">
                  <dt>payload <span class="property-type">string</span></dt>
-                 <dd>Any standard errors associated with the command.</dd>
+                 <dd>the standard error of the command.</dd>
              </dl>
          </li>
-    </ol>
-	
+    </ol>	
 	
 	<h3>Details</h3>
-		<p>*You must use "unvote" to undo whatever voting action you did previously to the same content.*</p>
-		<p>After double clicking on the node (and entering all the credentials), the "Content_id" and "Content Type", 
-		both need to be filled or selected.</p>
-		<p>For "Content_id", the user could either use the "inject" node to inject the content’s Reddit id or 
-		manually enter the id in the field.
-		If using the "inject" node, put the content id as a "string" inside the "inject" node’s "payload" field, 
-		then put "{{payload}}" inside the "Content_id" field in this node.
-		If manually entering the id, this node still needs an "inject" node linking with the input, but this time
-		the "inject" node’s payload can be left blank.</p>
-		<p>If this node’s output is linked to a "debug" node, any error messages
-		will be displayed inside the debug window on the right. This node doesn’t have any other output otherwise.</p>
-	
-	
+    <h4>Populating fields</h4>
+    <p>All text input properties may be hardcoded via text or dynamically populated via mustache syntax relative to the incoming msg object.</p>
+    <p>For example, if the target <code>content_id</code> is located in <code>msg.payload.target</code>, then you can fill in <code>{{payload.target}}</code> in the <code>content_id</code> field.</p>
+    
 	<h3>References</h3>
 		<ul>
 			<li><a href="https://www.reddit.com/dev/api/">Reddit API docs</a> - full description of reddit API</li>
 			<li><a href="https://not-an-aardvark.github.io/snoowrap/">Snoowrap API</a> - information about Snoowrap API used for this node.</li>
-			<li><a href="https://github.com/jcostello93/Node-Red">Github</a> - source code</li>
+            <li><a href='https://github.com/jcostello93/node-red-contrib-node-reddit'>node-red-contrib-node-reddit</a> - the Node-Reddit github repository</li>
 		</ul>
 </script>
 <!-- START React -->
