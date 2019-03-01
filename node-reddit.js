@@ -549,8 +549,8 @@ module.exports = function(RED) {
 		node.on('input', function(msg) {
 			//node.status({fill:"grey",shape:"dot",text:"loading"});
 
-			var content_type = n.content_type || msg.content_type;
-			var edit_content = n.edit_content || msg.edit_content;
+			var content_type = n.content_type;
+			var edit_content = n.edit_content;
 			var content_id = parseField(msg, n.content_id);
 
 			//console.log(n.name);
@@ -604,7 +604,7 @@ module.exports = function(RED) {
 		node.status({});
 		node.on('input', function(msg) {
 
-			var content_type = n.content_type || msg.content_type;
+			var content_type = n.content_type;
 			var content_id = parseField(msg, n.content_id);
 			//console.log(n.name);
 
@@ -718,9 +718,9 @@ module.exports = function(RED) {
 		node.on('input', function(msg) {
 			//node.status({fill:"grey",shape:"dot",text:"loading"});
 
-			var content_type = n.content_type || msg.content_type;
-			var vote = n.vote || msg.vote;
-			var save_value = n.save || msg.save;
+			var content_type = n.content_type;
+			var vote = n.vote;
+			var save_value = n.save;
 			var content_id = parseField(msg, n.content_id);
 			//var gild_value = n.gild || msg.gild;
 
