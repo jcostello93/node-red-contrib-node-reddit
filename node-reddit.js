@@ -560,7 +560,7 @@ module.exports = function(RED) {
 				node.status({fill:"blue",shape:"dot",text:"editing comment"});
 
 				r.getComment(content_id).edit(edit_content).then(response => {
-					msg.payload = response;
+					msg.payload = response.json.data.things[0];
 					node.status({fill:"green",shape:"dot",text:"comment edited"});
 					node.send(msg);
 				}).catch(function(err){
@@ -575,7 +575,7 @@ module.exports = function(RED) {
 				node.status({fill:"blue",shape:"dot",text:"editing submission"});
 
 				r.getSubmission(content_id).edit(edit_content).then(response => {
-					msg.payload = response;
+					msg.payload = response.json.data.things[0];
 					node.send(msg);
 					node.status({fill:"green",shape:"dot",text:"submission edited"});
 				}).catch(function(err){
