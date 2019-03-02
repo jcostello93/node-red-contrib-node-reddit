@@ -119,7 +119,7 @@ module.exports = function(RED) {
 						})   
 					} else if (sort == "hot") {
 						r.getHot(subreddit, {limit: limit}).then(response => {
-                            copyPropertiesExceptMethods(responseArr, response, msg);
+                            copyPropertiesExceptMethods(responseArr, response, msg)
                             if (!isNaN(limit)) {
                                 var numStickies = responseArr.length - limit; 
                                 for (var i = 0; i < numStickies; i++) {
@@ -511,7 +511,7 @@ module.exports = function(RED) {
 			// notify user of snoostream-es6 breaking the ratelimit
 			stream.on("error", () => {
 				var err = "Reddit's ratelimit has been  exceeded.";
-				node.error(err);
+				node.error(err, {});
 				node.status({fill: "red", shape: "dot", text: "error"});
 			});
 
