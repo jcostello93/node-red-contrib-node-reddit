@@ -624,12 +624,12 @@ module.exports = function(RED) {
 			if (content_type == "comment"){
 				item.fetch().then((response) => {
 					if ("[deleted]" === response.author.name){
-						var errorMsg = content_id + " is already deleted";
+						var errorMsg = "403 Forbidden";
 						node.error(errorMsg, msg);
 						node.status({fill:"red",shape:"dot",text:"error"});
 
 					} else if (options.username !== response.author.name) {
-						var errorMsg = "403 Forbidden - unauthorized to delete";
+						var errorMsg = "403 Forbidden";
 						node.error(errorMsg, msg);
 						node.status({fill:"red",shape:"dot",text:"error"});
 
@@ -651,12 +651,12 @@ module.exports = function(RED) {
 			} else if (content_type == "submission"){
 				item.fetch().then((response) => {
 					if ("[deleted]" === response.author.name){
-						var errorMsg = content_id + " is already deleted";
+						var errorMsg = "403 Forbidden";
 						node.error(errorMsg, msg);
 						node.status({fill:"red",shape:"dot",text:"error"});
 
 					} else if (options.username !== response.author.name) {
-						var errorMsg = "403 Forbidden - unauthorized to delete";
+						var errorMsg = "403 Forbidden";
 						node.error(errorMsg, msg);
 						node.status({fill:"red",shape:"dot",text:"error"});
 
