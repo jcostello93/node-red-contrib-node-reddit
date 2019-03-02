@@ -123,7 +123,7 @@ module.exports = function(RED) {
 							if (!isNaN(limit)) {
 								var numStickies = responseArr.length - limit; 
 								for (var i = 0; i < numStickies; i++) {
-							    	responseArr.pop()
+							    		responseArr.pop()
 								}
 							}
 							var statusMsg = (subreddit == "") ? "home/hot" : "r/" + subreddit + "/hot"
