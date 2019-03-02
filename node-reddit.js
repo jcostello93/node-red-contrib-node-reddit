@@ -119,7 +119,13 @@ module.exports = function(RED) {
 						})   
 					} else if (sort == "hot") {
 						r.getHot(subreddit, {limit: limit}).then(response => {
-							copyPropertiesExceptMethods(responseArr, response, msg)
+                            copyPropertiesExceptMethods(responseArr, response, msg);
+                            if (!isNaN(limit)) {
+                                var numStickies = responseArr.length - limit; 
+                                for (var i = 0; i < numStickies; i++) {
+                                    responseArr.pop()
+                                }
+                            }
 							var statusMsg = (subreddit == "") ? "home/hot" : "r/" + subreddit + "/hot"
 							node.status({fill:"green",shape:"dot",text: statusMsg});
 							node.send([responseArr])  
