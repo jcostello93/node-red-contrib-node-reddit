@@ -121,8 +121,8 @@ module.exports = function(RED) {
 						r.getHot(subreddit, {limit: limit}).then(response => {
                             copyPropertiesExceptMethods(responseArr, response, msg);
                             if (!isNaN(limit)) {
-                                var toPop = responseArr.length - limit; 
-                                for (var i = 0; i < toPop; i++) {
+                                var numStickies = responseArr.length - limit; 
+                                for (var i = 0; i < numStickies; i++) {
                                     responseArr.pop()
                                 }
                             }
