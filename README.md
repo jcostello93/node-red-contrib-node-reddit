@@ -59,6 +59,10 @@ For example, let's say you're getting hot submissions from a subreddit using the
 ---
 ![Nba](/screenshots/Node-Reddit-osu-dashboard.png?raw=true "OSU dashboard")
 
+### Create a Reddit bot that responds to a trigger. Download the [flow.](/flows/bot.json)
+![Nba](/screenshots/Node-Reddit-bot-flow.png?raw=true "blot flow")
+---
+
 ### Overwrite and delete all of your Reddit comments. Download the [flow.](/flows/overwrite-comments.json)
 ![Overwrite and delete comments](/screenshots/Node-Reddit-overwrite-comments.png?raw=true "Overwrite")
 
