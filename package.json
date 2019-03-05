@@ -25,7 +25,7 @@
     "node-red",
     "reddit"
   ], 
-  "license": "ISC",
+  "license": "MIT",
   "node-red": {
     "nodes": {
       "node-reddit": "node-reddit.js"
