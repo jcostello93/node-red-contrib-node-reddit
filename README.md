@@ -58,9 +58,9 @@ For example, let's say you're getting hot submissions from a subreddit using the
 ![Overwrite and delete comments](/screenshots/Node-Reddit-overwrite-comments.png?raw=true "Overwrite")
 
 ### Track the pulse of a subreddit by monitoring the most frequently mentioned words and sentiment of its comments. Download the [flow.](/flows/nba.json)
-![Nba](/screenshots/Node-Reddit-nba-flow.png?raw=true "Nba")
+![Nba](/screenshots/Node-Reddit-nba-flow2.png?raw=true "Nba")
 ---
-![Nba](/screenshots/Node-Reddit-nba-dashboard.png?raw=true "Nba")
+![Nba](/screenshots/Node-Reddit-nba-dashboard2.png?raw=true "Nba")
 
 ## References
 * [Reddit API docs](https://www.reddit.com/dev/api/)
