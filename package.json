@@ -15,7 +15,7 @@
       "url": "https://github.com/leqis"
     }
   ],
-  "description": "",
+  "description": "Interact with Reddit using Node-RED",
   "dependencies": {
     "mustache": "^3.0.1",
     "snoostorm-es6": "^1.0.2",
