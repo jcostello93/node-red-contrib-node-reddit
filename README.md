@@ -1,19 +1,19 @@
 # node-red-contrib-node-reddit
 
 ## Overview
-These things do stuff
+Interact with Reddit using [Node-RED](https://nodered.org).
 
 ## Nodes
 ### Config 
 Authentication for the Reddit API
 #### Details
-To create a Reddit app and obtain its Client ID and Client Secret, log in to your Reddit account and visit <a href="https://ssl.reddit.com/prefs/apps/">this link.</a>
+To create a Reddit app and obtain its Client ID and Client Secret, log in to your Reddit account and visit [this link](https://ssl.reddit.com/prefs/apps/).
 
 There are 3 ways to provide authentication:
   
 1. Username/password: For long-term access. Possible for script-type apps only.
-2. Refresh token: For long-term access. Visit <a href="https://not-an-aardvark.github.io/reddit-oauth-helper/">here</a> to generate a token.
-3. Access token: For short-term access. Expires in one hour. Visit <a href="https://not-an-aardvark.github.io/reddit-oauth-helper/">here</a> to generate a token.
+2. Refresh token: For long-term access. Visit [here](https://not-an-aardvark.github.io/reddit-oauth-helper/) to generate a token.
+3. Access token: For short-term access. Expires in one hour. Visit [here](https://not-an-aardvark.github.io/reddit-oauth-helper/) to generate a token.
 
 ### Stream
 
@@ -21,11 +21,11 @@ There are 3 ways to provide authentication:
 
 ### Get
 
-* This node will get submissions, comments, or personal messages from subreddits, users, your inbox, or the 's id, according to its configuration. 
+* This node will get submissions, comments, or personal messages from subreddits, users, your inbox, or the content's id, according to its configuration.
 
 ### Create
 
-* This node will create a new Reddit submission or PM
+* This node will create a new Reddit submission or PM.
 
 ### Reply
 
@@ -41,7 +41,7 @@ There are 3 ways to provide authentication:
 
 ### Delete
 
-* This node will delete a Reddit submission, comment, or PM
+* This node will delete a Reddit submission, comment, or PM.
 
 ### React
 
@@ -63,6 +63,5 @@ For example, let's say you're getting hot submissions from a subreddit using the
 ![Nba](/screenshots/Node-Reddit-nba-dashboard.png?raw=true "Nba")
 
 ## References
-* <a href="https://www.reddit.com/dev/api/">Reddit API docs</a>
-* <a href="https://not-an-aardvark.github.io/snoowrap/">Snoowrap docs</a> 
-
+* [Reddit API docs](https://www.reddit.com/dev/api/)
+* [Snoowrap docs](https://not-an-aardvark.github.io/snoowrap/) 
