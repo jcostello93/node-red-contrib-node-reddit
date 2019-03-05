@@ -463,6 +463,8 @@ module.exports = function(RED) {
 	function Stream(n) {
 		RED.nodes.createNode(this, n);
 
+		var errorFlag = false;
+		var errorMsg = "Reddit's ratelimit has been exceeded."
 		var node = this;
 		var options = parseCredentials(n);
 
@@ -487,7 +489,7 @@ module.exports = function(RED) {
 			} else if (n.kind === "comments") {
 				stream = s.Stream("comment", {
 					subreddit: n.subreddit,
-					results: 10,
+					results: 10
 				});
 			} else if (n.kind === "PMs") {
 				stream = s.Stream("inbox", {
@@ -506,13 +508,17 @@ module.exports = function(RED) {
 				if (n.kind === "PMs" && n.markedAsRead) {
 					item.markAsRead();
 				}
+
+				errorFlag = false;
 			});
 
 			// notify user of snoostream-es6 breaking the ratelimit
 			stream.on("error", () => {
-				var err = "Reddit's ratelimit has been  exceeded.";
-				node.error(err, {});
-				node.status({fill: "red", shape: "dot", text: "error"});
+				if (!errorFlag) {
+					node.error(errorMsg, {});
+					node.status({fill: "red", shape: "dot", text: "ratelimit exceeded"});
+					errorFlag = true;
+				}
 			});
 
 			// notify the user when the stream ends
@@ -537,7 +543,7 @@ module.exports = function(RED) {
 		});
 
 		// don't start streaming until we get user input
-		if (n.kind == "inbox" || (n.kind != "" && n.subreddit != "")) {
+		if (n.kind === "PMs" || (n.kind !== "" && n.subreddit !== "")) {
 			node.emit("input", {});
 		}
 	}
