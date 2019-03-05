@@ -24,7 +24,7 @@
   "keywords": [
     "node-red",
     "reddit"
-  ],
+  ], 
   "license": "ISC",
   "node-red": {
     "nodes": {
