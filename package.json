@@ -1,21 +1,42 @@
-{
-  "name": "node-reddit",
+  {
+  "name": "node-red-contrib-node-reddit",
   "version": "1.0.0",
+  "contributors": [
+    {
+      "name": "John Costello",
+      "url": "https://github.com/jcostello93"
+    },
+    {
+      "name": "William Sabbatini",
+      "url": "https://github.com/sabbatiw"
+    },
+    {
+      "name": "Lucy Song",
+      "url": "https://github.com/leqis"
+    }
+  ],
   "description": "",
   "dependencies": {
     "mustache": "^3.0.1",
     "snoostorm-es6": "^1.0.2",
     "snoowrap": "^1.15.2"
   },
+  "keywords": [
+    "node-red",
+    "reddit"
+  ], 
+  "license": "ISC",
   "node-red": {
     "nodes": {
       "node-reddit": "node-reddit.js"
     }
   },
   "main": "node-reddit.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jcostello93/node-red-contrib-node-reddit.git"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC"
+  }
 }
