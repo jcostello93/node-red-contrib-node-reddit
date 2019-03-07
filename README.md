@@ -24,23 +24,19 @@ For example, let's say you're getting hot submissions from a subreddit using the
 
 ## Example flows 
 ### Create your own front-end for a subreddit. Download the [flow.](/flows/osu.json)
----
 ![Nba](/screenshots/Node-Reddit-osu-flow.png?raw=true "OSU flow")
 ---
 ![Nba](/screenshots/Node-Reddit-osu-dashboard.png?raw=true "OSU dashboard")
 ---
 
 ### Create a Reddit bot that responds to a trigger. Download the [flow.](/flows/bot.json)
----
 ![Nba](/screenshots/Node-Reddit-bot-flow.png?raw=true "blot flow")
 ---
 
 ### Overwrite and delete all of your Reddit comments. Download the [flow.](/flows/overwrite-comments.json)
----
 ![Overwrite and delete comments](/screenshots/Node-Reddit-overwrite-comments.png?raw=true "Overwrite")
 
 ### Track the pulse of a subreddit by monitoring the most frequently mentioned words and sentiment of its comments. Download the [flow.](/flows/nba.json)
----
 ![Nba](/screenshots/Node-Reddit-nba-flow2.png?raw=true "NBA flow")
 ---
 ![Nba](/screenshots/Node-Reddit-nba-dashboard2.png?raw=true "NBA dashboard")
