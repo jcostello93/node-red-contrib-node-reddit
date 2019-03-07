@@ -1,51 +1,18 @@
 # node-red-contrib-node-reddit
-
 ## Overview
 Interact with Reddit using [Node-RED](https://nodered.org).
 
 ## Nodes
-### Config 
-Authentication for the Reddit API
-#### Details
-To create a Reddit app and obtain its Client ID and Client Secret, log in to your Reddit account and visit [this link](https://ssl.reddit.com/prefs/apps/).
 
-There are 3 ways to provide authentication:
-  
-1. Username/password: For long-term access. Possible for script-type apps only.
-2. Refresh token: For long-term access. Visit [here](https://not-an-aardvark.github.io/reddit-oauth-helper/) to generate a token.
-3. Access token: For short-term access. Expires in one hour. Visit [here](https://not-an-aardvark.github.io/reddit-oauth-helper/) to generate a token.
-
-### Stream
-
-* This node will stream submissions and comments from a subreddit or PMs from your inbox.
-
-### Get
-
-* This node will get submissions, comments, or personal messages from subreddits, users, your inbox, or the content's id, according to its configuration.
-
-### Create
-
-* This node will create a new Reddit submission or PM.
-
-### Reply
-
-* This node will reply to a submission, comment, or personal message, identified by its Reddit content id.
-
-### Search
-
-* This node will perform a Reddit search query in a subreddit.
-
-### Edit
-
-* This node will edit a Reddit submission or comment.
-
-### Delete
-
-* This node will delete a Reddit submission, comment, or PM.
-
-### React
-
-* This node will save/unsave and/or vote on Reddit content. 
+* **Config:** authentication for the Reddit API
+* **Stream:** stream submissions and comments from a subreddit or PMs from your inbox
+* **Get:** get submissions, comments, or personal messages from a subreddit, user, your inbox, or the content's id, according to its configuration
+* **Create:** create a new Reddit submission or PM
+* **Reply:** reply to a submission, comment, or PM
+* **Search:** perform a Reddit search query in a subreddit
+* **Edit:** edit a Reddit submission or comment.
+* **Delete:** delete a Reddit submission, comment, or PM.
+* **React:** save/unsave and/or vote/unvote on Reddit content. 
 
 ## Populating fields
 
