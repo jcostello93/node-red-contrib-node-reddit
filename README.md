@@ -23,7 +23,7 @@ For all nodes other than config and stream, all text fields may be hardcoded via
 For example, let's say you're getting hot submissions from a subreddit using the get node. If the target <code>subreddit</code> is located in <code>msg.payload.target</code>, then you can fill in <code>{{payload.target}}</code> in the <code>subreddit</code> field.
 
 ## Example flows 
-### Create your own dashboard for a subreddit. Download the [flow.](/flows/osu.json)
+### Create a Node-RED dashboard for a subreddit. Download the [flow.](/flows/osu.json)
 ![Nba](/screenshots/Node-Reddit-osu-flow.png?raw=true "OSU dashboard flow")
 ---
 ![Nba](/screenshots/Node-Reddit-osu-dashboard.png?raw=true "OSU dashboard")
