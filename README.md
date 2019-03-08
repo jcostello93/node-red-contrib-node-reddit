@@ -24,7 +24,7 @@ For example, let's say you're getting hot submissions from a subreddit using the
 
 ## Example flows 
 ### Develop an interactive website that displays a subreddit. Download the [flow.](/flows/osu-website.json)
-![Nba](/screenshots/Node-Reddit-osu-website-flow2.png?raw=true "OSU website flow")
+![Nba](/screenshots/Node-Reddit-osu-website-flow3.png?raw=true "OSU website flow")
 ---
 ![Nba](/screenshots/Node-Reddit-osu-website2.png?raw=true "OSU website")
 ---
