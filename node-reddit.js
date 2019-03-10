@@ -622,6 +622,8 @@ module.exports = function(RED) {
 			var content_id = parseField(msg, n.content_id);
 			//console.log(n.name);
 
+			node.status({fill:"blue",shape:"dot",text:"deleting " + content_type});
+
 			var item;
 			if (content_type == "comment") {
 				item = r.getComment(content_id);
@@ -629,9 +631,7 @@ module.exports = function(RED) {
 				item = r.getSubmission(content_id);
 			} else if (content_type == "private_message") {
 				item = r.getMessage(content_id);
-			}
-
-			node.status({fill:"blue",shape:"dot",text:"deleting " + content_type});            
+			}			           
 
 			if (content_type == "comment"){
 				item.fetch().then((response) => {
@@ -656,7 +656,8 @@ module.exports = function(RED) {
 						});
 					}
 				}).catch((err) => {
-					node.error("couldn't fetch item");
+					node.status({fill:"red",shape:"dot",text:"error"});
+					node.error("couldn't fetch item", msg);
 				});
 
 
@@ -683,7 +684,8 @@ module.exports = function(RED) {
 						});
 					}
 				}).catch((err) => {
-					node.error("couldn't fetch item");
+					node.status({fill:"red",shape:"dot",text:"error"});
+					node.error("couldn't fetch item", msg);
 				});
 
 
@@ -711,8 +713,6 @@ module.exports = function(RED) {
 					node.status({fill:"red",shape:"dot",text:"error"});
 				});
 			}
-
-			node.status({});
 
 		});
 	}
