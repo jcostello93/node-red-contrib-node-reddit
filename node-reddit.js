@@ -476,6 +476,9 @@ module.exports = function(RED) {
 		var stream;
 
 		node.on('input', () => {
+			// determine the refresh rate
+			var refreshRate = n.pollTime ? n.pollTime * 1000 : 2000;
+
 			// begin displaying the stream counter
 			var count = 0;
 			node.status({fill: "blue", shape: "dot", text: n.kind + ": " + count}); 
@@ -484,17 +487,20 @@ module.exports = function(RED) {
 			if (n.kind === "submissions") {
 				stream = s.Stream("submission", {
 					subreddit: n.subreddit,
-					results: 10
+					pollTime: refreshRate,
+					results: 100
 				});
 			} else if (n.kind === "comments") {
 				stream = s.Stream("comment", {
 					subreddit: n.subreddit,
-					results: 10
+					pollTime: refreshRate,
+					results: 100
 				});
 			} else if (n.kind === "PMs") {
 				stream = s.Stream("inbox", {
-					pollTime: 10000,
-					filter: n.filter
+					pollTime: refreshRate,
+					filter: n.filter,
+					results: 25
 				});
 			}
 
