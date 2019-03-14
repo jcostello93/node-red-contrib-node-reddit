@@ -92,7 +92,7 @@
         access_token: {type:"password", required: false}
       },
       label: function() {
-        return this.username || this.name;
+        return this.name || this.username;
       },
       exportable: false,
       icon: "snoo2.png",
