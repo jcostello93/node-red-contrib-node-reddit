@@ -130,7 +130,8 @@
         subreddit: {value: ""},
         filter: {value: "inbox"},
         markedAsRead: {},
-        timeout: {value: ""}
+        timeout: {value: ""},
+        pollTime: {value: ""}
       },
       inputs: 0,
       outputs: 1,
@@ -178,28 +179,28 @@
     
   <script type="text/x-red" data-template-name="stream">
     <div class="form-row">
-      <label for="node-input-reddit"><i class="fa fa-key"></i> Credentials</label>
+      <label for="node-input-reddit"><i class="fa fa-reddit"></i> credentials</label>
       <input type="text" id="node-input-reddit">
     </div>
     <div class="form-row">
-      <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+      <label for="node-input-name"><i class="icon-tag"></i> name</label>
       <input type="text" id="node-input-name" placeholder="optional name for this node">
     </div>
     <hr>
     <div class="form-row"> 
-      <label for="node-input-kind"><i class="fa fa-wrench"></i> Stream</label>
+      <label for="node-input-kind"><i class="fa fa-wrench"></i> stream</label>
       <select type="text" id="node-input-kind" style="display: inline-block; width: 250px; vertical-align: top;">
-        <option value="submissions" outputs="1">Submissions</option>                            
-        <option value="comments" outputs="1">Comments</option>
-        <option value="PMs" outputs="1">Private Messages</option>
+        <option value="submissions" outputs="1">submissions</option>                            
+        <option value="comments" outputs="1">comments</option>
+        <option value="PMs" outputs="1">private messages</option>
       </select>
     </div>
     <div class="form-row" id="node-action-subreddit">
-      <label for="node-input-subreddit"><i class="icon-tag"></i> Subreddit</label>
+      <label for="node-input-subreddit"><i class="icon-tag"></i> subreddit</label>
       <input type="text" id="node-input-subreddit" placeholder="subreddit name">
     </div>
     <div class="form-row" id="node-action-filter">
-      <label for="node-input-filter"><i class="fa fa-wrench"></i> Filter</label>
+      <label for="node-input-filter"><i class="fa fa-wrench"></i> filter</label>
       <select type="text" id="node-input-filter" style="display: inline-block; width: 250px; vertical-align: top;">
         <option value="inbox" outputs="1">inbox</option>
         <option value="unread" outputs="1">unread</option>
@@ -210,12 +211,16 @@
       </select>
     </div>
     <div class="form-row" id="node-action-markedAsRead">
-      <label for="node-input-markedAsRead" style="width:auto"><i class="icon-tag"></i> Mark as read</label>
+      <label for="node-input-markedAsRead" style="width:auto"><i class="icon-tag"></i> mark as read</label>
       <input type="checkbox" id="node-input-markedAsRead" style="width:23px">
     </div>
     <div class="form-row">
-      <label for="node-input-timeout"><i class="icon-tag"></i> Timeout (s)</label>
-      <input type="text" id="node-input-timeout" placeholder="optional timeout in seconds">
+      <label for="node-input-pollTime"><i class="icon-tag"></i> polltime (s)</label>
+      <input type="number" id="node-input-pollTime" min="2" max="3600" placeholder="optional refresh rate">
+    </div>
+    <div class="form-row">
+      <label for="node-input-timeout"><i class="icon-tag"></i> timeout (s)</label>
+      <input type="number" id="node-input-timeout" min="1" placeholder="optional timeout in seconds">
     </div>
   </script>
     
@@ -224,10 +229,6 @@
       
     <h3>Inputs</h3>
       <dl class="message-properties">
-        <dt>credentials <span class="property-type">config node</span></dt>
-        <dd> your reddit credentials.</dd>
-        <dt class="optional">name <span class="property-type">string</span></dt>
-        <dd> the name of this node.</dd>
         <dt>stream <span class="property-type">selection</span></dt>
         <dd> choose comments, submissions, or PMs.</dd>
         <dt>subreddit <span class="property-type">string</span></dt>
@@ -235,6 +236,8 @@
         <dt>filter <span class="property-type">selection</span></dt>
         <dd> choose which type of messages to stream from Inbox</dd>
         <dt class="optional">mark as read <span class="property-type">checkbox</span></dt>
+        <dt class="optional">polltime <span class="property-type">number</span></dt>
+        <dd> the refresh rate in seconds.</dd>
         <dt class="optional">timeout <span class="property-type">number</span></dt>
         <dd> the length of time to stream in seconds.</dd>
       </dl>
@@ -260,6 +263,10 @@
       used for the display name if <code>name</code> is left empty.
       </p>
       <p>"u/<code>credentials.username</code>" will be used for the display name if <code>name</code> is left empty.
+      </p>
+      <p>The <code>polltime</code> is the number of seconds (between 2 and 3600) that the stream polls for updates.
+         Reddit enforces a ratelimit of 30 polls per minute. If your stream continues to hit the ratelimit, consider
+         increasing the <code>polltime</code>.
       </p>
       <p>The <code>timeout</code> will stop the stream after the desired number of seconds.
       If left blank, the stream will continue until the node is deleted from the flow, an error is thrown,
@@ -728,16 +735,16 @@
     
   <script type="text/x-red" data-template-name="create">
     <div class="form-row">
-      <label for="node-input-reddit"><i class="fa fa-key"></i>Credentials</label>
+      <label for="node-input-reddit"><i class="fa fa-reddit"></i>credentials</label>
       <input type="text" id="node-input-reddit">
     </div>
     <div class="form-row">
-      <label for="node-input-name"><i class="icon-tag"></i>Name</label>
+      <label for="node-input-name"><i class="icon-tag"></i>name</label>
       <input type="text" id="node-input-name" placeholder="optional name for this node">
     </div>
     <hr>
     <div class="form-row"> 
-      <label for="node-input-submissionType"><i class="fa fa-wrench"></i>Type</label>
+      <label for="node-input-submissionType"><i class="fa fa-wrench"></i>type</label>
       <select type="text" id="node-input-submissionType" style="display: inline-block; width: 250px; vertical-align: top;">
         <option value="self" outputs="1">self-post</option>
         <option value="link" outputs="1">link post</option>
@@ -746,35 +753,35 @@
       </select>
     </div>
     <div class="form-row" id="node-action-subreddit">
-      <label for="node-input-subreddit"><i class="icon-tag"></i>Subreddit</label>
+      <label for="node-input-subreddit"><i class="icon-tag"></i>subreddit</label>
       <input type="text" id="node-input-subreddit" placeholder="subreddit name">
     </div>
     <div class="form-row" id="node-action-title">
-      <label for="node-input-title"><i class="icon-tag"></i>Title</label>
+      <label for="node-input-title"><i class="icon-tag"></i>title</label>
       <input type="text" id="node-input-title" placeholder="post title">
     </div>
     <div class="form-row" id="node-action-text">
-      <label for="node-input-text"><i class="icon-tag"></i>Text</label>
+      <label for="node-input-text"><i class="icon-tag"></i>text</label>
       <input type="text" id="node-input-text" placeholder="content">
     </div>
     <div class="form-row" id="node-action-url">
-      <label for="node-input-url"><i class="icon-tag"></i>URL</label>
+      <label for="node-input-url"><i class="icon-tag"></i>url</label>
       <input type="text" id="node-input-url" placeholder="url to link">
     </div>
     <div class="form-row" id="node-action-original">
-      <label for="node-input-original"><i class="icon-tag"></i>Original</label>
+      <label for="node-input-original"><i class="icon-tag"></i>original</label>
       <input type="text" id="node-input-original" placeholder="original submission id">
     </div>
     <div class="form-row" id="node-action-recipient">
-      <label for="node-input-recipient"><i class="icon-tag"></i>To</label>
+      <label for="node-input-recipient"><i class="icon-tag"></i>to</label>
       <input type="text" id="node-input-recipient" placeholder="recipient's username">
     </div>
     <div class="form-row" id="node-action-subject">
-      <label for="node-input-subject"><i class="icon-tag"></i>Subject</label>
+      <label for="node-input-subject"><i class="icon-tag"></i>subject</label>
       <input type="text" id="node-input-subject" placeholder="message subject">
     </div>
     <div class="form-row" id="node-action-message">
-      <label for="node-input-message"><i class="icon-tag"></i>Message</label>
+      <label for="node-input-message"><i class="icon-tag"></i>message</label>
       <input type="text" id="node-input-message" placeholder="message">
     </div>
   </script>
@@ -784,10 +791,6 @@
   
     <h3>Inputs</h3>
       <dl class="message-properties">
-        <dt>credentials <span class="property-type">config node</span></dt>
-        <dd> your reddit credentials.</dd>
-        <dt class="optional">name <span class="property-type">string</span></dt>
-        <dd> the name of this node.</dd>
         <dt>type <span class="property-type">selection</span></dt>
         <dd> choose self-, link-,  or cross-post, or PM.</dd>
         <hr>
