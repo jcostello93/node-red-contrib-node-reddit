@@ -96,13 +96,14 @@ module.exports = function(RED) {
 			var submission_source = n.submission_source;
 			var comment_source = n.comment_source;
 			var pm_source = n.pm_source;
+			var content_source = n.content_source;
 			var sort = n.sort;
 			var time = n.time;
 			var limit = parseInt(n.limit);
 			var depth = parseInt(n.depth);
 			var content_id = parseField(msg, n.content_id);
-			var fetch_all = n.fetch_all;       
-
+			var fetch_all = n.fetch_all;     
+			
 			var responseArr = [];
 			if (content_type == "submission") {                  
 				if (submission_source == "subreddit") {
@@ -119,7 +120,9 @@ module.exports = function(RED) {
 						})   
 					} else if (sort == "hot") {
 						r.getHot(subreddit, {limit: limit}).then(response => {
-							copyPropertiesExceptMethods(responseArr, response, msg)
+							copyPropertiesExceptMethods(responseArr, response, msg);
+							// getHot returns n Reddit listings + number of stickied posts
+							// this removes the extra posts so only n posts are returned
 							if (!isNaN(limit)) {
 								var numStickies = responseArr.length - limit; 
 								for (var i = 0; i < numStickies; i++) {
@@ -294,6 +297,58 @@ module.exports = function(RED) {
 						node.error(errorMsg, msg);
 						node.status({fill:"red",shape:"dot",text:"error"});
 					}) 
+				}
+			} else if (content_type == "content") {
+				if (content_source == "saved") {
+					r.getMe().getSavedContent({limit: limit}).then(response => {
+						copyPropertiesExceptMethods(responseArr, response, msg);
+						node.status({fill:"green",shape:"dot",text: "saved"});
+						node.send([responseArr]); 
+					}).catch (err => {
+						var errorMsg = parseError(err);
+						node.error(errorMsg, msg);
+						node.status({fill:"red",shape:"dot",text:"error"});
+					})					 
+				} else if (content_source == "upvoted") {
+					r.getMe().getUpvotedContent({limit: limit}).then(response => {
+						copyPropertiesExceptMethods(responseArr, response, msg);
+						node.status({fill:"green",shape:"dot",text: "upvoted"});
+						node.send([responseArr]); 
+					}).catch (err => {
+						var errorMsg = parseError(err);
+						node.error(errorMsg, msg);
+						node.status({fill:"red",shape:"dot",text:"error"});
+					})
+				} else if (content_source == "downvoted") {
+					r.getMe().getDownvotedContent().then(response => {
+						copyPropertiesExceptMethods(responseArr, response, msg);
+						node.status({fill:"green",shape:"dot",text: "downvoted"});
+						node.send([responseArr]); 
+					}).catch (err => {
+						var errorMsg = parseError(err);
+						node.error(errorMsg, msg);
+						node.status({fill:"red",shape:"dot",text:"error"});
+					})
+				} else if (content_source == "gilded"){
+					r.getMe().getGildedContent().then(response => {
+						copyPropertiesExceptMethods(responseArr, response, msg);
+						node.status({fill:"green",shape:"dot",text: "gilded"});
+						node.send([responseArr]);  
+					}).catch (err => {
+						var errorMsg = parseError(err);
+						node.error(errorMsg, msg);
+						node.status({fill:"red",shape:"dot",text:"error"});
+					})
+				} else if (content_source == "hidden") {
+					r.getMe().getHiddenContent().then(response => {
+						copyPropertiesExceptMethods(responseArr, response, msg);
+						node.status({fill:"green",shape:"dot",text: "hidden"});
+						node.send([responseArr]); 
+					}).catch (err => {
+						var errorMsg = parseError(err);
+						node.error(errorMsg, msg);
+						node.status({fill:"red",shape:"dot",text:"error"});
+					})
 				}
 			}
 		});        
@@ -884,8 +939,6 @@ module.exports = function(RED) {
 
 				}
 			}
-
-			//node.status({});
 		});
 	}
 	RED.nodes.registerType("react", ReactContent);
