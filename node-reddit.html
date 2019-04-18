@@ -309,6 +309,7 @@
             $("#node-action-submission_source").hide();
             $("#node-action-comment_source").hide();
             $("#node-action-pm_source").hide();
+            $("#node-action-content_source").hide();
             $("#node-action-subreddit").hide();
             $("#node-action-user").hide();
             $("#node-action-sort").hide();
@@ -387,6 +388,8 @@
                     $("#node-action-content_id").show();
                 }
                 $("#node-action-pm_source").show()
+            } else if (type == "content") {
+                $("#node-action-content_source").show();
             }
 
             if ($("#node-input-fetch_all").val() != "true" && current_source != "id") {
@@ -452,6 +455,7 @@
             submission_source: {value:"subreddit"},
             comment_source: {value:"subreddit"},
             pm_source: {value:"inbox"},
+            content_source: {value:"saved"},
             subreddit: {value:""},
             user: {value:""},
             limit: {value:""},
@@ -472,7 +476,7 @@
             var comment_source = this.comment_source;
             var pm_source = this.pm_source;
             var label; 
-            if ((type == "submission" && submission_source == "id") || (type == "comment" && comment_source == "id") || (type == "PM" && pm_source == "id")) {
+            if ((type == "submission" && submission_source == "id") || (type == "comment" && comment_source == "id") || (type == "PM" && pm_source == "id") || (type == "content")) {
                 label = "get " + type;
             }
             else {
@@ -501,6 +505,7 @@
             <option value="submission" outputs="1">submission</option>
             <option value="comment" outputs="1">comment</option>
             <option value="pm" outputs="1">PM</option>
+            <option value="content" outputs="1">content</option>
         </select>
     </div>
     <div class="form-row" id="node-action-submission_source">
@@ -525,6 +530,16 @@
         <select type="text" id="node-input-pm_source" style="display: inline-block; width: 250px; vertical-align: top;">
             <option value="inbox" outputs="1">inbox</option>
             <option value="id" outputs="1">id</option>
+        </select>
+    </div>
+    <div class="form-row" id="node-action-content_source">
+        <label for="node-input-content_source"><i class="fa fa-wrench"></i> source</label>
+        <select type="text" id="node-input-content_source" style="display: inline-block; width: 250px; vertical-align: top;">
+            <option value="saved" outputs="1">saved</option>
+            <option value="upvoted" outputs="1">upvoted</option>
+            <option value="downvoted" outputs="1">downvoted</option>
+            <option value="gilded" outputs="1">gilded</option>
+            <option value="hidden" outputs="1">hidden</option>
         </select>
     </div>
     <div class="form-row" id="node-action-subreddit">

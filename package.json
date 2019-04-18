@@ -1,6 +1,10 @@
   {
   "name": "node-red-contrib-node-reddit",
   "version": "1.0.3",
+  "author" : {
+    "name": "John Costello",
+    "email": "jcostello93@gmail.com"
+  },
   "contributors": [
     {
       "name": "John Costello",
