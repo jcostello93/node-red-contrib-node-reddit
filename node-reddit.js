@@ -625,7 +625,7 @@ module.exports = function(RED) {
 			//node.status({fill:"grey",shape:"dot",text:"loading"});
 
 			var content_type = n.content_type;
-			var edit_content = n.edit_content;
+			var edit_content = parseField(msg, n.edit_content);
 			var content_id = parseField(msg, n.content_id);
 
 			//console.log(n.name);
