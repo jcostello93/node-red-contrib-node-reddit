@@ -622,13 +622,10 @@ module.exports = function(RED) {
 		node.status({});
 
 		node.on('input', function(msg) {
-			//node.status({fill:"grey",shape:"dot",text:"loading"});
-
 			var content_type = n.content_type;
 			var edit_content = parseField(msg, n.edit_content);
 			var content_id = parseField(msg, n.content_id);
 
-			//console.log(n.name);
 			if (content_type == "comment"){
 				node.status({fill:"blue",shape:"dot",text:"editing comment"});
 
@@ -638,12 +635,9 @@ module.exports = function(RED) {
 					node.send(msg);
 				}).catch(function(err){
 					var errorMsg = parseError(err);
-					//console.log(errorMsg);
 					node.error(errorMsg, msg);
 					node.status({fill:"red",shape:"dot",text:"error"});
 				});
-
-				node.status({});
 			} else if (content_type == "submission"){
 				node.status({fill:"blue",shape:"dot",text:"editing submission"});
 
@@ -653,12 +647,9 @@ module.exports = function(RED) {
 					node.status({fill:"green",shape:"dot",text:"submission edited"});
 				}).catch(function(err){
 					var errorMsg = parseError(err);
-					//console.log(errorMsg);
 					node.error(errorMsg, msg);
 					node.status({fill:"red",shape:"dot",text:"error"});
 				});
-
-				node.status({});
 			}
 
 		});
@@ -670,18 +661,14 @@ module.exports = function(RED) {
 	/***** Delete Node *****/
 	function DeleteContent(n){
 		RED.nodes.createNode(this,n);
-		//var config = RED.nodes.getNode(n.reddit);
-		//var credentials = config.credentials;
 		var node = this;
 		var options = parseCredentials(n);
 
 		const r = new snoowrap(options);
 		node.status({});
 		node.on('input', function(msg) {
-
 			var content_type = n.content_type;
 			var content_id = parseField(msg, n.content_id);
-			//console.log(n.name);
 
 			node.status({fill:"blue",shape:"dot",text:"deleting " + content_type});
 
@@ -701,7 +688,7 @@ module.exports = function(RED) {
 						node.error(errorMsg, msg);
 						node.status({fill:"red",shape:"dot",text:"error"});
 
-					} else if (options.username !== response.author.name) {
+					} else if (options.username.toLowerCase() !== response.author.name.toLowerCase()) {
 						var errorMsg = "403 Forbidden";
 						node.error(errorMsg, msg);
 						node.status({fill:"red",shape:"dot",text:"error"});
@@ -711,7 +698,6 @@ module.exports = function(RED) {
 							node.status({fill:"green",shape:"dot",text:"comment deleted"});
 						}).catch((err) => {
 							var errorMsg = parseError(err);
-							//console.log(errorMsg);
 							node.error(errorMsg, msg);
 							node.status({fill:"red",shape:"dot",text:"error"});
 						});
@@ -729,7 +715,7 @@ module.exports = function(RED) {
 						node.error(errorMsg, msg);
 						node.status({fill:"red",shape:"dot",text:"error"});
 
-					} else if (options.username !== response.author.name) {
+					} else if (options.username.toLowerCase() !== response.author.name.toLowerCase()) {
 						var errorMsg = "403 Forbidden";
 						node.error(errorMsg, msg);
 						node.status({fill:"red",shape:"dot",text:"error"});
@@ -739,7 +725,6 @@ module.exports = function(RED) {
 							node.status({fill:"green",shape:"dot",text:"submission deleted"});
 						}).catch((err) => {
 							var errorMsg = parseError(err);
-							//console.log(errorMsg);
 							node.error(errorMsg, msg);
 							node.status({fill:"red",shape:"dot",text:"error"});
 						});
@@ -760,16 +745,13 @@ module.exports = function(RED) {
 
 					}).catch((err) => {                                                       
 						//parseError, send it, and update status
-						//console.log(err);
 						var errorMsg = parseError(err);
-						//console.log(errorMsg);
 						node.error(errorMsg, msg);
 						node.status({fill:"red",shape:"dot",text:"error"});
 					});                                                                                                                                          
 				}).catch((err) => {                                                          
 					//parseError, send it, and update status
 					var errorMsg = parseError(err);
-					//console.log(errorMsg);
 					node.error(errorMsg, msg);
 					node.status({fill:"red",shape:"dot",text:"error"});
 				});
@@ -782,8 +764,6 @@ module.exports = function(RED) {
 	/***** React Node *****/
 	function ReactContent(n){
 		RED.nodes.createNode(this,n);
-		//var config = RED.nodes.getNode(n.reddit);
-		//var credentials = config.credentials;
 		var node = this;
 		var options = parseCredentials(n);
 
@@ -791,15 +771,11 @@ module.exports = function(RED) {
 		node.status({});
 
 		node.on('input', function(msg) {
-			//node.status({fill:"grey",shape:"dot",text:"loading"});
-
 			var content_type = n.content_type;
 			var vote = n.vote;
 			var save_value = n.save;
 			var content_id = parseField(msg, n.content_id);
-			//var gild_value = n.gild || msg.gild;
 
-			//console.log(n.name);
 			if (content_type == "comment"){
 				if (vote == "upvote"){
 					node.status({fill:"blue",shape:"dot",text:"upvoting comment"});
