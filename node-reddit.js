@@ -5,6 +5,9 @@ module.exports = function(RED) {
 	const mustache = require("mustache");
 	const snoowrap = require('snoowrap');
 	const snoostorm= require('snoostorm-es6');
+	
+	// disable escaping
+	mustache.escape = function(text) { return text; };
 
 	function copyPropertiesExceptMethods(newArr, originalArr, msg) {
 		for (var i = 0; i < originalArr.length; i++){
