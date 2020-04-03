@@ -17,9 +17,9 @@
   ],
   "description": "Interact with Reddit using Node-RED",
   "dependencies": {
-    "mustache": "^3.0.1",
-    "snoostorm-es6": "^1.0.2",
-    "snoowrap": "^1.15.2"
+    "mustache": "^4.0.1",
+    "snoostorm-es6": "^1.0.5",
+    "snoowrap": "^1.21.0"
   },
   "keywords": [
     "node-red",
