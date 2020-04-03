@@ -82,6 +82,7 @@ module.exports = function (RED) {
 	});
 
 
+	/***** Get Node *****/
 	function GetNode(n) {
 		RED.nodes.createNode(this, n);
 		var node = this;
@@ -358,7 +359,7 @@ module.exports = function (RED) {
 	}
 	RED.nodes.registerType('get', GetNode);
 
-
+	/***** Reply Node *****/
 	function ReplyNode(n) {
 		RED.nodes.createNode(this, n);
 		var node = this;
@@ -395,6 +396,7 @@ module.exports = function (RED) {
 	}
 	RED.nodes.registerType('reply', ReplyNode);
 
+	/***** Search Node *****/
 	function SearchNode(n) {
 		RED.nodes.createNode(this, n);
 		var node = this;
@@ -426,8 +428,7 @@ module.exports = function (RED) {
 	}
 	RED.nodes.registerType('search', SearchNode);
 
-	// create node
-
+	/***** Create Node *****/
 	function Create(n) {
 		RED.nodes.createNode(this, n);
 
@@ -516,8 +517,7 @@ module.exports = function (RED) {
 	}
 	RED.nodes.registerType('create', Create);
 
-	// stream node
-
+	/***** Stream Node *****/
 	function Stream(n) {
 		RED.nodes.createNode(this, n);
 
@@ -658,8 +658,6 @@ module.exports = function (RED) {
 		});
 	}
 	RED.nodes.registerType('edit', EditContent);
-
-
 
 	/***** Delete Node *****/
 	function DeleteContent(n) {
