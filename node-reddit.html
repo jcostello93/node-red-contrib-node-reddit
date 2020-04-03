@@ -45,28 +45,28 @@
 
 <script type="text/javascript">
     function oneditprepare() {
-        function hideExtraActions(){
+        function hideExtraActions() {
             $("#node-action-username").hide();
             $("#node-action-password").hide();
             $("#node-action-refresh_token").hide();
             $("#node-action-access_token").hide();
         }
 
-        function showActions(){
+        function showActions() {
             var auth_type = $("#node-config-input-auth_type option:selected").val();
             if (auth_type == "username_password") {
                 $("#node-action-username").show();
                 $("#node-action-password").show();
             }
-            else if (auth_type == "refresh_token"){
+            else if (auth_type == "refresh_token") {
                 $("#node-action-refresh_token").show();
-            } 
-            else if (auth_type == "access_token"){
+            }
+            else if (auth_type == "access_token") {
                 $("#node-action-access_token").show();
-            } 
+            }
         }
 
-        $("#node-config-input-auth_type").change(function() {
+        $("#node-config-input-auth_type").change(function () {
             hideExtraActions()
             showActions()
         });
@@ -76,28 +76,28 @@
     }
 
 
-    RED.nodes.registerType('reddit-credentials',{
-      defaults: {
-        username: {value:"", required: false},
-        user_agent: {value:"", required: true},
-        auth_type:  {value:"username_password", required: false},
-        name: {value:"", required: false}
+    RED.nodes.registerType('reddit-credentials', {
+        defaults: {
+            username: { value: "", required: false },
+            user_agent: { value: "", required: true },
+            auth_type: { value: "username_password", required: false },
+            name: { value: "", required: false }
         },
-      category: 'config',
-      credentials: {
-        password: {type: "password", required: false},
-        client_id: {type: "password", required: true},
-        client_secret: {type: "password", required: true},
-        refresh_token: {type:"password", required: false},
-        access_token: {type:"password", required: false}
-      },
-      label: function() {
-        return this.name || this.username;
-      },
-      exportable: false,
-      icon: "snoo2.png",
-      color:"#ffa27f",
-      oneditprepare: oneditprepare
+        category: 'config',
+        credentials: {
+            password: { type: "password", required: false },
+            client_id: { type: "password", required: true },
+            client_secret: { type: "password", required: true },
+            refresh_token: { type: "password", required: false },
+            access_token: { type: "password", required: false }
+        },
+        label: function () {
+            return this.name || this.username;
+        },
+        exportable: false,
+        icon: "snoo2.png",
+        color: "#ffa27f",
+        oneditprepare: oneditprepare
     });
 </script>
 
@@ -121,63 +121,63 @@
 <!-- START Stream -->
 <script type="text/javascript">
     RED.nodes.registerType('stream', {
-      category: 'reddit',
-      color: '#a6bbcf',
-      defaults: {
-        name: {value: ""},
-        reddit: {type: "reddit-credentials", required: true},
-        kind: {value: "", required: true},
-        subreddit: {value: ""},
-        filter: {value: "inbox"},
-        markedAsRead: {},
-        timeout: {value: ""},
-        pollTime: {value: ""}
-      },
-      inputs: 0,
-      outputs: 1,
-      icon: "snoo2.png",
-      color:"#ffa27f",
-      label: function() {
-        let creds = RED.nodes.node(this.reddit);
-        if (this.name) {
-          return this.name;
-        } else if (this.kind === "PMs") {
-          return creds ? "u/" + creds.username : "PM stream";
-        } else if (this.subreddit) {
-          return "r/" + this.subreddit;
-        } else {
-          return "stream";
+        category: 'reddit',
+        color: '#a6bbcf',
+        defaults: {
+            name: { value: "" },
+            reddit: { type: "reddit-credentials", required: true },
+            kind: { value: "", required: true },
+            subreddit: { value: "" },
+            filter: { value: "inbox" },
+            markedAsRead: {},
+            timeout: { value: "" },
+            pollTime: { value: "" }
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "snoo2.png",
+        color: "#ffa27f",
+        label: function () {
+            let creds = RED.nodes.node(this.reddit);
+            if (this.name) {
+                return this.name;
+            } else if (this.kind === "PMs") {
+                return creds ? "u/" + creds.username : "PM stream";
+            } else if (this.subreddit) {
+                return "r/" + this.subreddit;
+            } else {
+                return "stream";
+            }
+        },
+        oneditprepare: () => {
+            $("#node-input-markedAsRead").prop("disabled", true);
+
+            $("#node-input-kind").change(() => {
+                $("#node-action-subreddit").hide();
+                $("#node-action-filter").hide();
+                $("#node-action-markedAsRead").hide();
+
+                let type = $("#node-input-kind option:selected").val();
+
+                if (type === "submissions" || type === "comments") {
+                    $("#node-action-subreddit").show();
+                } else if (type === "PMs") {
+                    $("#node-action-filter").show();
+                    $("#node-action-markedAsRead").show();
+                }
+            });
+
+            $("#node-input-filter").change(() => {
+                $("#node-input-markedAsRead").prop("disabled", true);
+                if ($("#node-input-filter").val() === "unread") {
+                    $("#node-input-markedAsRead").prop("disabled", false);
+                }
+            });
         }
-      },
-      oneditprepare: () => {
-        $("#node-input-markedAsRead").prop("disabled", true);
-  
-        $("#node-input-kind").change(() => {
-          $("#node-action-subreddit").hide();
-          $("#node-action-filter").hide();
-          $("#node-action-markedAsRead").hide();
-    
-          let type = $("#node-input-kind option:selected").val();
-          
-          if (type === "submissions" || type === "comments") {
-            $("#node-action-subreddit").show();
-          } else if (type === "PMs") {
-            $("#node-action-filter").show();
-            $("#node-action-markedAsRead").show();
-          }
-        });
-  
-        $("#node-input-filter").change(() => {
-          $("#node-input-markedAsRead").prop("disabled", true);
-          if ($("#node-input-filter").val() === "unread") {
-            $("#node-input-markedAsRead").prop("disabled", false);
-          }
-        });
-      }
     });
-  </script>
-    
-  <script type="text/x-red" data-template-name="stream">
+</script>
+
+<script type="text/x-red" data-template-name="stream">
     <div class="form-row">
       <label for="node-input-reddit"><i class="fa fa-reddit"></i> credentials</label>
       <input type="text" id="node-input-reddit">
@@ -223,8 +223,8 @@
       <input type="number" id="node-input-timeout" min="1" placeholder="optional timeout in seconds">
     </div>
   </script>
-    
-  <script type="text/x-red" data-help-name="stream">
+
+<script type="text/x-red" data-help-name="stream">
     <p>Stream submissions and comments from a subreddit or PMs from your inbox.</p>
       
     <h3>Inputs</h3>
@@ -279,7 +279,7 @@
         <li><a href='https://github.com/jcostello93/node-red-contrib-node-reddit'>node-red-contrib-node-reddit</a> - the Node-Reddit github repository</li>
       </ul>
   </script>
-  <!-- END Stream -->
+<!-- END Stream -->
 
 
 <!-- START Get -->
@@ -294,10 +294,10 @@
             if (current_source == "user" || current_source == "inbox") {
                 return
             }
-            
+
             // A user can expand all replies for a submission
             if (type == "comment" && $("#node-input-comment_source option:selected").val() == "submission") {
-                return 
+                return
             }
 
             // In every other case, fetch_all is set to false
@@ -305,7 +305,7 @@
         }
 
 
-        function hideExtraActions(){
+        function hideExtraActions() {
             $("#node-action-submission_source").hide();
             $("#node-action-comment_source").hide();
             $("#node-action-pm_source").hide();
@@ -320,7 +320,7 @@
             $("#node-action-depth").hide();
         }
 
-        function showActions() { 
+        function showActions() {
             // 1. type
             // 2. source
             // 3. subreddit
@@ -338,7 +338,7 @@
             var current_source = $(current_source_identifier).val();
 
             var sort = $("#node-input-sort option:selected").val();
-            
+
             if (type == "submission") {
                 if (current_source == "subreddit") {
                     $("#node-action-subreddit").show();
@@ -381,7 +381,7 @@
                 $("#node-action-comment_source").show()
             }
             else if (type == "pm") {
-                if (current_source == "inbox") {                
+                if (current_source == "inbox") {
                     $("#node-action-fetch_all").show();
                 }
                 else if (current_source == "id") {
@@ -396,86 +396,86 @@
                 $("#node-action-limit").show();
             }
         }
-        
-        $("#node-input-reddit").change(function() {
+
+        $("#node-input-reddit").change(function () {
             resetFetchAll()
             hideExtraActions()
             showActions()
         });
 
-        $("#node-input-content_type").change(function() {
+        $("#node-input-content_type").change(function () {
             resetFetchAll()
             hideExtraActions()
             showActions()
         });
 
-        $("#node-input-submission_source").change(function() {
+        $("#node-input-submission_source").change(function () {
             resetFetchAll()
             hideExtraActions()
             showActions()
         });
 
-        $("#node-input-comment_source").change(function() {
+        $("#node-input-comment_source").change(function () {
             resetFetchAll()
             hideExtraActions()
             showActions()
         });
 
-        $("#node-input-pm_source").change(function() {
+        $("#node-input-pm_source").change(function () {
             resetFetchAll()
             hideExtraActions()
             showActions()
         });
 
-        $("#node-input-user").keyup(function() {
+        $("#node-input-user").keyup(function () {
             resetFetchAll()
             hideExtraActions()
             showActions()
         });
 
-        $("#node-input-fetch_all").change(function() {            
+        $("#node-input-fetch_all").change(function () {
             hideExtraActions()
             showActions()
         });
 
-        $("#node-input-sort").change(function() {   
+        $("#node-input-sort").change(function () {
             hideExtraActions()
             showActions()
         });
     }
-    
 
-    RED.nodes.registerType('get',{
+
+    RED.nodes.registerType('get', {
         category: 'reddit',
         color: '#a6bbcf',
         defaults: {
-            name: {value:""},
-            reddit: { type:"reddit-credentials",required:true},
-            content_type: {value:"submission"},
-            submission_source: {value:"subreddit"},
-            comment_source: {value:"subreddit"},
-            pm_source: {value:"inbox"},
-            content_source: {value:"saved"},
-            subreddit: {value:""},
-            user: {value:""},
-            limit: {value:""},
-            sort: {value:"hot"},
-            time: {value:"hour"},
-            fetch_all: {value:"false"},
-            submission: {value: ""},
-            depth: {value: ""},
-            content_id: {value: ""}
+            name: { value: "" },
+            reddit: { type: "reddit-credentials", required: true },
+            content_type: { value: "submission" },
+            submission_source: { value: "subreddit" },
+            comment_source: { value: "subreddit" },
+            pm_source: { value: "inbox" },
+            content_source: { value: "saved" },
+            subreddit: { value: "" },
+            user: { value: "" },
+            limit: { value: "" },
+            sort: { value: "hot" },
+            time: { value: "hour" },
+            fetch_all: { value: "false" },
+            submission: { value: "" },
+            depth: { value: "" },
+            content_id: { value: "" }
         },
-        inputs:1,
-        outputs:1,
+        inputs: 1,
+        outputs: 1,
         icon: "snoo2.png",
-        color:"#ffa27f",
-        label: function() {
+        color: "#ffa27f",
+        label: function () {
             var type = (this.content_type == "pm") ? "PM" : this.content_type;
             var submission_source = this.submission_source;
             var comment_source = this.comment_source;
             var pm_source = this.pm_source;
-            var label; 
+            var label;
             if ((type == "submission" && submission_source == "id") || (type == "comment" && comment_source == "id") || (type == "PM" && pm_source == "id") || (type == "content")) {
                 label = "get " + type;
             }
@@ -683,72 +683,72 @@
 <!-- START Create -->
 <script type="text/javascript">
     RED.nodes.registerType('create', {
-      category: 'reddit',
-      color: '#a6bbcf',
-      defaults: {
-        name: {value: ""},
-        reddit: { type: "reddit-credentials", required: true},
-        submissionType: {value: "self"},
-        subreddit: {value: ""},
-        title: {value: ""},
-        url: {value: ""},
-        text: {value: ""},
-        original: {value: ""},
-        recipient: {value: ""},
-        subject: {value: ""},
-        message: {value: ""},
-      },
-      inputs:1,
-      outputs:1,
-      icon: "snoo2.png",
-      color:"#ffa27f",
-      label: function() {
-        if (this.name) {
-          return this.name;
-        } else if (this.subreddit && this.subreddit.indexOf("{{") == -1) {
-          return "r/" + this.subreddit;
-        } else if (this.recipient && this.recipient.indexOf("{{") == -1) {
-          return "u/" + this.recipient;
-        } else {
-          return "create";
-        }
-      },
-      oneditprepare: () => {
-        $("#node-input-submissionType").change(() => {
-          $("#node-action-subreddit").hide();
-          $("#node-action-title").hide();
-          $("#node-action-text").hide();
-          $("#node-action-url").hide();
-          $("#node-action-original").hide();
-          $("#node-action-subject").hide();
-          $("#node-action-recipient").hide();
-          $("#node-action-message").hide();
-    
-          let type = $("#node-input-submissionType option:selected").val();
-  
-          if (type === "self") {
-            $("#node-action-subreddit").show();
-            $("#node-action-title").show();
-            $("#node-action-text").show();
-          } else if (type === "link") {
-            $("#node-action-subreddit").show();
-            $("#node-action-title").show();
-            $("#node-action-url").show();
-          } else if (type === "cross") {
-            $("#node-action-subreddit").show();
-            $("#node-action-title").show();
-            $("#node-action-original").show();
-          } else if (type === "pm") {
-            $("#node-action-recipient").show();
-            $("#node-action-subject").show();
-            $("#node-action-message").show();
-          }
-        });
-      },
+        category: 'reddit',
+        color: '#a6bbcf',
+        defaults: {
+            name: { value: "" },
+            reddit: { type: "reddit-credentials", required: true },
+            submissionType: { value: "self" },
+            subreddit: { value: "" },
+            title: { value: "" },
+            url: { value: "" },
+            text: { value: "" },
+            original: { value: "" },
+            recipient: { value: "" },
+            subject: { value: "" },
+            message: { value: "" },
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "snoo2.png",
+        color: "#ffa27f",
+        label: function () {
+            if (this.name) {
+                return this.name;
+            } else if (this.subreddit && this.subreddit.indexOf("{{") == -1) {
+                return "r/" + this.subreddit;
+            } else if (this.recipient && this.recipient.indexOf("{{") == -1) {
+                return "u/" + this.recipient;
+            } else {
+                return "create";
+            }
+        },
+        oneditprepare: () => {
+            $("#node-input-submissionType").change(() => {
+                $("#node-action-subreddit").hide();
+                $("#node-action-title").hide();
+                $("#node-action-text").hide();
+                $("#node-action-url").hide();
+                $("#node-action-original").hide();
+                $("#node-action-subject").hide();
+                $("#node-action-recipient").hide();
+                $("#node-action-message").hide();
+
+                let type = $("#node-input-submissionType option:selected").val();
+
+                if (type === "self") {
+                    $("#node-action-subreddit").show();
+                    $("#node-action-title").show();
+                    $("#node-action-text").show();
+                } else if (type === "link") {
+                    $("#node-action-subreddit").show();
+                    $("#node-action-title").show();
+                    $("#node-action-url").show();
+                } else if (type === "cross") {
+                    $("#node-action-subreddit").show();
+                    $("#node-action-title").show();
+                    $("#node-action-original").show();
+                } else if (type === "pm") {
+                    $("#node-action-recipient").show();
+                    $("#node-action-subject").show();
+                    $("#node-action-message").show();
+                }
+            });
+        },
     });
-  </script>
-    
-  <script type="text/x-red" data-template-name="create">
+</script>
+
+<script type="text/x-red" data-template-name="create">
     <div class="form-row">
       <label for="node-input-reddit"><i class="fa fa-reddit"></i>credentials</label>
       <input type="text" id="node-input-reddit">
@@ -800,8 +800,8 @@
       <input type="text" id="node-input-message" placeholder="message">
     </div>
   </script>
-  
-  <script type="text/x-red" data-help-name="create">
+
+<script type="text/x-red" data-help-name="create">
     <p>Create a new Reddit submission or PM.</p>
   
     <h3>Inputs</h3>
@@ -867,23 +867,23 @@
 
 <!-- START Reply -->
 <script type="text/javascript">
-    RED.nodes.registerType('reply',{
+    RED.nodes.registerType('reply', {
         category: 'reddit',
         color: '#a6bbcf',
         defaults: {
-            name: {value:""},
-            reddit: { type:"reddit-credentials",required:true},
-            content_type: {value:"submission"},
-            content_id: {value:""},
-            text: {value:""}
+            name: { value: "" },
+            reddit: { type: "reddit-credentials", required: true },
+            content_type: { value: "submission" },
+            content_id: { value: "" },
+            text: { value: "" }
         },
-        inputs:1,
-        outputs:1,
+        inputs: 1,
+        outputs: 1,
         align: "left",
         icon: "snoo2.png",
-        color:"#ffa27f",
-        label: function() {
-            return this.name||"reply";
+        color: "#ffa27f",
+        label: function () {
+            return this.name || "reply";
         }
     });
 </script>
@@ -966,23 +966,23 @@
 
 <!-- START Search -->
 <script type="text/javascript">
-    RED.nodes.registerType('search',{
+    RED.nodes.registerType('search', {
         category: 'reddit',
         color: '#a6bbcf',
         defaults: {
-            name: {value:""},
-            reddit: { type:"reddit-credentials",required:true},
-            subreddit: {value:"", required:true},
-            query: {value:"", required:true},
-            time: {value:"hour"},
-            sort: {value:"relevance"}
+            name: { value: "" },
+            reddit: { type: "reddit-credentials", required: true },
+            subreddit: { value: "", required: true },
+            query: { value: "", required: true },
+            time: { value: "hour" },
+            sort: { value: "relevance" }
         },
-        inputs:1,
-        outputs:1,
+        inputs: 1,
+        outputs: 1,
         icon: "snoo2.png",
-        color:"#ffa27f",
-        label: function() {
-            return this.name||"search";
+        color: "#ffa27f",
+        label: function () {
+            return this.name || "search";
         }
     });
 </script>
@@ -1083,22 +1083,22 @@
 
 <!-- START Edit -->
 <script type="text/javascript">
-    RED.nodes.registerType('edit',{
+    RED.nodes.registerType('edit', {
         category: 'reddit',
         color: '#a6bbcf',
         defaults: {
-            name: {value:""},
-            reddit: { type:"reddit-credentials",required:true},
-			content_type: {value:"submission"},
-			edit_content: {value:""},
-			content_id: {value:""}
+            name: { value: "" },
+            reddit: { type: "reddit-credentials", required: true },
+            content_type: { value: "submission" },
+            edit_content: { value: "" },
+            content_id: { value: "" }
         },
-        inputs:1,
-        outputs:1,
+        inputs: 1,
+        outputs: 1,
         icon: "snoo2.png",
-        color:"#ffa27f",
-        label: function() {
-            return this.name||"edit";
+        color: "#ffa27f",
+        label: function () {
+            return this.name || "edit";
         }
     });
 </script>
@@ -1185,21 +1185,21 @@
 
 <!-- START Delete -->
 <script type="text/javascript">
-    RED.nodes.registerType('delete',{
+    RED.nodes.registerType('delete', {
         category: 'reddit',
         color: '#a6bbcf',
         defaults: {
-            name: {value:""},
-            reddit: { type:"reddit-credentials",required:true},
-			content_type: {value:"submission"},
-			content_id: {value:""}
+            name: { value: "" },
+            reddit: { type: "reddit-credentials", required: true },
+            content_type: { value: "submission" },
+            content_id: { value: "" }
         },
-        inputs:1,
-        outputs:0,
+        inputs: 1,
+        outputs: 0,
         icon: "snoo2.png",
-        color:"#ffa27f",
-        label: function() {
-            return this.name||"delete";
+        color: "#ffa27f",
+        label: function () {
+            return this.name || "delete";
         }
     });
 </script>
@@ -1278,25 +1278,25 @@
 
 <!-- START React -->
 <script type="text/javascript">
-    RED.nodes.registerType('react',{
+    RED.nodes.registerType('react', {
         category: 'reddit',
         color: '#a6bbcf',
         defaults: {
-            name: {value:""},
-            reddit: { type:"reddit-credentials",required:true},
-			content_type: {value:"submission"},
-			content_id: {value:""},
-            vote: { value: ""},
-			save: {value: ""},
-            gild: { value: ""},
-			report: {value: ""}
+            name: { value: "" },
+            reddit: { type: "reddit-credentials", required: true },
+            content_type: { value: "submission" },
+            content_id: { value: "" },
+            vote: { value: "" },
+            save: { value: "" },
+            gild: { value: "" },
+            report: { value: "" }
         },
-        inputs:1,
-        outputs:0,
+        inputs: 1,
+        outputs: 0,
         icon: "snoo2.png",
-        color:"#ffa27f",
-        label: function() {
-            return this.name||"react";
+        color: "#ffa27f",
+        label: function () {
+            return this.name || "react";
         }
     });
 </script>

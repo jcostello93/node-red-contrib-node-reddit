@@ -1,42 +1,42 @@
   {
-  "name": "node-red-contrib-node-reddit",
-  "version": "1.0.10",
-  "contributors": [
-    {
-      "name": "John Costello",
-      "url": "https://github.com/jcostello93"
+    "name": "node-red-contrib-node-reddit",
+    "version": "1.0.10",
+    "contributors": [
+      {
+        "name": "John Costello",
+        "url": "https://github.com/jcostello93"
+      },
+      {
+        "name": "William Sabbatini",
+        "url": "https://github.com/sabbatiw"
+      },
+      {
+        "name": "Lucy Song",
+        "url": "https://github.com/leqis"
+      }
+    ],
+    "description": "Interact with Reddit using Node-RED",
+    "dependencies": {
+      "mustache": "^4.0.1",
+      "snoostorm-es6": "^1.0.5",
+      "snoowrap": "^1.21.0"
     },
-    {
-      "name": "William Sabbatini",
-      "url": "https://github.com/sabbatiw"
+    "keywords": [
+      "node-red",
+      "reddit"
+    ],
+    "license": "MIT",
+    "node-red": {
+      "nodes": {
+        "node-reddit": "node-reddit.js"
+      }
     },
-    {
-      "name": "Lucy Song",
-      "url": "https://github.com/leqis"
+    "main": "node-reddit.js",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/jcostello93/node-red-contrib-node-reddit.git"
+    },
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
     }
-  ],
-  "description": "Interact with Reddit using Node-RED",
-  "dependencies": {
-    "mustache": "^4.0.1",
-    "snoostorm-es6": "^1.0.5",
-    "snoowrap": "^1.21.0"
-  },
-  "keywords": [
-    "node-red",
-    "reddit"
-  ], 
-  "license": "MIT",
-  "node-red": {
-    "nodes": {
-      "node-reddit": "node-reddit.js"
-    }
-  },
-  "main": "node-reddit.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/jcostello93/node-red-contrib-node-reddit.git"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
   }
-}
