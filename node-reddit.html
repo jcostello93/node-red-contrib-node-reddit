@@ -1341,7 +1341,6 @@
     </div>
 </script>
 
-
 <script type="text/x-red" data-help-name="react">
     <p>React to a Reddit submission or comment.</p>
 	<p>Content id, and content type selection are required.</p>
@@ -1384,4 +1383,93 @@
             <li><a href='https://github.com/jcostello93/node-red-contrib-node-reddit'>node-red-contrib-node-reddit</a> - the Node-Reddit github repository</li>
 		</ul>
 </script>
-<!-- START React -->
+<!-- END React -->
+
+
+<!-- START GetModqueue -->
+
+<script type="text/javascript">
+    RED.nodes.registerType('getmodqueue', {
+        category: 'reddit',
+        color: '#a6bbcf',
+        defaults: {
+            name: { value: "" },
+            reddit: { type: "reddit-credentials", required: true },
+            subreddit: { value: "" },
+            content_type: { value: "any" },
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "snoomod.png",
+        color: "#ffa27f",
+        label: function () {
+            return this.name || label;
+        },
+        oneditprepare: oneditprepare
+    });
+</script>
+
+<script type="text/x-red" data-template-name="getmodqueue">
+    <div class="form-row">
+        <label for="node-input-reddit"><i class="fa fa-reddit"></i><span>Credentials</span></label>
+        <input type="text" id="node-input-reddit">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i>Name</label>
+        <input type="text" id="node-input-name" placeholder="Optional name for this node">
+    </div>
+    <hr>
+    <div class="form-row">
+        <label for="node-input-subreddit"><i class="icon-tag"></i>subreddit</label>
+        <input type="text" id="node-input-subreddit" placeholder="subreddit name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-content_type"><i class="fa fa-wrench"></i>Type</label>
+        <select type="text" id="node-input-content_type">
+            <option value="links" outputs="1">links</option>
+            <option value="comments" outputs="1">comments</option>
+            <option value="any" outputs="1">any</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="getmodqueue">
+    <p>Get modqueue for a subreddit</p>
+    <p>This node will get the modqueue for a given subreddit.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>subreddit 
+            <span class="property-type">string</span>
+        </dt>
+        <dd> the subreddit modqueue to retrieve</dd>
+        <dt>content_type 
+            <span class="property-type">string</span>
+        </dt>
+        <dd> restrict the listing to the specified type of item</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <ol class="node-ports">
+        <li>Standard output
+            <dl class="message-properties">
+                <dt>payload <span class="property-type">object</span></dt>
+                <dd>details of the reported items</dd>
+            </dl>
+        </li>
+        <li>Standard error
+            <dl class="message-properties">
+                <dt>payload <span class="property-type">string</span></dt>
+                <dd>the standard error of the command</dd>
+            </dl>
+        </li>
+    </ol>
+
+    <h3>References</h3>
+    <ul>
+        <li><a href="https://www.reddit.com/dev/api/">Reddit API docs</a> - full description of the Reddit API</li>
+        <li><a href="https://not-an-aardvark.github.io/snoowrap/">Snoowrap docs</a> - information regarding the limit and depth properties</li>
+        <li><a href='https://github.com/jcostello93/node-red-contrib-node-reddit'>node-red-contrib-node-reddit</a> - the Node-Reddit github repository</li>
+    </ul>
+
+</script>
+<!-- END GetModqueue -->

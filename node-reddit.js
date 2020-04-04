@@ -919,4 +919,42 @@ module.exports = function (RED) {
 		});
 	}
 	RED.nodes.registerType('react', ReactContent);
+
+	/***** Get Modqueue Node *****/
+	function GetModqueueNode(n) {
+		RED.nodes.createNode(this, n);
+		let node = this;
+
+		let options = parseCredentials(n);
+		const r = new snoowrap(options);
+
+		node.status({});
+		node.on('input', function (msg) {
+			node.status({ fill: 'blue', shape: 'dot', text: 'loading' });
+			let subreddit = parseField(msg, n.subreddit);
+
+			let content_type;
+
+			// Use empty object for unrestricted requests, 'only' property to restrict
+			if (n.content_type === 'any' || !n.content_type) {
+				content_type = {};
+			} else {
+				content_type = { only: n.content_type };
+			}
+
+			let responseArr = [];
+
+			r.getSubreddit(subreddit).getModqueue(content_type)
+				.then(response => {
+					copyPropertiesExceptMethods(responseArr, response, msg);
+					node.status({ fill: 'green', shape: 'dot', text: 'r/' + subreddit });
+					node.send([responseArr]);
+				}).catch(err => {
+					let errorMsg = parseError(err);
+					node.error(errorMsg, msg);
+					node.status({ fill: 'red', shape: 'dot', text: 'error' });
+				});
+		});
+	}
+	RED.nodes.registerType('getmodqueue', GetModqueueNode);
 }

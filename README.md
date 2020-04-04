@@ -16,6 +16,11 @@ For more detailed information about functionality, inputs, and outputs, visit th
 * **Delete:** delete a Reddit submission, comment, or PM.
 * **React:** save/unsave and/or vote/unvote on Reddit content. 
 
+### New: Moderator actions
+These actions require that your account has moderator access to the specified subreddit.
+
+* **Get Modqueue:** get reported items for a given subreddit
+
 ## Populating fields
 
 For all nodes other than config and stream, all text fields may be hardcoded via text or dynamically populated via mustache syntax relative to the incoming msg object.
