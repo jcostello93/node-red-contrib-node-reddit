@@ -24,28 +24,28 @@ For example, let's say you're getting hot submissions from a subreddit using the
 
 ## Example flows 
 ### Develop an interactive website that displays a subreddit. Download the [flow.](/flows/osu-website.json)
-![Nba](/screenshots/Node-Reddit-osu-website-flow3.png?raw=true "OSU website flow")
+![Nba](https://i.imgur.com/nTeOh1P.png "OSU website")
 ---
-![Nba](/screenshots/Node-Reddit-osu-website2.png?raw=true "OSU website")
+![Nba](https://i.imgur.com/rIOWclU.png "OSU website flow")
 ---
 
 ### Create a Node-RED dashboard for a subreddit. Download the [flow.](/flows/osu.json)
-![Nba](/screenshots/Node-Reddit-osu-flow.png?raw=true "OSU dashboard flow")
+![Nba](https://i.imgur.com/F3VZFfE.png "OSU dashboard flow")
 ---
-![Nba](/screenshots/Node-Reddit-osu-dashboard.png?raw=true "OSU dashboard")
+![Nba](https://i.imgur.com/qKLOEft.png "OSU dashboard")
 ---
 
 ### Create a Reddit bot that responds to a trigger. Download the [flow.](/flows/bot.json)
-![Nba](/screenshots/Node-Reddit-bot-flow-complete.png?raw=true "blot flow")
+![Nba](https://i.imgur.com/J4s6pSG.png "blot flow")
 ---
 
 ### Overwrite and delete all of your Reddit comments. Download the [flow.](/flows/overwrite-comments.json)
-![Overwrite and delete comments](/screenshots/Node-Reddit-overwrite-comments.png?raw=true "Overwrite")
+![Overwrite and delete comments](https://i.imgur.com/4um6qsB.png "Overwrite")
 
 ### Track the pulse of a subreddit by monitoring the most frequently mentioned words and sentiment of its comments. Download the [flow.](/flows/nba.json)
-![Nba](/screenshots/Node-Reddit-nba-flow2.png?raw=true "NBA flow")
+![Nba](https://i.imgur.com/fg036TL.png "NBA flow")
 ---
-![Nba](/screenshots/Node-Reddit-nba-dashboard2.png?raw=true "NBA dashboard")
+![Nba](https://i.imgur.com/xYspcgi.png "NBA dashboard")
 
 
 
